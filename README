@@ -1,0 +1,36 @@
+General Information
+-------------------
+
+This is NSIDC mapx library version 0.9.
+
+
+Mapx is free software and covered by the GNU GPL.
+
+Information and the latest version of the software can be found at 
+	    http://nsidc.org/data/tools/
+
+
+Installation
+------------
+
+See the file 'INSTALL'
+
+
+Prerequisites
+-------------
+
+Manifest
+--------
+
+Your kit should contain the following files:
+
+README			    This file
+INSTALL			    A brief installation guide
+COPYING			    The GNU General Public License
+
+
+
+>>General Description of what it does
+
+>>explain the purpose of each of the first level subdirectories in the package
+
