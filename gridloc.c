@@ -4,7 +4,7 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.6 2002-01-08 21:30:37 knowles Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.7 2003-06-23 16:32:02 haran Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -16,14 +16,16 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 #include "byteswap.h"
 
 #define usage									\
-"usage: gridloc [-pmdq -o output_name] file.gpd\n"				\
+"usage: gridloc [-Dpmdq -o output_name] file.gpd\n"				\
 "\n"										\
 " input : file.gpd  - grid parameters definition file\n"			\
 "\n"										\
 " output: grid of signed decimal latitudes and/or longitudes\n"			\
 "         4 byte floats by row\n"						\
 "\n"										\
-" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.float\n"	\
+" option: D - produce output in double precision\n"                             \
+"         o - write data to file output_name.WIDTHxHEIGHTxNBANDS.float\n"	\
+"             or, if -D specified, output_name.WIDTHxHEIGHTxNBANDS.double\n"    \
 "             otherwise output goes to stdout\n"				\
 "         p - do latitudes only\n"						\
 "         m - do longitudes only\n"						\
@@ -35,15 +37,21 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 
 #define UNDEFINED -999
 
+char *id_gridloc(void)
+{
+  return((char *)gridloc_c_rcsid);
+}
+
 int main(int argc, char *argv[])
 {
   register int i, j, k;
   int band[2], nbands;
   int nbytes, row_bytes, status, total_bytes;
   bool verbose;
-  float coord[2];
-  float delta_col, delta_row;
-  float *value, *undefined;
+  bool do_double;
+  double coord[2];
+  double delta_col, delta_row;
+  void *value, *undefined;
   char *option, *output_name, output_filename[MAX_STRING];
   static char *coord_name[2] = {"latitude", "longitude"};
   FILE *output_file;
@@ -55,6 +63,7 @@ int main(int argc, char *argv[])
   nbands = 0;
   delta_col = delta_row = 0;
   verbose = TRUE;
+  do_double = FALSE;
   output_name = NULL;
 
 /* 
@@ -65,6 +74,9 @@ int main(int argc, char *argv[])
     { switch (*option)
       { case 'q':
 	  verbose = FALSE;
+	  break;
+        case 'D':
+          do_double = TRUE;
 	  break;
 	case 'm':
 	  if (nbands < 2)
@@ -86,11 +98,11 @@ int main(int argc, char *argv[])
         case 'd':
 	  ++argv; --argc;
 	  if (argc <= 0) error_exit(usage);
-	  if (1 != sscanf(*argv, "%f", &delta_col)) error_exit(usage);
+	  if (1 != sscanf(*argv, "%lf", &delta_col)) error_exit(usage);
 	  ++argv; --argc;
 	  if (argc <= 0) error_exit(usage);
-	  if (1 != sscanf(*argv, "%f", &delta_row)) error_exit(usage);
-	  if (verbose) fprintf(stderr,"%f dx %f dy\n", delta_col, delta_row);
+	  if (1 != sscanf(*argv, "%lf", &delta_row)) error_exit(usage);
+	  if (verbose) fprintf(stderr,"%lf dx %lf dy\n", delta_col, delta_row);
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);
@@ -115,8 +127,13 @@ int main(int argc, char *argv[])
   if (verbose) fprintf(stderr,"> using %s...\n", grid_def->gpd_filename);
 
   if (NULL != output_name)
-  { sprintf(output_filename, "%s.%dx%dx%d.float", 
-	    output_name, grid_def->cols, grid_def->rows, nbands);
+  { 
+    if (!do_double)
+      sprintf(output_filename, "%s.%dx%dx%d.float", 
+	      output_name, grid_def->cols, grid_def->rows, nbands);
+    else
+      sprintf(output_filename, "%s.%dx%dx%d.double", 
+	      output_name, grid_def->cols, grid_def->rows, nbands);
     output_file = fopen(output_filename, "w");
     if (NULL == output_file) { perror(output_filename); error_exit(usage); }
   }
@@ -128,14 +145,24 @@ int main(int argc, char *argv[])
 /*
  *	allocate storage for data grids
  */
-  value = (float *)calloc(grid_def->cols, sizeof(float));
-  if (NULL == value) { perror("value"); exit(ABORT); }
-  row_bytes = grid_def->cols * sizeof(float);
+  if (!do_double) {
+    value = (float *)calloc(grid_def->cols, sizeof(float));
+    if (NULL == value) { perror("value"); exit(ABORT); }
+    row_bytes = grid_def->cols * sizeof(float);
+    undefined = (float *)calloc(grid_def->cols, sizeof(float));
+    if (NULL == undefined) { perror("undefined"); exit(ABORT); }
+    for (j = 0; j < grid_def->cols; j++)
+      *((float *)undefined + j) = UNDEFINED;
+  } else {
+    value = (double *)calloc(grid_def->cols, sizeof(double));
+    if (NULL == value) { perror("value"); exit(ABORT); }
+    row_bytes = grid_def->cols * sizeof(double);
+    undefined = (double *)calloc(grid_def->cols, sizeof(double));
+    if (NULL == undefined) { perror("undefined"); exit(ABORT); }
+    for (j = 0; j < grid_def->cols; j++)
+      *((double *)undefined + j) = UNDEFINED;
+  }
   total_bytes = 0;
-
-  undefined = (float *)calloc(grid_def->cols, sizeof(float));
-  if (NULL == undefined) { perror("undefined"); exit(ABORT); }
-  for (j = 0; j < grid_def->cols; j++) undefined[j] = UNDEFINED;
 
 /*
  *	write data 
@@ -148,7 +175,10 @@ int main(int argc, char *argv[])
       { status = inverse_grid(grid_def, j+delta_col, i+delta_row, 
 			      &(coord[0]), &(coord[1]));
 	if (!status) continue;
-	value[j] = coord[band[k]];
+	if (!do_double)
+	  *((float *)value + j) = (float)(coord[band[k]]);
+	else
+	  *((double *)value + j) = coord[band[k]];
       }
       nbytes = fwrite(value, 1, row_bytes, output_file);
       if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
