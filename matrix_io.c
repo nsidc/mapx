@@ -1,18 +1,23 @@
 /*======================================================================
- * matrix_io.c - 
- *   programs to read and write matrix data
+ * matrix_io.c - programs to read and write matrix data objects
+ *
+ * 03/7/1997 brodzik brodzik@zamboni.colorado.edu 303-492-8263
+ *
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.2  1997/02/27  21:57:38  brodzik
+ * Unit tested.
+ *
  * Revision 1.1  1997/02/27  21:54:29  brodzik
  * Initial revision
- *
  *
  *======================================================================*/
 #include <stdio.h>
 #include <define.h>
 #include <matrix.h>
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.2 1997-02-27 21:57:38 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.3 1997-03-07 19:32:44 brodzik Exp $";
 
 #define ZERO_BYTES 0;
 
