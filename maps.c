@@ -4,13 +4,14 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.6 1994-04-07 16:19:06 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.7 1994-06-14 23:38:15 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <float.h>
 #include "define.h"
 #include "maps.h"
 
@@ -128,12 +129,20 @@ float west_azimuth(float lat1, float lon1, float lat2, float lon2)
  *
  *	output: lat,lon - mid-point (decimal degrees)
  *
+ *	result: 0 = success
+ *		1 = error, lat,lon are undefined
+ *
  *----------------------------------------------------------------------*/
-void bisect(float lat1, float lon1, float lat2, float lon2, 
-	    float *lat, float *lon)
+int bisect(float lat1, float lon1, float lat2, float lon2, 
+	   float *lat, float *lon)
 { double phi1,lam1, phi2, lam2, beta;
   double x1, y1, z1, x2, y2, z2, x, y, z, d;
-  
+  static double tolerance=0;
+
+  if (0 == tolerance)
+  { tolerance = 10*DBL_EPSILON;
+  }
+
   phi1 = radians(90.0 - lat1);
   lam1 = radians(lon1);
   phi2 = radians(90.0 - lat2);
@@ -158,14 +167,16 @@ void bisect(float lat1, float lon1, float lat2, float lon2,
   y = y1 + y2;
   z = z1 + z2;
   d = sqrt(x*x + y*y + z*z);
-  
+  if (d < tolerance) return 1; /* end points are diametrically opposed */
+
 /*
  *	convert back to spherical
  */
   beta = acos(z/d);
   *lat = 90.0 - degrees(beta);
-  *lon = degrees(acos(x/(d*sin(beta))));
-  
+  *lon = degrees(atan2(y, x));
+
+  return 0;
 }
 
 /*------------------------------------------------------------------------
