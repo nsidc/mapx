@@ -9,7 +9,7 @@
 
 #include "define.h"
 
-static const char grid_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.2 1998-06-15 19:01:15 knowles Exp $";
+static const char grid_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.3 1999-08-31 20:29:17 knowles Exp $";
 
 typedef enum 
 { grid_io_READ_ONLY, 
@@ -23,6 +23,7 @@ typedef struct
 { int width, height;
   size_t datum_size;
   bool signed_data;
+  bool real_data;
   grid_io_mode io_mode;
   FILE *fp;
   char *filename;
@@ -32,8 +33,8 @@ typedef struct
 } grid_io_class;
 
 grid_io_class *init_grid_io(int width, int height, int datum_size, 
-			    bool signed_data, grid_io_mode mode, 
-			    char *filename);
+			    bool signed_data, bool real_data,
+			    grid_io_mode mode, char *filename);
 
 bool fill_grid_io(grid_io_class *this, double fill_value);
 

@@ -4,7 +4,7 @@
  * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.5 1999-04-15 17:45:33 knowles Exp $";
+static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.6 1999-08-31 20:29:32 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -26,6 +26,7 @@ static bool exchange_row_buffer(grid_io_class *this, int row);
  *	input : width, height - dimensions
  *		datum_size - number of bytes per datum (1,2,4)
  *		signed_data - TRUE iff signed else unsigned data type
+ *		real_data - TRUE iff floating point data else integer
  *		mode - input/output mode (see grid_io.h)
  *		filename - name of file to open
  *
@@ -33,12 +34,13 @@ static bool exchange_row_buffer(grid_io_class *this, int row);
  *
  *------------------------------------------------------------------------*/
 grid_io_class *init_grid_io(int width, int height, int datum_size, 
-			    bool signed_data, grid_io_mode mode,
-			    char *filename)
+			    bool signed_data, bool real_data,
+			    grid_io_mode mode, char *filename)
 { int nrows;
   grid_io_class *this;
 
-  assert(1 == datum_size || 2 == datum_size || 4 == datum_size);
+  assert(1 == datum_size || 2 == datum_size 
+	 || 4 == datum_size || 8 == datum_size);
 
 /*
  *	initialize new structure
@@ -67,6 +69,7 @@ grid_io_class *init_grid_io(int width, int height, int datum_size,
   this->height = height;
   this->datum_size = datum_size;
   this->signed_data = signed_data;
+  this->real_data = real_data;
 
 /*
  *	open data file
@@ -158,44 +161,63 @@ bool fill_grid_io(grid_io_class *this, double fill_value)
   if (!pattern) { perror("pattern buffer"); return FALSE; }
   bufp = pattern;
 
-  switch (this->datum_size * (this->signed_data ? -1 : 1))
-  { case -1: 
-      for (col = 0; col < this->width; col++)
-      { *((int1 *)bufp) = fill_value;
-        bufp += this->datum_size;
+  if (!this->real_data) {
+    switch (this->datum_size * (this->signed_data ? -1 : 1)) {
+    case -1: 
+      for (col = 0; col < this->width; col++) {
+	*((int1 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     case -2:
-      for (col = 0; col < this->width; col++)
-      { *((int2 *)bufp) = fill_value;
-        bufp += this->datum_size;
+      for (col = 0; col < this->width; col++) {
+	*((int2 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     case -4:
-      for (col = 0; col < this->width; col++)
-      { *((int4 *)bufp) = fill_value;
-        bufp += this->datum_size;
+      for (col = 0; col < this->width; col++) {
+	*((int4 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     case  1:
-      for (col = 0; col < this->width; col++)
-      { *((byte1 *)bufp) = fill_value;
-        bufp += this->datum_size;
+      for (col = 0; col < this->width; col++) {
+	*((byte1 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     case  2:
-      for (col = 0; col < this->width; col++)
-      { *((byte2 *)bufp) = fill_value;
-        bufp += this->datum_size;
+      for (col = 0; col < this->width; col++) {
+	*((byte2 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     case  4:
-      for (col = 0; col < this->width; col++)
-      { *((byte4 *)bufp) = fill_value;
-        bufp += this->datum_size;
+      for (col = 0; col < this->width; col++) {
+	*((byte4 *)bufp) = fill_value;
+	bufp += this->datum_size;
       }
       break;
     default: assert(NEVER); /* should never execute */
+    }
+  }
+  else {
+    switch (this->datum_size) {
+    case 4:
+      for (col = 0; col < this->width; col++) {
+	*((float *)bufp) = fill_value;
+	bufp += this->datum_size;
+      }
+      break;
+    case 8:
+      for (col = 0; col < this->width; col++) {
+	*((double *)bufp) = fill_value;
+	bufp += this->datum_size;
+      }
+      break;
+    default: assert(NEVER); /* should never execute */
+    }
   }
 
 /*
@@ -251,14 +273,23 @@ bool get_element_grid_io(grid_io_class *this, int row, int col, double *value)
 
   bufp = this->data[row - this->start_row] + this->datum_size*col;
 
-  switch (this->datum_size * (this->signed_data ? -1 : 1))
-  { case -1: *value = (float) *((int1 *)bufp); break;
-    case -2: *value = (float) *((int2 *)bufp); break;
-    case -4: *value = (float) *((int4 *)bufp); break;
-    case  1: *value = (float) *((byte1 *)bufp); break;
-    case  2: *value = (float) *((byte2 *)bufp); break;
-    case  4: *value = (float) *((byte4 *)bufp); break;
+  if (!this->real_data) {
+    switch (this->datum_size * (this->signed_data ? -1 : 1)) {
+    case -1: *value = (double) *((int1 *)bufp); break;
+    case -2: *value = (double) *((int2 *)bufp); break;
+    case -4: *value = (double) *((int4 *)bufp); break;
+    case  1: *value = (double) *((byte1 *)bufp); break;
+    case  2: *value = (double) *((byte2 *)bufp); break;
+    case  4: *value = (double) *((byte4 *)bufp); break;
     default: assert(NEVER); /* should never execute */
+    }
+  } 
+  else {
+    switch (this->datum_size) {
+    case  4: *value = (double) *((float *)bufp); break;
+    case  8: *value = (double) *((double *)bufp); break;
+    default: assert(NEVER); /* should never execute */
+    }
   }
 
   return TRUE;
@@ -296,15 +327,25 @@ bool put_element_grid_io(grid_io_class *this, int row, int col, double value)
 
   bufp = this->data[row - this->start_row] + this->datum_size*col;
 
-  switch (this->datum_size * (this->signed_data ? -1 : 1))
-  { case -1: *((int1 *)bufp) = value; break;
+  if (!this->real_data) {
+    switch (this->datum_size * (this->signed_data ? -1 : 1)) {
+    case -1: *((int1 *)bufp) = value; break;
     case -2: *((int2 *)bufp) = value; break;
     case -4: *((int4 *)bufp) = value; break;
     case  1: *((byte1 *)bufp) = value; break;
     case  2: *((byte2 *)bufp) = value; break;
     case  4: *((byte4 *)bufp) = value; break;
     default: assert(NEVER); /* should never execute */
+    }
   }
+  else {
+    switch (this->datum_size) {
+    case  4: *((float *)bufp) = value; break;
+    case  8: *((double *)bufp) = value; break;
+    default: assert(NEVER); /* should never execute */
+    }
+  }
+
 
   return TRUE;
 }
