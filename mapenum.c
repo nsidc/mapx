@@ -4,7 +4,7 @@
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.5 1994-10-21 23:27:18 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.6 1994-11-02 17:43:42 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +25,7 @@ static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 
   " option: d cdb_filename - specify coastline database\n"\
   "                          default is global.cdb\n"\
   "         s map_style - specify style (default 0)\n"\
-  "         g grat_style - specify graticule style (default 1)\n"
+  "         g grat_style - specify graticule style (default none)\n"
 
 #define CDB_DEFAULT "global.cdb"
 #define MAP_STYLE_DEFAULT 0
@@ -37,18 +37,17 @@ static int pen_style = MAP_STYLE_DEFAULT;
 static int move_pu(float,float);
 static int draw_pd(float,float);
 
-/*------------------------------------------------------------------------
- * mapenum [-d cdb_file -s map_style -g grat_style] gpd_file
- *
- *	input : gpd_file - grid parameters definition
- *
- *	output: stdout - list of map feature vectors of the form:
- *			 style x1 y1 x2 y2
- *
- *------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
-{ int map_style = MAP_STYLE_DEFAULT, grat_style = GRAT_STYLE_DEFAULT;
-  char *option, *gpd_filename, *cdb_filename = NULL;
+{ int map_style, grat_style, do_grat;
+  char *option, *gpd_filename, *cdb_filename;
+
+/*
+ *	set defaults
+ */
+  map_style=MAP_STYLE_DEFAULT;
+  grat_style=GRAT_STYLE_DEFAULT;
+  do_grat = FALSE;
+  cdb_filename = strdup(CDB_DEFAULT);
 
 /*
  *	get command line options
@@ -64,12 +63,15 @@ int main(int argc, char *argv[])
 	  ++argv; --argc;
 	  if (sscanf(*argv, "%d", &map_style) != 1)
 	  { map_style = MAP_STYLE_DEFAULT;
+	    --argv; ++argc;
 	  }
 	  break;
 	case 'g':
+	  do_grat = TRUE;
 	  ++argv; --argc;
 	  if (sscanf(*argv, "%d", &grat_style) != 1)
 	  { grat_style = GRAT_STYLE_DEFAULT;
+	    --argv; ++argc;
 	  }
 	  break;
 	default:
@@ -89,7 +91,6 @@ int main(int argc, char *argv[])
   grid = init_grid(gpd_filename);
   if (grid == NULL) error_exit("mapenum: error initializing grid");
 
-  if (cdb_filename == NULL) cdb_filename = strdup(CDB_DEFAULT);
   cdb = init_cdb(cdb_filename);
   if (cdb == NULL) error_exit("mapenum: error openning coastline database");
 
@@ -97,9 +98,10 @@ int main(int argc, char *argv[])
   draw_cdb(cdb, grid->mapx->west, grid->mapx->east, 
 	   CDB_INDEX_LON_MIN, move_pu, draw_pd);
 
-  pen_style = grat_style;
-  draw_graticule(grid->mapx, move_pu, draw_pd, NULL);
-
+  if (do_grat)
+  { pen_style = grat_style;
+    draw_graticule(grid->mapx, move_pu, draw_pd, NULL);
+  }
 }
 
 static float pen_x1, pen_y1, pen_x2, pen_y2;
