@@ -4,7 +4,7 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.9 1996-05-22 00:20:17 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.10 1996-05-22 00:24:53 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,6 +91,8 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
 float arc_length_km (float lat1, float lon1, float lat2, float lon2)
 { double phi1, lam1, phi2, lam2, beta;
 
+  if (lat1 == lat2 && lon1 == lon2) return (float)0;
+
   phi1 = radians(lat1);
   lam1 = radians(lon1);
   phi2 = radians(lat2);
@@ -117,7 +119,7 @@ float west_azimuth(float lat1, float lon1, float lat2, float lon2)
 
   sin_A = cos(phi2)*sin(dlam);
   cos_A = cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam);
-  A = atan2(sin_A, cos_A);
+  A = (cos_A != 0 ? atan2(sin_A, cos_A) : 0);
 
   return (float)degrees(A);
 }
