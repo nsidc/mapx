@@ -4,7 +4,7 @@
  * 27-Apr-1999 Derek van Westrum vanwestr@ingrid.colorado.edu 303-492-1846
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.3 2002-01-08 21:32:54 knowles Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.4 2002-04-04 21:06:51 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.3 $\n"                                                      \
+"$Revision: 1.4 $\n"                                                      \
 "usage: irregrid [-wcnv -i value -k kernel"                                \
 " -p value -r value -z beta_file -o outputfile] \n"                        \
 "              from_data to.gpd \n"			                   \
@@ -526,8 +526,8 @@ int normalize_inv_dist(grid_class *to_grid,float **to_data,float **to_data_beta,
   int r, s;
   int npts=0;
 
-  for (r = 0; r < to_grid->rows; r++) {
-    for (s = 0; s < to_grid->cols; s++) {
+  for (r = 0; r < to_grid->cols; r++) {
+    for (s = 0; s < to_grid->rows; s++) {
       if (to_data_beta[s][r] != 0.) {
 	to_data[s][r] = to_data[s][r]/to_data_beta[s][r];
 	npts++;
