@@ -6,6 +6,10 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.5  1997/03/22  22:53:48  brodzik
+ * Walkthrough changes: added error condition checks,
+ * changed some variable names.
+ *
  * Revision 1.4  1997/03/07  19:42:42  brodzik
  * Took _data off names. Reran unit test.
  *
@@ -19,12 +23,11 @@
  * Initial revision
  *
  *======================================================================*/
-#include <stdio.h>
 #include <define.h>
 #include <matrix.h>
 #include <matrix_io.h>
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.5 1997-03-22 22:53:48 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.6 1997-09-26 17:36:41 brodzik Exp $";
 
 #define ZERO_BYTES 0;
 
@@ -144,6 +147,59 @@ size_t write_matrix (char *file_name, void **data,
   return bytes_written;
 }
 
+/*----------------------------------------------------------------------
+ *  initialize_matrix - allocates memory for and reads matrix object 
+ *                      from external file
+ * 
+ *     input : *grid - pointer to (initialized) grid_class
+ *             size - size in bytes of one matrix element
+ *             *file_name - filename to read from (if NULL, matrix
+ *                         initialized to zeroes)
+ *             *object_name - string to use for verbose output and errors
+ *             verbose - verbose flag
+ * 
+ *    output: memory is initialized to contents of filename when 
+ *              filename is non-NULL, zeroes otherwise
+ *    result: pointer to newly allocated and initialized matrix
+ *----------------------------------------------------------------------*/
+void **initialize_matrix (grid_class *grid,
+			  size_t size,
+			  const char *file_name, 
+			  const char *object_name, 
+			  bool verbose) {
+
+  void **data;
+  
+  if (NULL == grid) {
+    fprintf(stderr,"initialize_matrix: grid error, uninitialized grid\n");
+    return NULL;
+  }
+
+  data = matrix(grid->rows,grid->cols,size,TRUE);
+  if (NULL == data) {
+    fprintf(stderr, "initialize_matrix: memory allocation error for %s.",
+	    object_name);
+    return NULL;
+  }
+  else if (verbose)
+    fprintf(stderr,"> initialize_matrix: Allocated grid for %s.\n",
+	    object_name);
+
+  if (NULL != file_name) {
+    if (0 == read_matrix (data, file_name, 
+			  grid->rows,grid->cols,size)) {
+      fprintf(stderr,"initialize_matrix: error reading %s data from %s.\n",
+	      object_name, file_name);
+      free(data);
+      return NULL;
+    }
+    else if (verbose)
+      fprintf(stderr,"> initialize_matrix: read %s data from %s.\n",
+	      object_name, file_name);
+  }
+
+  return data;
+}
 
 
 
