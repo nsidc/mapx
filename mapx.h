@@ -28,7 +28,7 @@
  */
 typedef struct {
   float lat0, lon0, lat1, lon1;
-  float Rg, sin_phi1, cos_phi1, sin_lam1, cos_lam1;
+  float Rg, sin_phi1, cos_phi1, sin_phi0, cos_phi0, sin_lam1, cos_lam1;
   float rotation, scale;
   float south, north, west, east;
   float center_lat, center_lon, label_lat, label_lon;
@@ -37,8 +37,9 @@ typedef struct {
   int map_stradles_180;
   int cil_detail, bdy_detail, riv_detail;
   double equitorial_radius, flattening;
-  double eccentricity, e2, e4, e6, qp, Rq, q1;
-  double beta1, sin_beta1, cos_beta1, m1, D, phis, kz;  
+  double eccentricity, e2, e4, e6, e8, qp, Rq, q1;
+  double beta1, sin_beta1, cos_beta1, D, phis, kz;
+  double rho0, n, F, m0, m1, t0, t1;
   int (*geo_to_map)(float, float, float *, float *);
   int (*map_to_geo)(float, float, float *, float *);
   FILE *mpp_file;
