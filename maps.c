@@ -4,7 +4,7 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.7 1994-06-14 23:38:15 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.8 1994-07-18 13:35:13 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,14 +89,14 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
  *
  *----------------------------------------------------------------------*/
 float arc_length_km (float lat1, float lon1, float lat2, float lon2)
-{ double beta;
-  
-  lat1 = radians(lat1);
-  lon1 = radians(lon1);
-  lat2 = radians(lat2);
-  lon2 = radians(lon2);
-  beta = acos( cos(lat1) * cos(lat2) * cos(lon1-lon2)
-	      + sin(lat1) * sin(lat2) );
+{ double phi1, lam1, phi2, lam2, beta;
+
+  phi1 = radians(lat1);
+  lam1 = radians(lon1);
+  phi2 = radians(lat2);
+  lam2 = radians(lon2);
+  beta = acos( cos(phi1) * cos(phi2) * cos(lam1-lam2)
+	      + sin(phi1) * sin(phi2) );
   return (float)(mapx_Re_km * beta);
 }
 
