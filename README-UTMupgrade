@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 06/20/03
+Terry Haran 06/25/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
@@ -28,7 +28,9 @@ make allall
 If you don't install mapx into your home directory, you'll have to modify
 TOPDIR in Makefile. Also if you're not on a linux system and/or you want
 to turn on debugging, you'll have to use one of the alternate definitions
-of CONFIG_FLAGS in Makefile.
+of CONFIG_FLAGS in Makefile. Note that if you turn on debugging, you'll
+get different results for the unit tests. The expected results were
+produced with optimization set to -O and debugging turned off.
 
 IMPORTANT NOTE: All code that calls mapx routines forward_grid() and
 inverse_grid() will have to be modified. The (float) and (more importantly)
@@ -634,7 +636,10 @@ also made:
 
        No screen output should be produced on any system. To produce
        screen output for each test regardless of the outcome, use the
-       -v option.
+       -v option. Note that you'll have to have compiled the mapx library
+       with optimization set to -O and debugging turned off since this is
+       how the expected results files were created (see CONFIG_FLAGS in
+       the Makefile).
 
     c) You can also create a new set of unit tests for a new target (or
        regenerate the unit tests for an existing target) using
