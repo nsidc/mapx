@@ -6,7 +6,7 @@
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.12 1994-04-07 16:20:46 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.13 2002-01-08 21:05:16 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -893,7 +893,7 @@ int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
       lower = 0;
       upper = stop;
     default:
-      return;
+      assert(NEVER);
   }
 
 /*

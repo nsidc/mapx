@@ -32,7 +32,7 @@ int init_lambert_conic_conformal_ellipsoid(mapx_class *current)
 
 int lambert_conic_conformal_ellipsoid (mapx_class *current, float lat, float lon, float *u, float *v)
 {
-  double phi, lam, x, y, chi, rho, theta, sin_phi, t;
+  double phi, lam, x, y, rho, theta, sin_phi, t;
   
   lam = lon - current->lon0;
   NORMALIZE (lam);

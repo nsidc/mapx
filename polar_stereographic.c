@@ -125,7 +125,7 @@ int polar_stereographic_ellipsoid(mapx_class *current, float lat, float lon,
 					 float *u, float *v)
 {
   float x, y;
-  float phi, lam, rho, t, m1, temp1, temp2;
+  float phi, lam, rho, t;
   float numerator, denominator;
     
   if (90.0 == current->lat0)
