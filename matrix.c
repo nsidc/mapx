@@ -4,6 +4,8 @@
  * 13-Jan-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.8 2003-06-24 22:48:11 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +13,10 @@
 #include "define.h"
 #include "matrix.h"
 
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.7 1996-03-07 23:19:40 knowles Exp $";
+char *id_matrix(void)
+{
+  return((char *)matrix_c_rcsid);
+}
 
 /*------------------------------------------------------------------------
  * matrix - allocate 2-D matrix

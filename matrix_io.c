@@ -4,13 +4,18 @@
  * 03/7/1997 brodzik brodzik@zamboni.colorado.edu 303-492-8263
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
+static const char matrix_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.9 2003-06-24 22:49:41 haran Exp $";
+
 #include "define.h"
 #include "matrix.h"
 #include "matrix_io.h"
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.8 1997-10-03 20:47:03 root Exp $";
-
 #define ZERO_BYTES 0;
+
+char *id_matrix_io(void)
+{
+  return((char *)matrix_io_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * read_matrix
