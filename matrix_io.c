@@ -6,6 +6,9 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.4  1997/03/07  19:42:42  brodzik
+ * Took _data off names. Reran unit test.
+ *
  * Revision 1.3  1997/03/07  19:32:44  brodzik
  * Added NSIDC standard file header.
  *
@@ -19,8 +22,9 @@
 #include <stdio.h>
 #include <define.h>
 #include <matrix.h>
+#include <matrix_io.h>
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.4 1997-03-07 19:42:42 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.5 1997-03-22 22:53:48 brodzik Exp $";
 
 #define ZERO_BYTES 0;
 
@@ -29,8 +33,8 @@ static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,
  *
  *	input : file_name - complete data file name
  *		data - pointer to matrix
- *		rows,cols - size of data grid
- *              size - size (in bytes) of data element
+ *		rows,cols - dimensions of data grid
+ *              element_size - size (in bytes) of one data element
  *
  *      output : data - returned with 2D matrix read from file_name
  *
@@ -40,14 +44,26 @@ static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,
  *
  *----------------------------------------------------------------------*/
 size_t read_matrix (void **data, char *file_name, 
-		    int rows, int cols, size_t size)
+		    int rows, int cols, size_t element_size)
 {
   int i;
-  size_t nbytes, row_bytes;
-  size_t read_bytes;
+  size_t nbytes, bytes_per_row;
+  size_t bytes_read;
   FILE *fp;
 
-  read_bytes=ZERO_BYTES;
+  if (0 == rows || 0 == cols || 0 == element_size) {
+    fprintf(stderr,"read_matrix: zero matrix descriptors: "\
+	    "rows=%d, cols=%d, element_size=%ld\n",
+	    rows,cols,element_size);
+    return ZERO_BYTES;
+  }
+
+  if (NULL == data) {
+    fprintf(stderr,"read_matrix: NULL data pointer\n");
+    return ZERO_BYTES;
+  }
+
+  bytes_read=ZERO_BYTES;
 
   fp = fopen (file_name, "rb");
   if (fp == NULL) { 
@@ -55,18 +71,18 @@ size_t read_matrix (void **data, char *file_name,
     return ZERO_BYTES; 
   }
 
-  row_bytes = cols*size;
+  bytes_per_row = cols*element_size;
   for (i=0; i < rows; i++)
-    { nbytes = fread (data[i], 1, row_bytes, fp);
-      if (nbytes != row_bytes) { 
+    { nbytes = fread (data[i], 1, bytes_per_row, fp);
+      if (nbytes != bytes_per_row) { 
 	perror(file_name); 
 	return ZERO_BYTES; 
       }
-      read_bytes += nbytes;
+      bytes_read += nbytes;
     }
 
   fclose (fp);
-  return read_bytes;
+  return bytes_read;
 }
 
 
@@ -76,8 +92,8 @@ size_t read_matrix (void **data, char *file_name,
  *
  *	input : file_name - complete data file name
  *		data - pointer to matrix
- *		rows,cols - size of data grid
- *              size - size (in bytes) of data element
+ *		rows,cols - dimensions of data grid
+ *              element_size - size (in bytes) of one data element
  *
  *      output : n/a
  *
@@ -87,14 +103,26 @@ size_t read_matrix (void **data, char *file_name,
  *
  *----------------------------------------------------------------------*/
 size_t write_matrix (char *file_name, void **data, 
-		     int rows, int cols, size_t size)
+		     int rows, int cols, size_t element_size)
 {
   int i;
-  size_t nbytes, row_bytes;
-  size_t written_bytes;
+  size_t nbytes, bytes_per_row;
+  size_t bytes_written;
   FILE *fp;
 
-  written_bytes=ZERO_BYTES;
+  if (0 == rows || 0 == cols || 0 == element_size) {
+    fprintf(stderr,"write_matrix: zero matrix descriptors: "\
+	    "rows=%d, cols=%d, element_size=%ld\n",
+	    rows,cols,element_size);
+    return ZERO_BYTES;
+  }
+
+  if (NULL == data) {
+    fprintf(stderr,"write_matrix: NULL data pointer\n");
+    return ZERO_BYTES;
+  }
+
+  bytes_written=ZERO_BYTES;
 
   fp = fopen (file_name, "wb");
   if (fp == NULL) { 
@@ -102,18 +130,18 @@ size_t write_matrix (char *file_name, void **data,
     return ZERO_BYTES; 
   }
 
-  row_bytes = cols*size;
+  bytes_per_row = cols*element_size;
   for (i=0; i < rows; i++)
-    { nbytes = fwrite (data[i], 1, row_bytes, fp);
-      if (nbytes != row_bytes) { 
+    { nbytes = fwrite (data[i], 1, bytes_per_row, fp);
+      if (nbytes != bytes_per_row) { 
 	perror(file_name); 
 	return ZERO_BYTES; 
       }
-      written_bytes += nbytes;
+      bytes_written += nbytes;
     }
 
   fclose (fp);
-  return written_bytes;
+  return bytes_written;
 }
 
 
