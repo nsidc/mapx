@@ -4,7 +4,7 @@
  * 19-Mar-1998 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.1 1998-06-15 19:23:14 knowles Exp $";
+static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.2 1999-04-15 17:44:45 knowles Exp $";
 
 #include "define.h"
 #include "grids.h"
@@ -406,11 +406,11 @@ static int distribution(grid_class *from_grid, grid_class *to_grid,
   original = to_data;
   basename = strdup(original->filename);
   extension = strrchr(basename, '.');
-  if (extension) *extension++ = '\0';
+  if (extension) { *extension = '\0'; extension += 1; }
 
   for (bin = 0; bin < nbins; bin++)
   { 
-    sprintf(filename, extension ? "%s-%2.2d.%s" : "%s-%2.2d",
+    sprintf(filename, extension ? "%s%2.2d.%s" : "%s%2.2d",
 	    basename, bin+mask, extension);
     to_data = init_grid_io(original->width, original->height,
 			   original->datum_size, original->signed_data,
