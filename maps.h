@@ -32,7 +32,8 @@
 void draw_graticule(mapx_class *mapx, void (*move_pu)(float lat, float lon),
 		    void (*draw_pd)(float lat, float lon),
 		    void (*label)(char *string, float lat, float lon));
-double arc_length_km (float lat1, float lon1, float lat2, float lon2);
+float arc_length_km (float lat1, float lon1, float lat2, float lon2);
+float west_azimuth(float lat1, float lon1, float lat2, float lon2);
 void bisect(float lat1, float lon1, float lat2, float lon2, 
 	    float *lat, float *lon);
 int sscanf_lat_lon(char *readln, float *lat, float *lon);

@@ -1,7 +1,7 @@
 /*========================================================================
  * maps - map utility functions
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.3 1993-09-24 11:17:01 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.4 1993-10-22 09:48:45 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,7 +84,7 @@ void draw_graticule(mapx_class *mapx, void (*move_pu)(float lat, float lon),
  *	input : lat1,lon1, lat2,lon2 - in decimal degrees
  *
  *----------------------------------------------------------------------*/
-double arc_length_km (float lat1, float lon1, float lat2, float lon2)
+float arc_length_km (float lat1, float lon1, float lat2, float lon2)
 { double beta;
   
   lat1 = radians(lat1);
@@ -93,7 +93,29 @@ double arc_length_km (float lat1, float lon1, float lat2, float lon2)
   lon2 = radians(lon2);
   beta = acos( cos(lat1) * cos(lat2) * cos(lon1-lon2)
 	      + sin(lat1) * sin(lat2) );
-  return (mapx_Re_km * beta);
+  return (float)(mapx_Re_km * beta);
+}
+
+/*----------------------------------------------------------------------
+ * west_azimuth - azimuth west of north
+ *
+ *	input : lat1,lon1, lat2,lon2 (decimal degrees)
+ *
+ *	result: signed angle west of north from pt. 1 to 2 (decimal degrees)
+ *
+ *----------------------------------------------------------------------*/
+float west_azimuth(float lat1, float lon1, float lat2, float lon2)
+{ double phi1, phi2, dlam, sin_A, cos_A, A;
+
+  phi1 = radians(lat1);
+  phi2 = radians(lat2);
+  dlam = radians(lon1 - lon2);
+
+  sin_A = cos(phi2)*sin(dlam);
+  cos_A = cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam);
+  A = atan2(sin_A, cos_A);
+
+  return (float)degrees(A);
 }
 
 /*----------------------------------------------------------------------
