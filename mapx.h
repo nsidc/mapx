@@ -2,6 +2,7 @@
  * mapx.h - definitions for map projection routines
  *
  *	2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ *      15-Dec-1992 R.Swick added constants for ellipsoid projections
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
@@ -35,6 +36,9 @@ typedef struct {
   float T00, T01, T10, T11, u0, v0;
   int map_stradles_180;
   int cil_detail, bdy_detail, riv_detail;
+  double equitorial_radius, flattening;
+  double eccentricity, e2, e4, e6, qp, Rq, q1;
+  double beta1, sin_beta1, cos_beta1, m1, D, phis, kz;  
   int (*geo_to_map)(float, float, float *, float *);
   int (*map_to_geo)(float, float, float *, float *);
   FILE *mpp_file;
