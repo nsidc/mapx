@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest_new_target.pl,v 1.1 2003-05-14 16:01:44 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest_new_target.pl,v 1.2 2003-05-14 17:02:35 haran Exp $
 #
 
 #
@@ -54,15 +54,16 @@ if (@ARGV != 1) {
 my $verbose_string = $verbose ? "-v" : "";
 my $tagout = $ARGV[0];
 my $exit_value = 0;
-my @tags_in = ("other", "snyder", "tilecalc");
+my @tagsin = ("other", "snyder", "tilecalc");
 
 #
 #  Run utest.pl for each type of gpd file,
 #  specifying that a new gpd file should be created for each
 #
-my $tag_in;
-foreach $tag_in (@tags_in) {
-    my $command = "./utest.pl $verbose_string -o $tagout -c $tag_in*.gpd";
+my $tagin;
+foreach $tagin (@tagsin) {
+    my $command =
+	"./utest.pl $verbose_string -o $tagout -c $tagin/$tagin*.gpd";
     my $this_exit_value = system($command);
     if ($this_exit_value) {
 	$exit_value = $this_exit_value;
