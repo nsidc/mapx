@@ -4,15 +4,16 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.16 1994-04-08 11:00:34 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.17 1994-04-08 15:38:45 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
 #
 #	installation directories
 #
-LIBDIR = /usr/local/lib
-INCDIR = /usr/local/include
+TOPDIR = /usr/local
+LIBDIR = $(TOPDIR)/lib
+INCDIR = $(TOPDIR)/include
 
 #
 #	commands
