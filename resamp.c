@@ -4,7 +4,7 @@
  * 19-Mar-1998 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.3 2000-05-22 15:34:16 knowles Exp $";
+static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.4 2002-05-16 19:52:29 knowlesk Exp $";
 
 #include "define.h"
 #include "grids.h"
@@ -270,8 +270,8 @@ main (int argc, char *argv[])
     if (streq(from_grid->gpd_filename, to_grid->gpd_filename))
     { resample = (mask_only ? reduction : minification);
     }
-    else if ((normalized_grid_scale(from_grid)
-	      / normalized_grid_scale(to_grid)) > 2) 
+    else if ((normalized_grid_scale(to_grid)
+	      / normalized_grid_scale(from_grid)) > 2) 
 /* 
  *	to cells are more than twice as big as from cells
  */
