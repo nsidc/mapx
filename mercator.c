@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * mercator
  *------------------------------------------------------------------------*/
+static const char mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mercator.c,v 1.2 2003-06-24 22:55:08 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_mercator(void)
+{
+  return((char *)mercator_c_rcsid);
+}
 
 int init_mercator(mapx_class *current)
 { 
@@ -12,9 +19,9 @@ int init_mercator(mapx_class *current)
   return 0;
 }
 
-int mercator(mapx_class *current, float lat, float lon, float *u, float *v)
+int mercator(mapx_class *current, double lat, double lon, double *x, double *y)
 {
-  float x, y, dlon;
+  double dlon;
   double phi, lam;
   
   dlon = lon - current->lon0;
@@ -23,22 +30,23 @@ int mercator(mapx_class *current, float lat, float lon, float *u, float *v)
   phi = RADIANS (lat);
   lam = RADIANS (dlon);
   
-  x =  current->Rg * lam;
-  y =  current->Rg * log (tan (PI/4 + phi/2));
+  *x =  current->Rg * lam;
+  *y =  current->Rg * log (tan (PI/4 + phi/2));
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_mercator(mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_mercator(mapx_class *current,
+		     double x, double y, double *lat, double *lon)
 {
-  double phi, lam, x, y;
+  double phi, lam;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   phi = PI/2 - 2*atan(exp(-y/current->Rg));
   lam = x/current->Rg;
   
