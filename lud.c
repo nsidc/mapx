@@ -9,13 +9,18 @@
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
+static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.4 2003-06-24 22:38:33 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "define.h"
 #include "lud.h"
 
-static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.3 1994-04-07 16:29:50 knowles Exp $";
+char *id_lud(void)
+{
+  return((char *)lud_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * design - calculate xT*x and xT*y
