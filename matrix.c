@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.4 1994-04-07 16:27:08 knowles Exp $";
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.5 1994-12-06 02:08:36 knowles Exp $";
 
 /*------------------------------------------------------------------------
  * matrix - allocate 2-D matrix
@@ -20,7 +20,8 @@ static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.
  *
  *	result: pointer to column of pointers to rows
  *
- *	note: assumes all pointers are the same size, sizeof(void *)
+ *	note: resources can be de-allocated using the normal free routine
+ *		assumes all pointers are the same size, sizeof(void *)
  *		currently ignores zero flag (i.e. always clears block)
  *
  *----------------------------------------------------------------------*/
