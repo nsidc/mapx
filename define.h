@@ -72,7 +72,7 @@ typedef long int int4;
 #define BYTE1_BITS CHAR_BIT
 #define BYTE1_MAX UCHAR_MAX
 #define BYTE2_MAX USHRT_MAX
-#define BYTE4_MAX ULOANG_MAX
+#define BYTE4_MAX ULONG_MAX
 
 #define INT1_MAX SCHAR_MAX
 #define INT2_MAX SHRT_MAX
