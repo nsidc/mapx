@@ -4,7 +4,7 @@
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.7 2002-01-08 21:39:47 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.8 2003-06-24 22:40:41 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +34,13 @@ static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 
 static grid_class *grid;
 static cdb_class *cdb;
 static int pen_style = MAP_STYLE_DEFAULT;
-static int move_pu(float,float);
-static int draw_pd(float,float);
+static int move_pu(double,double);
+static int draw_pd(double,double);
+
+char *id_mapenum(void)
+{
+  return((char *)mapenum_c_rcsid);
+}
 
 int main(int argc, char *argv[])
 { int map_style, grat_style, do_grat;
@@ -106,7 +111,7 @@ int main(int argc, char *argv[])
   exit(EXIT_SUCCESS);
 }
 
-static float pen_x1, pen_y1, pen_x2, pen_y2;
+static double pen_x1, pen_y1, pen_x2, pen_y2;
 
 /*------------------------------------------------------------------------
  * move_pu
@@ -114,7 +119,7 @@ static float pen_x1, pen_y1, pen_x2, pen_y2;
  *	input : lat, lon
  *
  *------------------------------------------------------------------------*/
-static int move_pu(float lat, float lon)
+static int move_pu(double lat, double lon)
 {
   (void) forward_grid(grid, lat, lon, &pen_x1, &pen_y1);
   return 0;
@@ -126,12 +131,12 @@ static int move_pu(float lat, float lon)
  *	input : lat, lon
  *
  *------------------------------------------------------------------------*/
-static int draw_pd(float lat, float lon)
+static int draw_pd(double lat, double lon)
 { int on_grid;
 
   on_grid = forward_grid(grid, lat, lon, &pen_x2, &pen_y2);
   if (on_grid && within_mapx(grid->mapx, lat, lon))
-  { printf("%d %f %f %f %f\n", pen_style, pen_x1, pen_y1, pen_x2, pen_y2);
+  { printf("%d %lf %lf %lf %lf\n", pen_style, pen_x1, pen_y1, pen_x2, pen_y2);
   }
   pen_x1 = pen_x2;
   pen_y1 = pen_y2;
