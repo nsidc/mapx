@@ -1,11 +1,11 @@
 #========================================================================
 # Makefile for maps library
 #
-# 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
+# 11-Feb-1993 K.Knowles 303-492-0644  knowlesk@kryos.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.54 2004-01-13 19:40:28 knowlesk Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.55 2004-01-22 22:13:40 knowlesk Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -41,13 +41,14 @@ COMPRESS = gzip
 #	archive file name
 #
 TARFILE = maps.tar
-#TARFILE = mapsnew.tar
 
 #
 #	debug or optimization settings
 #
 #	on least significant byte first machines (Intel, Vax)
 #	add -DLSB1ST option to enable byteswapping of cdb files
+#	for other architectures (Sun, SGI, HP, etc.) do _not_ use
+#	the -DLSB1ST flag
 #
 CONFIG_CFLAGS = -O -DLSB1ST
 #CONFIG_CFLAGS = -O
