@@ -4,7 +4,7 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.8 1994-07-18 13:35:13 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.9 1996-05-22 00:20:17 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,12 +129,12 @@ float west_azimuth(float lat1, float lon1, float lat2, float lon2)
  *
  *	output: lat,lon - mid-point (decimal degrees)
  *
- *	result: 0 = success
- *		1 = error, lat,lon are undefined
+ *	result: TRUE == success
+ *		FALSE == error, lat,lon are undefined
  *
  *----------------------------------------------------------------------*/
-int bisect(float lat1, float lon1, float lat2, float lon2, 
-	   float *lat, float *lon)
+bool bisect(float lat1, float lon1, float lat2, float lon2, 
+	    float *lat, float *lon)
 { double phi1,lam1, phi2, lam2, beta;
   double x1, y1, z1, x2, y2, z2, x, y, z, d;
   static double tolerance=0;
@@ -167,7 +167,7 @@ int bisect(float lat1, float lon1, float lat2, float lon2,
   y = y1 + y2;
   z = z1 + z2;
   d = sqrt(x*x + y*y + z*z);
-  if (d < tolerance) return 1; /* end points are diametrically opposed */
+  if (d < tolerance) return FALSE; /* end points are diametrically opposed */
 
 /*
  *	convert back to spherical
@@ -176,7 +176,7 @@ int bisect(float lat1, float lon1, float lat2, float lon2,
   *lat = 90.0 - degrees(beta);
   *lon = degrees(atan2(y, x));
 
-  return 0;
+  return TRUE;
 }
 
 /*------------------------------------------------------------------------
@@ -349,4 +349,200 @@ FILE *search_path_fopen(char *filename, const char *pathvar, const char *mode)
   if (pathvalue != NULL) free(pathvalue);
 
   return fp;
+}
+
+/*------------------------------------------------------------------------
+ * ellipsoid_radius - ellipsoidal radius at given latitude
+ *
+ *	input : sin_phig, cos_phig - sin and cosine of 
+ *				     parametric latitude
+ *		Ae2 - equatorial radius squared
+ *		Be2 - polar radius squared
+ *		
+ *	result: ellipsoidal radius at given latitude
+ *
+ *------------------------------------------------------------------------*/
+double ellipsoid_radius(double sin_phig, double cos_phig, 
+			double Ae2, double Be2)
+{ 
+  return sqrt(Ae2*Be2 / (Ae2*sin_phig*sin_phig + Be2*cos_phig*cos_phig));
+}
+
+/*------------------------------------------------------------------------
+ * geo_to_rectangular - convert geographic to rectangular coordinates
+ *
+ *	input : lat, lon - geodetic coord.s (decimal degrees)
+ *		Ae2 - equatorial radius squared
+ *		Be2 - polar radius squared
+ *
+ *	output: r - rectangular coord.s (same units as Ae and Be)
+ *
+ *------------------------------------------------------------------------*/
+void geo_to_rectangular(double r[3], float lat, float lon, 
+			double Ae2, double Be2)
+{ 
+  double phi, phig, lam, sin_phig, cos_phig, Re;
+
+  if (90 == lat)
+  { r[0] = r[1] = 0;
+    r[2] = sqrt(Be2);
+    return;
+  }
+  else if (-90 == lat)
+  { r[0] = r[1] = 0;
+    r[2] = -sqrt(Be2);
+    return;
+  }
+
+  assert(-90 < lat && lat < 90);
+
+  phi = radians(lat);
+  lam = radians(lon);
+  phig = atan(Be2/Ae2*tan(phi)); /* geocentric latitude */
+
+  sin_phig = sin(phig);
+  cos_phig = cos(phig);
+
+  Re = ellipsoid_radius(sin_phig, cos_phig, Ae2, Be2);
+
+  r[0] = Re*cos_phig*cos(lam);
+  r[1] = Re*cos_phig*sin(lam);
+  r[2] = Re*sin_phig;
+
+}
+
+/*------------------------------------------------------------------------
+ * stp_test - scalar triple product test 
+ *
+ *	input : r1, r2, r3 - rectangular coordinates
+ *
+ *	result: 1 == first point is to the left of the line
+ *		joining the second and third points
+ *	       -1 == to the right
+ *		0 == indeterminate
+ *
+ *------------------------------------------------------------------------*/
+static int stp_test(double r1[3], double r2[3], double r3[3])
+{ 
+  double product;
+
+  product =
+    r1[0]*r2[1]*r3[2]
+      + r2[0]*r3[1]*r1[2]
+	+ r3[0]*r1[1]*r2[2]
+	  - r3[0]*r2[1]*r1[2]
+	    - r1[0]*r3[1]*r2[2]
+	      -r2[0]*r1[1]*r3[2];
+
+  if (fabs(product) < 10*DBL_EPSILON) product = 0;
+
+  return product > 0 ? 1 : product < 0 ? -1 : 0;
+}
+
+/*------------------------------------------------------------------------
+ * point_within_polygon - determine if point is within polygon
+ *
+ *	input : pt - rectangular coord.s of point
+ *		poly - rectangular coord.s of polygon vertices
+ *		       vertices must be listed in order clockwise
+ *		num_points - number of vertices
+ *		is_convex - TRUE iff polygon is known to be convex
+ *
+ *	result: TRUE == point is definitely within polygon
+ *		FALSE == don't know (outside if is_convex)
+ *
+ *	note  : not yet implemented for non-convex polygons
+ *		always returns FALSE if is_convex == FALSE
+ *
+ *------------------------------------------------------------------------*/
+static bool point_within_polygon(double pt[3], double poly[][3],
+			  int num_points, bool is_convex)
+{ register int vertex;
+
+  if (!is_convex) return FALSE;
+
+/*
+ *	if point is inside then it will be on or to 
+ *	the right of each side, start with the last side
+ */
+  if (stp_test(pt, poly[num_points-1], poly[0]) > 0) return FALSE;
+
+/*
+ *	check the other sides
+ */
+  for (vertex = 0; vertex < num_points-1; vertex++)
+  { if (stp_test(pt, poly[vertex], poly[vertex+1]) > 0) return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*------------------------------------------------------------------------
+ * point_within_box - determine if point is within any quadrilateral
+ *
+ *	input : lat_pt, lon_pt - point (decimal degrees)
+ *		lat_box, lon_box - quadrilateral vertices (decimal degrees)
+ *		       vertices must be listed in order clockwise
+ *
+ *	result: TRUE == point is definitely within box
+ *		FALSE == point is probably not in box
+ *
+ *------------------------------------------------------------------------*/
+bool point_within_box(float lat_pt, float lon_pt, 
+		      float lat_box[4], float lon_box[4])
+{
+  register int dim, vertex, concave_vertex=-1;
+  static const char *triangle1[] = { "\0\1\2", "\1\0\3", "\2\3\0", "\3\0\1" };
+  static const char *triangle2[] = { "\0\3\2", "\1\2\3", "\2\1\0", "\3\2\1" };
+  double pt[3], box[4][3], tri[3][3];
+
+/*
+ *	convert to rectangular
+ */
+ geo_to_rectangular(pt, lat_pt, lon_pt, 1, 1);
+
+ for (vertex = 0; vertex < 4; vertex++)
+ { geo_to_rectangular(box[vertex], lat_box[vertex], lon_box[vertex], 1, 1);
+ }
+
+/*
+ *	see if any corner is concave and keep track of which one
+ */
+  for (vertex = 0; vertex < 4; vertex++)
+  { if (stp_test(box[vertex], box[(vertex+1)%4], box[(vertex+2)%4]) > 0)
+    { concave_vertex = (vertex+1)%4;
+      break;
+    }
+  }
+
+/*
+ *	divide concave quadrilaterals into two triangles
+ *	otherwise just test for four sided convex polygon
+ */
+  if (concave_vertex >= 0)
+  { 
+    for (vertex = 0; vertex < 3; vertex++)
+    { for (dim = 0; dim < 3; dim++)
+      { tri[vertex][dim] = box[triangle1[concave_vertex][vertex]][dim];
+      }
+    }
+
+    if (point_within_polygon(pt, tri, 3, TRUE)) 
+    { return TRUE;
+    }
+    else
+    { 
+      for (vertex = 0; vertex < 3; vertex++)
+      { for (dim = 0; dim < 3; dim++)
+	{ tri[vertex][dim] = box[triangle2[concave_vertex][vertex]][dim];
+	}
+      }
+
+      return point_within_polygon(pt, tri, 3, TRUE);
+    }
+  }
+  else
+  { 
+    return point_within_polygon(pt, box, 4, TRUE);
+  }
 }
