@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.12 2003-04-23 20:39:45 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.13 2003-05-02 19:32:47 haran Exp $
 #
 
 #
@@ -89,7 +89,7 @@ foreach $mppfile (@mppfiles) {
     # Run macct to get the macct actual lines
     #
 
-    my @macct_act_lines = `macct $mppfile 2>&1`;
+    my @macct_act_lines = `../macct $mppfile 2>&1`;
     my $i;
     for ($i = 0; $i < scalar(@macct_act_lines); $i++) {
 	chomp $macct_act_lines[$i];
@@ -304,7 +304,7 @@ foreach $mppfile (@mppfiles) {
 	#
 	# Run xytest and capture the screen output
 	#
-	my $command = "xytest $mppfile <$tmpfile 2>&1";
+	my $command = "../xytest $mppfile <$tmpfile 2>&1";
 	my @xytest = `$command`;
 	if (!defined(@xytest)) {
 	    print STDERR ("$script: ERROR: $mppfile:\n" .
