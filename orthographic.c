@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * orthographic
  *------------------------------------------------------------------------*/
+static const char orthographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/orthographic.c,v 1.2 2003-06-24 22:58:58 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_orthographic(void)
+{
+  return((char *)orthographic_c_rcsid);
+}
 
 int init_orthographic(mapx_class *current)
 { 
@@ -12,10 +19,10 @@ int init_orthographic(mapx_class *current)
   return 0;
 }
 
-int orthographic(mapx_class *current, float lat, float lon, float *u, float *v)
+int orthographic(mapx_class *current, double lat, double lon,
+		 double *x, double *y)
 {
-  float x, y;
-  float phi, lam, sin_phi, cos_phi, sin_lam, cos_lam, cos_beta;
+  double phi, lam, sin_phi, cos_phi, sin_lam, cos_lam, cos_beta;
   
   phi = RADIANS (lat);
   lam = RADIANS (lon - current->lon0);
@@ -30,23 +37,24 @@ int orthographic(mapx_class *current, float lat, float lon, float *u, float *v)
   if (cos_beta < 0.0) return(-1);
   
   sin_lam = sin(lam);
-  x = current->Rg * cos_phi * sin_lam;
-  y = current->Rg * (current->cos_phi1*sin_phi 
+  *x = current->Rg * cos_phi * sin_lam;
+  *y = current->Rg * (current->cos_phi1*sin_phi 
 		     - current->sin_phi1*cos_phi*cos_lam);
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_orthographic(mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_orthographic(mapx_class *current,
+			 double x, double y, double *lat, double *lon)
 {
-  double phi, lam, rho, x, y, cos_beta, sin_beta;
+  double phi, lam, rho, cos_beta, sin_beta;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   rho = sqrt(x*x + y*y);
   if (rho == 0.0)
   { phi = RADIANS (current->lat0);
