@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.38 1999-11-19 16:58:51 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.39 2000-05-22 15:36:50 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -12,7 +12,7 @@ RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.38 1999-11-19 16:58:51 knowles
 #	installation directories
 #
 TOPDIR = /usr/local
-LIBDIR = $(TOPDIR)/lib
+LIBDIR = $(TOPDIR)/lib-o32
 MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
 BINDIR = $(TOPDIR)/bin
@@ -43,7 +43,7 @@ TARFILE = maps.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
 #CONFIG_CFLAGS = -O
-CONFIG_CFLAGS = -DDEBUG -g
+CONFIG_CFLAGS = -DDEBUG -g -o32
 
 #
 #	system libraries
@@ -68,9 +68,9 @@ mercator.o mollweide.o cylindrical_equidistant.o sinusoidal.o \
 lambert_conic_conformal.o interupted_homolosine_equal_area.o \
 albers_conic_equal_area.o azimuthal_equal_area.o 
 
-SRCS = mapx.c grids.c cdb.c maps.c keyval.c $(PROJECTION_SRCS)
-HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h define.h keyval.h
-OBJS = mapx.o grids.o cdb.o maps.o keyval.o $(PROJECTION_OBJS)
+SRCS = mapx.c grids.c cdb.c maps.c keyval.c grid_io.c $(PROJECTION_SRCS)
+HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h define.h keyval.h grid_io.h
+OBJS = mapx.o grids.o cdb.o maps.o keyval.o grid_io.o $(PROJECTION_OBJS)
 
 
 all : libmaps.a install
@@ -87,13 +87,13 @@ clean :
 	- $(RM) libmaps.a $(OBJS)
 
 tar :
-	- $(CO) Makefile ppgc.ps regrid.c resamp.c grid_io.c \
+	- $(CO) Makefile ppgc.ps regrid.c resamp.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
 	- $(CP) $(INCDIR)/define.h $(INCDIR)/byteswap.h .
 	$(TAR) cvf $(TARFILE) define.h byteswap.h \
-		Makefile ppgc.ps regrid.c resamp.c grid_io.c \
+		Makefile ppgc.ps regrid.c resamp.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
@@ -112,8 +112,8 @@ gridloc: gridloc.o $(DEPEND_LIBS)
 regrid: regrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS)
 	$(INSTALL) regrid $(BINDIR)
-resamp: resamp.o grid_io.o $(DEPEND_LIBS)
-	$(CC) $(CFLAGS) -o resamp resamp.o grid_io.o $(LIBS)
+resamp: resamp.o $(DEPEND_LIBS)
+	$(CC) $(CFLAGS) -o resamp resamp.o $(LIBS)
 	$(INSTALL) resamp $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
