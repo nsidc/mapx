@@ -1,11 +1,15 @@
 /*----------------------------------------------------------------------
- * define.h - header to be included in all C source files
- *	      symbolic constants, useful macros, typedefs
- *
- * National Snow & Ice Data Center, University of Colorado, Boulder
+ * define.h - operating system dependent stuff
  *----------------------------------------------------------------------*/
 #ifndef define_h_
 #define define_h_
+
+#include <assert.h>
+#include <limits.h>
+
+#ifdef DEBUG_MALLOC
+#include "dbmalloc.h"
+#endif
 
 #ifndef FALSE
 #define FALSE 0
@@ -41,5 +45,14 @@ typedef unsigned long int byte4;
 typedef char int1;
 typedef short int int2;
 typedef long int int4;
+
+#define BYTE1_BITS CHAR_BIT
+#define BYTE1_MAX UCHAR_MAX
+#define BYTE2_MAX USHRT_MAX
+#define BYTE4_MAX ULOANG_MAX
+
+#define INT1_MAX SCHAR_MAX
+#define INT2_MAX SHRT_MAX
+#define INT4_MAX LONG_MAX
 
 #endif
