@@ -2,11 +2,10 @@
  * cdb.h - coastline database
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * $Log: not supported by cvs2svn $
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.2 1993-01-30 21:10:52 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.3 1993-02-24 10:20:38 knowles Exp $";
 
 #include <define.h>
 
@@ -176,7 +175,8 @@ typedef struct
  */
 
 cdb_class *new_cdb(void);
-cdb_class *init_cdb(char *filename, void (*move_pu)(float lat, float lon), 
+cdb_class *init_cdb(const char *cdb_filename, 
+		    void (*move_pu)(float lat, float lon), 
 		    void (*draw_pd)(float lat, float lon));
 void free_cdb(cdb_class *this);
 cdb_class *copy_of_cdb(cdb_class *this);
