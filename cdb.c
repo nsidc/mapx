@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.6 1993-09-28 13:22:42 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.7 1993-10-25 14:42:05 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -402,16 +402,16 @@ int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts)
  *
  *	input : this - pointer to cdb_class instance
  *		this->segment points to current segment
- *              move_pu - move pen up function
- *              draw_pd - draw pen down function
+ *              move_pu - move pen up function (returns TRUE on error)
+ *              draw_pd - draw pen down function (returns TRUE on error)
  *
  *	result: 0 = normal successful completion
  *		-1 = error occurred
  *
  *--------------------------------------------------------------------*/
 int draw_current_seg_cdb(cdb_class *this,
-			 void (*move_pu)(float lat, float lon), 
-			 void (*draw_pd)(float lat, float lon))
+			 int (*move_pu)(float lat, float lon), 
+			 int (*draw_pd)(float lat, float lon))
 {
   register int ipt;
   register cdb_seg_data *data;
@@ -428,7 +428,7 @@ int draw_current_seg_cdb(cdb_class *this,
  */
   lat = this->segment->ilat0 * CDB_LAT_SCALE;
   lon = this->segment->ilon0 * CDB_LON_SCALE;
-  if (move_pu != NULL) move_pu(lat, lon);
+  if (move_pu != NULL) if (move_pu(lat, lon)) return -1;
 
 /*
  *	call draw pen down for each point
@@ -437,7 +437,7 @@ int draw_current_seg_cdb(cdb_class *this,
   {  for (ipt = 0; ipt < this->npoints; data++, ipt++)
      { lat += data->dlat * CDB_LAT_SCALE;
        lon += data->dlon * CDB_LON_SCALE;
-       draw_pd(lat, lon);
+       if (draw_pd(lat, lon)) return -1;
      }
    }
 
@@ -792,15 +792,17 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
  *		start - either lat or lon depending on order
  *		stop - either lat or lon depending on order
  *		order - sort index order
- *              move_pu - move pen up function
- *              draw_pd - draw pen down function
+ *              move_pu - move pen up function (returns TRUE on error)
+ *              draw_pd - draw pen down function (returns TRUE on error)
  *
- *	result: calls draw_current_segment_cdb for each segment within bounds
+ *	result: 0 = success, -1 = error
+ *
+ *	effect: calls draw_current_segment_cdb for each segment within bounds
  *
  *--------------------------------------------------------------------*/
-void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
-	      void (*move_pu)(float lat, float lon), 
-	      void (*draw_pd)(float lat, float lon))
+int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
+	      int (*move_pu)(float lat, float lon), 
+	      int (*draw_pd)(float lat, float lon))
 {
   int split_search = FALSE;
   float lower, upper;
@@ -858,12 +860,12 @@ void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
   { for(find_segment_cdb(this,start);
 	current_seg_cdb(this) <= last;
 	next_segment_cdb(this))
-      draw_current_seg_cdb(this, move_pu, draw_pd);
+      if (draw_current_seg_cdb(this, move_pu, draw_pd)) return -1;
     for(reset_current_seg_cdb(this);
 	current_seg_cdb(this) <= last
 	&& index_limit_test_cdb(this, lower, upper);
 	next_segment_cdb(this))
-      draw_current_seg_cdb(this, move_pu, draw_pd);
+      if (draw_current_seg_cdb(this, move_pu, draw_pd)) return -1;
   }
 
 /*
@@ -874,6 +876,8 @@ void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
 	 current_seg_cdb(this) <= last
 	 && index_limit_test_cdb(this, lower, upper);
 	 next_segment_cdb(this))
-      draw_current_seg_cdb(this, move_pu, draw_pd);
+      if (draw_current_seg_cdb(this, move_pu, draw_pd)) return -1;
   }
+
+  return 0;
 }
