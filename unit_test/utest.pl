@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.17 2003-05-08 17:34:49 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.18 2003-05-09 16:07:04 haran Exp $
 #
 
 #
@@ -76,12 +76,13 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] [-c] file1 [file2...filen]
        -v - verbose
 
        -i tagin - Specifies a tagin string. The default value of tagin is
-                  \"utsgi\". If -o is not specified, then the tagin value is
-                  not used.
+                  the leading characters in the input file up to but not
+                  including the first underbar (_). If -o is not specified,
+                  then the tagin value is not used.
 
        -o tagout - Specifies a tagout string that should be used in creating an
                    output filename. All occurrences of the tagin value in
-                   each input filename is replaced with the tagout value in
+                   each input filename are replaced with the tagout value in
                    each output filename. The expected values in each input
                    file will be replaced with computed actual values in the
                    corresponding output file. Also, all occurrences of the
@@ -89,15 +90,20 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] [-c] file1 [file2...filen]
                    tagout value in the output file. If the -o option is not
                    specified, then no output file will be produced.
 
-       -c - When creating an output file, append to comment on any expected
-            line a comment which describes expected value in input file.
+       -c - When creating an output file, append the string: 
+              .vs <exp1> <exp2> in <tagin>
+                where
+                  <exp1> and <exp2> are the expected values from the input file
+            to any comment on any xytest or crtest expected line. If -o is not
+            specified, then the -c option is ignored.
 ";
         
 #
 # check out the arguments
 #
 my $verbose = 0;
-my $tagin = "utsgi";
+my $tagin = "";
+my $got_tagin = 0;
 my $tagout = "";
 my $append_comment = 0;
 my %opts;
@@ -112,6 +118,7 @@ if ($opts{v}) {
 }
 if ($opts{i}) {
     $tagin = $opts{i};
+    $got_tagin = 1;
 }
 if ($opts{o}) {
     $tagout = $opts{o};
@@ -152,9 +159,25 @@ foreach $file_in (@files_in) {
     # If creating an output file, then 
     # generate the output filename and open the output file
     #
-
     my $file_out;
     if ($tagout) {
+
+	#
+	#  If no tagin value was specifed on the command line, then
+	#  use the leading characters up to the first underbar in the
+	#  input filename for tagin.
+	#
+	if (!$got_tagin) {
+	    ($tagin) = ($file_in =~ /^([^_]*)_/);
+	}
+	if (!defined($tagin)) {
+	    $tagin = "";
+	}
+	if (!$tagin) {
+	    print STDERR ("$script: ERROR: $file_in:\n" .
+			  "Can't determine tagin\n");
+	    next;
+	}
 	$file_out = $file_in;
 	$file_out =~ s/$tagin/$tagout/g;
 	if (!open(FILE_OUT, ">$file_out")) {
@@ -202,6 +225,16 @@ foreach $file_in (@files_in) {
 	$got_xytest_inverse = ($line_in =~ /(\;|\#)\s*xytest\s+inverse/);
 	$got_crtest_forward = ($line_in =~ /(\;|\#)\s*crtest\s+forward/);
 	$got_crtest_inverse = ($line_in =~ /(\;|\#)\s*crtest\s+inverse/);
+
+	#
+	#  Assume that just "forward" or "inverse" means
+	#  "xytest forward" or "xytest inverse"
+	if (!$got_xytest_forward) {
+	    $got_xytest_forward = ($line_in =~ /(\;|\#)\s*forward/);
+	}
+	if (!$got_xytest_inverse) {
+	    $got_xytest_inverse = ($line_in =~ /(\;|\#)\s*inverse/);
+	}
 	
 	if ($got_macct || $got_gacct) {
 	    
@@ -304,6 +337,7 @@ foreach $file_in (@files_in) {
 	my $in2;
 	my $exp1;
 	my $exp2;
+	my $exp1_exp2;
 	my $act1;
 	my $act2;
 	my $comment;
@@ -345,6 +379,11 @@ foreach $file_in (@files_in) {
 		$got_expected = 1;
 		if (!defined($comment)) {
 		    $comment = "";
+		}
+		($junk, $exp1_exp2) =
+		    ($line_in =~ /(\;|\#)\s+$target_out\s+\=\s*(\S+\s+\S+)/);
+		if (!defined($exp1_exp2)) {
+		    $exp1_exp2 = "$exp1 $exp2";
 		}
 		last;
 	    }
@@ -421,7 +460,7 @@ foreach $file_in (@files_in) {
 	    &print_header2;
 	    print STDERR ("  $command $direction results:\n");
 	    print STDERR ("    $target_in in:       $in1 $in2\n");
-	    print STDERR ("    $target_out expected:     $exp1 $exp2\n" .
+	    print STDERR ("    $target_out expected:     $exp1_exp2\n" .
 			  "$blank_string$comment\n");
 	    print STDERR ("    $target_out actual:       $act1 $act2\n");
 	}
@@ -434,17 +473,17 @@ foreach $file_in (@files_in) {
 	system("rm -f $tmpfile");
 
 	#
-	#  Append to comment as necessary
-	#
-	if ($append_comment) {
-	    my $extra_blank = $comment ? "" : " ";
-	    $comment .= $extra_blank . ".vs $exp1 $exp2 in $tagin";
-	}
-
-	#
 	#  Write actual results to output file as necessary
 	#
 	if ($tagout) {
+
+	    #
+	    #  Append to comment as necessary
+	    #
+	    if ($append_comment) {
+		my $extra_blank = $comment ? "" : " ";
+		$comment .= $extra_blank . ".vs $exp1_exp2 in $tagin";
+	    }
 	    print FILE_OUT "#   $target_out = $act1 $act2 $comment\n";
 	}
 
