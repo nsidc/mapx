@@ -4,7 +4,7 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.2 1995-09-20 20:11:00 knowles Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.3 1996-05-28 17:43:41 knowles Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -13,16 +13,18 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 #include "define.h"
 #include "mapx.h"
 #include "grids.h"
+#include "byteswap.h"
 
 #define usage \
-"usage: gridloc [-o output_name -p -m -q] file.gpd\n"\
+"usage: gridloc [-s -o output_name -p -m -q] file.gpd\n"\
 "\n"\
 " input : file.gpd  - grid parameters definition file\n"\
 "\n"\
 " output: grid of signed decimal latitudes and/or longitudes\n"\
 "         4 byte integers * 100000 by row\n"\
 "\n"\
-" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.int4\n"\
+" option: s - swap bytes\n"\
+"	  o - write data to file output_name.WIDTHxHEIGHTxNBANDS.int4\n"\
 "             otherwise output goes to stdout\n"\
 "         p - do latitudes only\n"\
 "         m - do longitudes only\n"\
@@ -39,7 +41,7 @@ main (int argc, char *argv[])
   register int i, j, k;
   int band[2], nbands;
   int nbytes, row_bytes, status, total_bytes;
-  int verbose;
+  bool swap_bytes, verbose;
   float datum[2];
   int4 *data;
   char *option, *output_name, output_filename[MAX_STRING];
@@ -50,6 +52,7 @@ main (int argc, char *argv[])
 /*
  *	set defaults
  */
+  swap_bytes = FALSE;
   nbands = 0;
   verbose = TRUE;
   output_name = NULL;
@@ -62,6 +65,9 @@ main (int argc, char *argv[])
     { switch (*option)
       { case 'q':
 	  verbose = FALSE;
+	  break;
+	case 's':
+	  swap_bytes = TRUE;
 	  break;
 	case 'm':
 	  if (nbands < 2)
@@ -133,6 +139,7 @@ main (int argc, char *argv[])
 			      &(datum[0]), &(datum[1]));
 	if (!status) continue;
 	data[j] = (int4)(datum[band[k]] * SCALE_FACTOR);
+	if (swap_bytes) data[j] = SWAP4(data[j]);
       }
       nbytes = fwrite(data, 1, row_bytes, output_file);
       if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
