@@ -6,6 +6,9 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.3  1997/03/07  19:32:44  brodzik
+ * Added NSIDC standard file header.
+ *
  * Revision 1.2  1997/02/27  21:57:38  brodzik
  * Unit tested.
  *
@@ -17,12 +20,12 @@
 #include <define.h>
 #include <matrix.h>
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.3 1997-03-07 19:32:44 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.4 1997-03-07 19:42:42 brodzik Exp $";
 
 #define ZERO_BYTES 0;
 
 /*----------------------------------------------------------------------
- * read_matrix_data
+ * read_matrix
  *
  *	input : file_name - complete data file name
  *		data - pointer to matrix
@@ -36,8 +39,8 @@ static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,
  *               0 in case of error, with error message written to stderr
  *
  *----------------------------------------------------------------------*/
-size_t read_matrix_data (void **data, char *file_name, 
-			 int rows, int cols, size_t size)
+size_t read_matrix (void **data, char *file_name, 
+		    int rows, int cols, size_t size)
 {
   int i;
   size_t nbytes, row_bytes;
@@ -69,7 +72,7 @@ size_t read_matrix_data (void **data, char *file_name,
 
 
 /*----------------------------------------------------------------------
- * write_matrix_data
+ * write_matrix
  *
  *	input : file_name - complete data file name
  *		data - pointer to matrix
@@ -83,8 +86,8 @@ size_t read_matrix_data (void **data, char *file_name,
  *               0 in case of error, with error message written to stderr
  *
  *----------------------------------------------------------------------*/
-size_t write_matrix_data (char *file_name, void **data, 
-			  int rows, int cols, size_t size)
+size_t write_matrix (char *file_name, void **data, 
+		     int rows, int cols, size_t size)
 {
   int i;
   size_t nbytes, row_bytes;
