@@ -7,7 +7,9 @@
 #ifndef matrix_h_
 #define matrix_h_
 
-static const char matrix_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.h,v 1.3 1994-04-07 16:27:09 knowles Exp $";
+static const char matrix_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.h,v 1.4 1996-05-16 16:54:57 knowles Exp $";
+
+#define matrix_ZERO 1
 
 void **matrix(int rows, int cols, int bytes, int zero);
 
