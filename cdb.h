@@ -5,7 +5,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.6 1993-10-25 14:43:01 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.7 1993-10-25 14:54:11 knowles Exp $";
 
 #include <define.h>
 
@@ -186,8 +186,8 @@ cdb_class *copy_of_cdb(cdb_class *this);
 void load_all_seg_data_cdb(cdb_class *this);
 cdb_seg_data *load_current_seg_data_cdb(cdb_class *this);
 int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts);
-int draw_current_seg_cdb(cdb_class *this, void (*move_pu)(float,float),
-			 void (*draw_pd)(float,float));
+int draw_current_seg_cdb(cdb_class *this, int (*move_pu)(float,float),
+			 int (*draw_pd)(float,float));
 void list_cdb(cdb_class *this, int verbose);
 void sort_index_cdb(cdb_class *this, cdb_index_sort order);
 cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value);
@@ -196,6 +196,6 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
 int segment_bounds_test_cdb(cdb_class *this, float south, float north,
 			    float west, float east);
 int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
-	      void (*move_pu)(float,float), void (*draw_pd)(float,float));
+	      int (*move_pu)(float,float), int (*draw_pd)(float,float));
 
 #endif
