@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.37 2003-06-24 22:45:59 haran Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.38 2003-07-11 21:05:46 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1079,6 +1079,7 @@ int inverse_mapx (mapx_class *this, double u, double v, double *lat, double *lon
   v += this->v0;
   x =  this->T00 * u - this->T01 * v;
   y = -this->T10 * u + this->T11 * v;
+  errno = 0;
   status = (*(this->map_to_geo))(this, x, y, lat, lon);
   if (errno != 0) 
     return -1; 
