@@ -11,12 +11,15 @@
  * 01-Feb-1993 R.Swick - added Lambert conic conformal projection
  * 12-Feb-1993 R.Swick - added reinit functions
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  93/02/18  15:15:55  knowles
+ * added projection init routines and reinit_mapx
+ * 
  * Revision 1.6  93/02/11  10:25:49  knowles
  * fixed eccentricity == 0
  * cleaned up projection name tests
  *  
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.7 1993-02-18 15:15:55 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.8 1993-02-18 15:58:37 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -235,30 +238,30 @@ mapx_class *init_mapx (char *map_filename)
 /*
  *	look for optional parameters
  */
-  fgets (readln, sizeof(readln), this->mpp_file);       /******************/
+  fgets (readln, sizeof(readln), this->mpp_file);
   if feof(this->mpp_file)
-  {this->equatorial_radius = 6378.2064;
-   this->eccentricity = 0.082271673; 
- }
+  { this->equatorial_radius = Re_km;
+    this->eccentricity = 0.082271673;
+  }
   else
-  {ios = sscanf (readln, "%f", &f1);           
-   this->equatorial_radius = (ios >= 1) ? f1 : 6378.2064; 
+  { ios = sscanf (readln, "%f", &f1);           
+    this->equatorial_radius = (ios >= 1) ? f1 : Re_km;
    
-   fgets (readln, sizeof(readln), this->mpp_file);      
-   if feof(this->mpp_file)
-     this->eccentricity = 0.082271673;
-   else
-     {ios = sscanf (readln, "%f", &f1);            
-   this->eccentricity = (ios >= 1) ? f1 : 0.082271673;
+    fgets (readln, sizeof(readln), this->mpp_file);      
+    if feof(this->mpp_file)
+      this->eccentricity = 0.082271673;
+    else
+    { ios = sscanf (readln, "%f", &f1);            
+      this->eccentricity = (ios >= 1) ? f1 : 0.082271673;
     }
- }
+  }
   
   if ferror(this->mpp_file)
-  {fprintf (stderr, "init_mapx: error reading parameters file.\n");
-   perror(map_filename);
-   close_mapx(this);
-   return NULL;
- }
+  { fprintf (stderr, "init_mapx: error reading parameters file.\n");
+    perror(map_filename);
+    close_mapx(this);
+    return NULL;
+  }
 
 
 /*
