@@ -11,6 +11,9 @@
  * 01-Feb-1993 R.Swick - added Lambert conic conformal projection
  * 12-Feb-1993 R.Swick - added reinit functions
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  93/02/18  15:58:37  knowles
+ * changed Re to Re_km, changed default radius to Re_km
+ * 
  * Revision 1.7  93/02/18  15:15:55  knowles
  * added projection init routines and reinit_mapx
  * 
@@ -19,7 +22,7 @@
  * cleaned up projection name tests
  *  
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.8 1993-02-18 15:58:37 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.9 1993-02-18 16:14:24 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,12 +243,12 @@ mapx_class *init_mapx (char *map_filename)
  */
   fgets (readln, sizeof(readln), this->mpp_file);
   if feof(this->mpp_file)
-  { this->equatorial_radius = Re_km;
+  { this->equatorial_radius = mapx_Re_km;
     this->eccentricity = 0.082271673;
   }
   else
   { ios = sscanf (readln, "%f", &f1);           
-    this->equatorial_radius = (ios >= 1) ? f1 : Re_km;
+    this->equatorial_radius = (ios >= 1) ? f1 : mapx_Re_km;
    
     fgets (readln, sizeof(readln), this->mpp_file);      
     if feof(this->mpp_file)
