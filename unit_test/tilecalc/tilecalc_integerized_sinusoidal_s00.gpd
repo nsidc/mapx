@@ -1,0 +1,45 @@
+# file: tilecalc_integerized_sinusoidal_s00.gpd
+# Unit Test
+# Integerized Sinusoidal
+# MODLAND Tile Calculator
+# http://modland.nascom.nasa.gov/developers/tilemap/tilemap.cgi
+# Integerized Sinusoidal Grid     0.25 KM Grid
+# Pixel size                      1km
+# Mapping type                    Global map coordinates
+#
+Map Projection:                 Integerized Sinusoidal
+Grid Width:                     500
+Grid Height:                    200
+Grid Map Units Per Cell:        5000
+Grid Map Origin Column:         1999.5
+Grid Map Origin Row:            999.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# forward
+#   lat,lon = -50.0 -70.0
+#   x,y = -5003230.37      -5559752.60
+#
+# inverse
+#   x,y = -5003230.37  -5559752.60
+#   lat,lon = -50.000000  -70.000000
+#
+# crtest forward
+#   lat,lon = 40.0 -105.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 210.6920717 109.9395842
+#   lat,lon = dummy dummy
