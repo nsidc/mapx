@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1999-2004 University of Colorado
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.8 2004-02-26 21:37:23 knowlesk Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.9 2004-07-20 20:32:01 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -15,7 +15,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage									\
-"$Revision: 1.8 $\n"								\
+"$Revision: 1.9 $\n"								\
 "usage: irregrid [-wcnv -i value -k kernel\n"					\
 " -p value -r value -z beta_file -o outputfile\n"				\
 " -t total_pts_file]  from_data to.gpd \n"					\
@@ -29,7 +29,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 " options:c - Cressman weighting\n"						\
 "         w - inverse distance weighted sum\n"					\
 "                 -p the power of the distance weight\n"			\
-"         n - nearest neightbor weighted sum\n"					\
+"         n - nearest neighbor weighted sum\n"					\
 "         r - specify the search radius (units: grid cells)\n"			\
 "         i value - ignore fill value.  Output is filled with this value\n"	\
 "                   If not specified, then filled with zero.\n"			\
