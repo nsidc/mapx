@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.19 1994-04-11 10:58:15 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.20 1994-04-12 15:02:46 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -37,8 +37,8 @@ TARFILE = maps.tar
 #
 #	debug or optimization settings
 #
-DEBUG_CFLAGS = -O
-#DEBUG_CFLAGS = -DDEBUG -g
+CONFIG_CFLAGS = -O
+#CONFIG_CFLAGS = -DDEBUG -g
 
 #
 #	system libraries
@@ -49,7 +49,7 @@ SYSLIBS = -lm
 # end configuration section
 #------------------------------------------------------------------------
 
-CFLAGS = -I$(INCDIR) $(DEBUG_CFLAGS)
+CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
 LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
 
 SRCS = mapx.c grids.c cdb.c maps.c
