@@ -6,7 +6,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.11 1994-07-26 22:38:11 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.12 2003-06-23 15:45:17 haran Exp $";
 
 #include "define.h"
 
@@ -172,7 +172,7 @@ typedef struct
 /*------------------------------------------------------------------------
  * normalize_lon_cdb - normalize longitude to [-180.00,180.00]
  *
- *	void normalize_lon_cdb(float lon)
+ *	void normalize_lon_cdb(double lon)
  *------------------------------------------------------------------------*/
 #define normalize_lon_cdb(lon) \
   do \
@@ -191,17 +191,18 @@ void free_cdb(cdb_class *this);
 cdb_class *copy_of_cdb(cdb_class *this);
 void load_all_seg_data_cdb(cdb_class *this);
 cdb_seg_data *load_current_seg_data_cdb(cdb_class *this);
-int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts);
-int draw_current_seg_cdb(cdb_class *this, int (*move_pu)(float,float),
-			 int (*draw_pd)(float,float));
+int get_current_seg_cdb(cdb_class *this,
+			double *lat, double *lon, int max_pts);
+int draw_current_seg_cdb(cdb_class *this, int (*move_pu)(double,double),
+			 int (*draw_pd)(double,double));
 void list_cdb(cdb_class *this, int verbose);
 void sort_index_cdb(cdb_class *this, cdb_index_sort order);
-cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value);
-int index_limit_test_cdb(cdb_class *this, float lower_bound,
-			 float upper_bound);
-int segment_bounds_test_cdb(cdb_class *this, float south, float north,
-			    float west, float east);
-int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
-	      int (*move_pu)(float,float), int (*draw_pd)(float,float));
+cdb_index_entry *find_segment_cdb(cdb_class *this, double key_value);
+int index_limit_test_cdb(cdb_class *this, double lower_bound,
+			 double upper_bound);
+int segment_bounds_test_cdb(cdb_class *this, double south, double north,
+			    double west, double east);
+int draw_cdb(cdb_class *this, double start, double stop, cdb_index_sort order,
+	     int (*move_pu)(double,double), int (*draw_pd)(double,double));
 
 #endif
