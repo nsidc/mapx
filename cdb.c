@@ -1,11 +1,11 @@
 /*===========================================================================
  * cdb - coastline database interface
  *
- *	See cdb.h for a complete description of the cdb file structure.
+ * See cdb.h for a complete description of the cdb file structure.
  *
- * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.8 1993-10-27 11:11:25 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.9 1993-11-08 17:21:28 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,9 +13,16 @@ static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.8 1993-10-27
 #include "define.h"
 #include "maps.h"
 #include "cdb.h"
+#ifndef LSB1ST
+#define NO_SWAP
+#endif
+#include "swap.h"
 
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
 static cdb_seg_data *cdb_read_memory(cdb_class *this);
+static void cdb_byteswap_header(cdb_class *this);
+static void cdb_byteswap_index(cdb_class *this);
+static void cdb_byteswap_data_buffer(cdb_class *this, int npts);
 
 /*----------------------------------------------------------------------
  * new_cdb - create new cdb_class instance
@@ -43,7 +50,7 @@ cdb_class *new_cdb(void)
 
   return this;
 }
-
+
 /*----------------------------------------------------------------------
  * init_cdb - open cdb file, read in file header and segment index
  *              allocate space for segment data buffer
@@ -85,13 +92,17 @@ cdb_class *init_cdb(const char *cdb_filename)
   }
 
 /*
- *	read in cdb file header and check magic number
+ *	read in cdb file header, byteswap it, and check magic number
  */
-  this->header = (cdb_file_header *) calloc(1, sizeof(cdb_file_header));
+  this->header = (cdb_file_header *)calloc(1, sizeof(cdb_file_header));
   if (NULL == this->header) 
   { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
 
-  fread(this->header, 1, CDB_FILE_HEADER_SIZE, this->fp);
+  if (fread(this->header, 1, CDB_FILE_HEADER_SIZE, this->fp)
+      != CDB_FILE_HEADER_SIZE)
+  { perror(cdb_filename); free_cdb(this); return (cdb_class *)NULL; }
+
+  cdb_byteswap_header(this);
 
   if (this->header->code_number != CDB_MAGIC_NUMBER)
   { fprintf(stderr,"<%s> is not a cdb file, code number 0x%08x != 0x%08x\n",
@@ -108,21 +119,36 @@ cdb_class *init_cdb(const char *cdb_filename)
     fprintf(stderr,"init_cdb: <%s> has no index\n", this->filename);
     return (cdb_class *)NULL;
   }
+  if (this->header->index_size > CDB_MAX_BUFFER_SIZE)
+  { free_cdb(this);
+    fprintf(stderr,"init_cdb: %d bytes exceeds max index size of %d bytes\n",
+	    this->header->index_size, CDB_MAX_BUFFER_SIZE);
+    return (cdb_class *)NULL;
+  }
   this->index = (cdb_index_entry *) calloc(this->header->index_size, 1);
   if (NULL == this->index)
   { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
+
   this->segment = this->index;
   this->seg_count = this->header->index_size/sizeof(cdb_index_entry);
   this->index_order = this->header->index_order;
+
+  if (this->header->max_seg_size > CDB_MAX_BUFFER_SIZE)
+  { free_cdb(this);
+    fprintf(stderr,"init_cdb: %d bytes exceeds max segment size of %d bytes\n",
+	    this->header->max_seg_size, CDB_MAX_BUFFER_SIZE);
+    return (cdb_class *)NULL;
+  }
   this->data_buffer = (cdb_seg_data *) calloc(this->header->max_seg_size, 1);
   if (NULL == this->data_buffer)
   { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
+
   this->data_buffer_size = this->header->max_seg_size;
   this->data_ptr = this->data_buffer;
   this->npoints = 0;
 
 /*
- *	read in the index
+ *	read in the index and byteswap it
  */
   fseek(this->fp, this->header->index_addr, SEEK_SET);
   ios = fread(this->index, 1, this->header->index_size, this->fp);
@@ -134,9 +160,11 @@ cdb_class *init_cdb(const char *cdb_filename)
     return (cdb_class *) NULL;
   }
 
+  cdb_byteswap_index(this);
+
   return this;
 }
-
+
 /*----------------------------------------------------------------------
  * free_cdb - close cbd file, free allocated buffer space
  *
@@ -153,7 +181,7 @@ void free_cdb (cdb_class *this)
   if (this->data_buffer != NULL) free(this->data_buffer);
   free(this);
 }
-
+
 /*----------------------------------------------------------------------
  * copy_of_cdb - copy a cdb_class instance
  *
@@ -231,7 +259,7 @@ cdb_class *copy_of_cdb(cdb_class *this)
  */
   return copy;
 }
-
+
 /*----------------------------------------------------------------------
  * load_all_seg_data_cdb - load all segment data into buffer
  *
@@ -246,20 +274,30 @@ void load_all_seg_data_cdb(cdb_class *this)
   this->get_data = cdb_read_disk;
 
 /*
- *	re-allocate data buffer
+ *	try to re-allocate data buffer
+ *	on failure try to set things right and return
+ *	failing that exit before any more damage is done
  */
   this->data_buffer_size = this->header->index_addr - CDB_FILE_HEADER_SIZE;
+
+  if (this->data_buffer_size > CDB_MAX_BUFFER_SIZE)
+  { fprintf(stderr,"load_all_seg_data_cdb: %d bytes exceeds buffer max %d\n",
+	    this->data_buffer_size, CDB_MAX_BUFFER_SIZE);
+    this->data_buffer_size = this->header->max_seg_size;
+    return;
+  }
+
   this->data_buffer = (cdb_seg_data *)realloc(this->data_buffer, 
 					      this->data_buffer_size);
   if (this->data_buffer == NULL)
-  { fprintf(stderr,"load_all_seg_data_cdb: unable to allocate %d byte buffer.\n",
+  { fprintf(stderr,"load_all_seg_data_cdb: unable to allocate %d bytes\n",
 	    this->data_buffer_size);
     perror("realloc");
     this->data_buffer_size = this->header->max_seg_size;
     this->data_buffer = (cdb_seg_data *)realloc(this->data_buffer, 
 						this->data_buffer_size);
     if (this->data_buffer != NULL)
-    { fprintf(stderr,"load_all_seg_data_cdb: segment data buffer corrupted.\n");
+    { fprintf(stderr,"load_all_seg_data_cdb: segment data corrupted.\n");
       fprintf(stderr,"cdb: fatal error exiting...\n");
       exit(ABORT);
     }
@@ -267,7 +305,7 @@ void load_all_seg_data_cdb(cdb_class *this)
   }
 
 /*
- *	read data into buffer
+ *	read data into buffer and byte swap it
  */
   fseek(this->fp, CDB_FILE_HEADER_SIZE, SEEK_SET);
   ios = fread(this->data_buffer, 1, this->data_buffer_size, this->fp);
@@ -278,6 +316,8 @@ void load_all_seg_data_cdb(cdb_class *this)
     return;
   }
 
+  cdb_byteswap_data_buffer(this, this->data_buffer_size/sizeof(cdb_seg_data));
+
 /*
  *	load succeeded
  */
@@ -285,7 +325,7 @@ void load_all_seg_data_cdb(cdb_class *this)
   this->get_data = cdb_read_memory;
   return;
 }
-
+
 /*----------------------------------------------------------------------
  * load_current_seg_data_cdb - read data for current segment
  *
@@ -317,7 +357,7 @@ static cdb_seg_data *cdb_read_disk(cdb_class *this)
   }
 
 /*
- *	read segment point data
+ *	read segment point data and byteswap it
  */
   fseek(this->fp, this->segment->addr, SEEK_SET);
   ios = fread(this->data_buffer, 1, this->segment->size, this->fp);
@@ -327,6 +367,9 @@ static cdb_seg_data *cdb_read_disk(cdb_class *this)
     perror(this->filename);
     return NULL;
   }
+
+  cdb_byteswap_data_buffer(this, this->segment->size/sizeof(cdb_seg_data));
+
   return this->data_buffer;
 }
 
@@ -352,7 +395,7 @@ cdb_seg_data *load_current_seg_data_cdb(cdb_class *this)
   this->npoints = this->segment->size/sizeof(cdb_seg_data);
   return this->data_ptr;
 }
-
+
 /*----------------------------------------------------------------------
  * get_current_seg_cdb - retrieve current segment data points
  *
@@ -401,7 +444,7 @@ int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts)
 
   return this->npoints+1;
 }
-
+
 /*----------------------------------------------------------------------
  * draw_current_seg_cdb - draw current segment
  *
@@ -448,7 +491,7 @@ int draw_current_seg_cdb(cdb_class *this,
 
   return 0;
 }
-
+
 /*----------------------------------------------------------------------
  * list_cdb - list header information
  *
@@ -510,7 +553,7 @@ void list_cdb(cdb_class *this, int verbose)
     }
   }
 }
-
+
 /*----------------------------------------------------------------------
  * sort_index_cdb - sort segment index
  *
@@ -600,7 +643,7 @@ void sort_index_cdb(cdb_class *this, cdb_index_sort order)
   this->index_order = order;
 
 }
-
+
 /*----------------------------------------------------------------------
  * find_segment_cdb - set current pointer to specified segment
  *
@@ -749,7 +792,7 @@ cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value)
   }
   return this->segment;
 }
-
+
 /*----------------------------------------------------------------------
  * index_limit_test_cdb - test current segment within interval 
  *		(which field depends on sort order)
@@ -789,7 +832,6 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
   return test_val >= lower_bound && test_val <= upper_bound;
 }
 
-
 /*----------------------------------------------------------------------
  * draw_cdb - draw all segments within bounds
  *
@@ -885,4 +927,73 @@ int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
   }
 
   return 0;
+}
+
+/*------------------------------------------------------------------------
+ * cdb_byteswap_... - in situ byteswap routines
+ *
+ *	ensure correct byte order for all data in memory
+ *	disk data is stored with least significant byte first
+ *	for machines which require most significant byte first
+ *	compile with -DBYTEORDER=LSB1ST
+ *
+ *------------------------------------------------------------------------*/
+/*
+ *	byteswap cdb file header if necessary
+ */
+static void cdb_byteswap_header(cdb_class *this)
+{
+#if BYTEORDER == LSB1ST
+  SWAP4_IS(&(this->header->code_number));
+  SWAP4_IS(&(this->header->indev_addr));
+  SWAP4_IS(&(this->header->index_size));
+  SWAP4_IS(&(this->header->max_seg_size));
+  SWAP4_IS(&(this->header->segment_rank));
+  SWAP4_IS(&(this->header->index_order));
+  SWAP4_IS(&(this->header->ilat_max));
+  SWAP4_IS(&(this->header->ilon_max));
+  SWAP4_IS(&(this->header->ilat_min));
+  SWAP4_IS(&(this->header->ilon_min));
+  SWAP4_IS(&(this->header->ilat_extent));
+  SWAP4_IS(&(this->header->ilon_extent));
+#endif
+}
+
+/*
+ *	byte swap cdb file index if necessary
+ */
+static void cdb_byteswap_index(cdb_class *this)
+{
+#if BYTEORDER == LSB1ST
+  register int iseg;
+  cdb_index_entry *entry;
+
+  for(iseg = 0, entry = this->index;
+      iseg < num_segments_cdb(this); 
+      iseg++, entry++)
+  { SWAP4_IS(&(entry->ID));
+    SWAP4_IS(&(entry->ilat0));
+    SWAP4_IS(&(entry->ilon0));
+    SWAP4_IS(&(entry->ilat_max));
+    SWAP4_IS(&(entry->ilon_max));
+    SWAP4_IS(&(entry->ilat_min));
+    SWAP4_IS(&(entry->ilon_min));
+    SWAP4_IS(&(entry->addr));
+    SWAP4_IS(&(entry->size));
+  }
+#endif
+}
+/*
+ *	byte swap cdb segment data buffer if necessary
+ */
+static void cdb_byteswap_data_buffer(cdb_class *this, int npts)
+{
+#if BYTEORDER == LSB1ST
+  register int ipt;
+
+  for (ipt=0; ipt < npts; ipt++)
+  { SWAP2_IS(&(this->data_buffer[ipt].dlat));
+    SWAP2_IS(&(this->data_buffer[ipt].dlon));
+  }
+#endif
 }
