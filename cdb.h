@@ -6,7 +6,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.10 1994-04-07 16:20:48 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.11 1994-07-26 22:38:11 knowles Exp $";
 
 #include "define.h"
 
@@ -44,7 +44,7 @@ typedef enum
   CDB_INDEX_LON_MAX,
   CDB_INDEX_LAT_MIN,
   CDB_INDEX_LON_MIN,
-  CDB_INDEX_SEG_ID,
+  CDB_INDEX_SEG_ID
 } cdb_index_sort;
 
 static char *cdb_index_sort_string[] = 
