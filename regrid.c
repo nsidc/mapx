@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.7 1998-04-07 21:58:35 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.8 1998-09-03 22:06:51 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,6 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
+"$Revision: 1.8 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -75,7 +76,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #define VV_INTERVAL 30
 
 static int fill, k_cols, k_rows;
-static int ignore_fill, verbose, very_verbose;
+static int ignore_fill, verbose, preload_data;
 static double power;
 
 int inv_dist(grid_class *, float **, grid_class *, float **, float **);
@@ -83,6 +84,9 @@ int ditb_avg(grid_class *, float **, grid_class *, float **, float **);
 int bilinear(grid_class *, float **, grid_class *, float **, float **);
 int nearestn(grid_class *, float **, grid_class *, float **, float **);
 int cubiccon(grid_class *, float **, grid_class *, float **, float **);
+
+#define ROUND(x) ((x) < 0 ? (int)((x)-.5) : (int)((x)+.5))
+#define FLOAT(x) ((float)(x))
 
 /*------------------------------------------------------------------------
  * read_grid_data - read file data into float matrix
@@ -116,12 +120,12 @@ bool read_grid_data(int cols, int rows, int data_bytes, bool signed_data,
     total_bytes += status;
     for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
     { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: data[i][j] = (float) *((int1 *)bufp); break;
-        case -2: data[i][j] = (float) *((int2 *)bufp); break;
-        case -4: data[i][j] = (float) *((int4 *)bufp); break;
-        case  1: data[i][j] = (float) *((byte1 *)bufp); break;
-	case  2: data[i][j] = (float) *((byte2 *)bufp); break;
-	case  4: data[i][j] = (float) *((byte4 *)bufp); break;
+      { case -1: data[i][j] = FLOAT(*((int1 *)bufp)); break;
+        case -2: data[i][j] = FLOAT(*((int2 *)bufp)); break;
+        case -4: data[i][j] = FLOAT(*((int4 *)bufp)); break;
+        case  1: data[i][j] = FLOAT(*((byte1 *)bufp)); break;
+	case  2: data[i][j] = FLOAT(*((byte2 *)bufp)); break;
+	case  4: data[i][j] = FLOAT(*((byte4 *)bufp)); break;
         default: assert(NEVER); /* should never execute */
       }
     }
@@ -159,12 +163,12 @@ bool write_grid_data(int cols, int rows, int data_bytes, bool signed_data,
   for (i = 0; i < rows; i++)
   { for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
     { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: *((int1 *)bufp) = nint(data[i][j]); break;
-	case -2: *((int2 *)bufp) = nint(data[i][j]); break;
-	case -4: *((int4 *)bufp) = nint(data[i][j]); break;
-        case  1: *((byte1 *)bufp) = nint(data[i][j]); break;
-	case  2: *((byte2 *)bufp) = nint(data[i][j]); break;
-	case  4: *((byte4 *)bufp) = nint(data[i][j]); break;
+      { case -1: *((int1 *)bufp) = ROUND(data[i][j]); break;
+	case -2: *((int2 *)bufp) = ROUND(data[i][j]); break;
+	case -4: *((int4 *)bufp) = ROUND(data[i][j]); break;
+        case  1: *((byte1 *)bufp) = ROUND(data[i][j]); break;
+	case  2: *((byte2 *)bufp) = ROUND(data[i][j]); break;
+	case  4: *((byte4 *)bufp) = ROUND(data[i][j]); break;
         default: assert(NEVER); /* should never execute */
       }
     }
@@ -181,7 +185,7 @@ bool write_grid_data(int cols, int rows, int data_bytes, bool signed_data,
 main (int argc, char *argv[])
 { register int i, j;
   int data_bytes, nparams, row_bytes, status, total_bytes;
-  bool preload_data, forward_resample, weighted_sum;
+  bool forward_resample, weighted_sum;
   bool signed_data, wide_weighted;
   byte1 *iobuf, *bufp;
   float **from_data, **to_data, **to_beta;
@@ -205,8 +209,7 @@ main (int argc, char *argv[])
   preload_data = FALSE;
   ignore_fill = FALSE;
   fill = 0;
-  verbose = FALSE;
-  very_verbose = FALSE;
+  verbose = 0;
 
 /* 
  *	get command line options
@@ -261,8 +264,7 @@ main (int argc, char *argv[])
 	  ignore_fill = TRUE;
 	  break;
 	case 'v':
-	  if (verbose) very_verbose = TRUE;
-	  verbose = TRUE;
+	  ++verbose;
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);
@@ -478,7 +480,7 @@ int inv_dist(grid_class *from_grid, float **from_data,
       status = forward_grid(to_grid, lat, lon, &r, &s);
       if (!status) continue;
 
-      if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
+      if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
@@ -547,7 +549,7 @@ int ditb_avg(grid_class *from_grid, float **from_data,
       status = forward_grid(to_grid, lat, lon, &r, &s);
       if (!status) continue;
 
-      if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
+      if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
@@ -602,7 +604,7 @@ int bilinear(grid_class *from_grid, float **from_data,
       status = forward_grid(from_grid, lat, lon, &r, &s);
       if (!status) continue;
 
-      if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
+      if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
@@ -664,7 +666,7 @@ int nearestn(grid_class *from_grid, float **from_data,
       ds = nint(s) - s; 
       dd = sqrt(dr*dr + ds*ds);
 
-      if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
+      if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
@@ -681,7 +683,7 @@ int nearestn(grid_class *from_grid, float **from_data,
  *	opposed to strictly < will replace the preloaded data
  *	with the most recent data.
  */
-	if (!preload
+	if (!preload_data
 	    || dd <= to_beta[i][j]
 	    || (0 == to_beta[i][j] && fill == to_data[i][j]))
 	{
@@ -731,7 +733,7 @@ int cubiccon(grid_class *from_grid, float **from_data,
       status = forward_grid(from_grid, lat, lon, &r, &s);
       if (!status) continue;
 
-      if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
+      if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
