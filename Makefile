@@ -1,11 +1,12 @@
 #========================================================================
 # Makefile for maps library
 #
-# 11-Feb-1993 K.Knowles 303-492-0644  knowles@kryos.colorado.edu
+# 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 #========================================================================
 SHELL = /bin/sh
-LOCAL_LIB = /usr/local/lib
-LOCAL_INCLUDE = /usr/local/include
+TOP = /usr/local
+LOCAL_LIB = $(TOP)/lib
+LOCAL_INCLUDE = $(TOP)/include
 CC = /usr/bin/cc
 AR = /usr/bin/ar
 RANLIB = /bin/touch
@@ -16,10 +17,10 @@ TAR = /bin/tar
 COMPRESS = /usr/bsd/compress
 TARFILE = maps.tar
 DEBUG_FLAGS = -O
-CLIBS = -lc_s -lm -lmalloc
-CFLAGS = -I. $(DEBUG_FLAGS)
+CLIBS = -lc_s -lm
+CFLAGS = -I$(LOCAL_INCLUDE) $(DEBUG_FLAGS)
 SOURCES = mapx.c grids.c cdb.c maps.c
-HEADERS = mapx.h grids.h cdb.h maps.h
+HEADERS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
 OBJECTS = mapx.o grids.o cdb.o maps.o
 
 all : libmaps.a install clean
@@ -58,11 +59,10 @@ gpmon : grids.c grids.h mapx.c mapx.h
 macct : maps.c maps.h mapx.c mapx.h
 	$(CC) -O -DMACCT -o macct maps.c mapx.c $(CLIBS)
 
-cdb.o:		$(LOCAL_INCLUDE)/cdb.h
-mapx.o:		$(LOCAL_INCLUDE)/mapx.h
-grids.o:	$(LOCAL_INCLUDE)/grids.h $(LOCAL_INCLUDE)/mapx.h
-maps.o:		$(LOCAL_INCLUDE)/mapx.h $(LOCAL_INCLUDE)/grids.h \
-		$(LOCAL_INCLUDE)/cdb.h $(LOCAL_INCLUDE)/maps.h
+cdb.o:		cdb.h cdb_byteswap.h
+mapx.o:		mapx.h
+grids.o:	grids.h mapx.h
+maps.o:		mapx.h grids.h cdb.h maps.h
 
 .SUFFIXES : .c,v .h,v
 
