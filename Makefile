@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@kryos.colorado.edu
 #========================================================================
 SHELL = /bin/sh
-LOCAL_LIBS = /usr/local/lib
+LOCAL_LIB = /usr/local/lib
 LOCAL_INCLUDE = /usr/local/include
 CC = /usr/bin/cc
 AR = /usr/bin/ar
