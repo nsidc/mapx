@@ -1,10 +1,10 @@
 Readme for mapx library UTM update
-Terry Haran 02/14/03
+Terry Haran 04/23/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
-Mercator projections. To date, none of these changes have been added yet
-to the cvs repository.
+Mercator projections and creating a set of unit tests. To date, none of
+these changes have been added yet to the cvs repository.
 
 In order to evaluate the changes, you should install the new version of
 the library into some directory, leaving the old version of the library
@@ -28,7 +28,7 @@ bin
 get mapsnew.tar.gz
 quit
 gunzip mapsnew.tar.gz
-tar Uxvf maps_new.tar
+tar Uxvf mapsnew.tar
 make allall
 
 If you don't have the latest released version of mapx installed, you can
@@ -52,28 +52,40 @@ The following changes were made to all .c and .h files:
 
 4) The following files were not modified since they were provided from
    third parties:
-   a) isin.h
-   b) isinusfor.c
-   c) isinusinv.c
-   d) wdbpltc.c
+   a) From the MODIS Reprojection Tool 3.1, gctp directory:
+      i)   cproj.h
+      ii)  isin.h
+      iii) isinfor.c (formerly isinusfor.c)
+      iv)  isininv.c (formerly isinusinv.c)
+      v)   proj.h
+   b) From the U.S. Naval Oceanographic Office:
+      i) wdbpltc.c
    The compilations of the above .c files still produce warnings.
 
 In addition to the changes mentioned in 1-4, the following changes were
 also made:
 
 5) ppgc.html:
-   a) Provided expanded description of map eccentricity and radius.
-   b) Added keywords Map Origin X and Y.
-   c) Modified keywords Map False Easting and Northing.
-   d) Added keyword Map Center Scale.
-   e) Fixed the spelling of Interrupted Homolosine Equal-Area. The
+   a) Added the use of pound sign (#) to denote comments.
+   b) Added statement that all text following a semi-colon or pound sign
+      on a particular line is ignored.
+   c) Provided expanded description of map eccentricity and radius.
+   d) Added explanation that a negative value of eccentricity is used
+      to specify eccentricity squared.
+   e) Added keywords Map Origin X and Y.
+   f) Modified keywords Map False Easting and Northing.
+   g) Added keyword Map Center Scale.
+   h) Fixed the spelling of Interrupted Homolosine Equal-Area. The
       mispelled form is still supported in the code.
-   f) Added the following map projection names:
+   i) Added the following map projection names:
       i)   Polar Stereographic (ellipsoid)
       ii)  Transverse Mercator
       iii) Transverse Mercator (ellipsoid)
       iv)  Universal Transverse Mercator
-   g) Added a separate table and explanation of map parameters for UTM.
+   j) Added a separate table and explanation of map parameters for ISin:
+      i)  Moved Map Isin Justify to separate ISin table.
+      ii) Added Map Isin NZone parameter.
+   k) Added a separate table and explanation of map parameters for UTM.
 
 6) Makefile:
    a) Changed TOPDIR from HOME to ../.. (temporary changed to aid in
@@ -81,7 +93,9 @@ also made:
    b) Changed INSTALL from cp to cp -f so that old files are overwritten.
    c) Removed -DLSB1ST from CONFIG_FLAGS. Linux users should add it back.
    d) Added transverse_mercator and universal_transverse_mercator to
-      PROJECTION_SRCS and PROJECTION_OBJS.
+      PROJECTION_SRCS and PROJECTION_OBJS, removed isinusfor and
+      insinusiv from PROJECTION_SRCS and PROJECTION_OBJS, and removed
+      isin.h from PROJECTION_HDRS. 
    e) Added targets:
       i)   allall
       ii)  appall
@@ -92,7 +106,14 @@ also made:
       "$(INSTALL) cdb_edit.mpp $(MAPDIR)".
    g) Added build of xytest and gacct.
    h) Added $(INSTALL) for each test program.
-   i) Changed name of tar file to mapsnew.tar.gz temporarily during testing.
+   i) Changed name of tar file to mapsnew.tar.gz temporarily during
+      testing.
+   j) Created GCTP_SRCS and GCTP_OBJS containing isinfor, isininv, report,
+      and cproj, and created GCTP_HDRS containing isin.h, cproj.h, and
+      proj.h. All of these files are from the gctp directory in the
+      MODIS Reprojection Tool version 3.1.
+   k) In the "tar" build, included new directory UTEST, and the files
+      UTEST/utest.pl, and UTEST/*.mpp.
 
 7) The following changes were made to all projection .c files:
    a) For forward projection functions, the output parameters *u and *v were
@@ -146,49 +167,114 @@ also made:
                maximum error = 7.8288e-04 km
                max error was at 55.55S 25.39W
 
-8) cdb.c:
+8) albers_conic_equal_area.c:
+   a) In inverse_albers_conic_equal_area() and 
+      albers_conic_equal_area_ellipsoid(), in the calculation of theta,
+      the arguments to atan2() are now negated when n is negative as
+      specified in Snyder.
+   b) In inverse_albers_conic_equal_area_ellipsoid(), the series equation
+      3-18 from Snyder was replaced with the iterative solution based on
+      equation 3-16 in Snyder. This improved the overall accuracy by about
+      a factor of 20:
+      i)   macct utest_albers_conic_equal_area_e00.mpp
+             Old:
+               102400 points,  336 bad points
+               average error = 3.6677e-02 km
+               std dev error = 9.4522e-02 km
+               maximum error = 4.4933e+00 km
+               max error was at 90.00S 124.70E
+	     New:
+	       102400 points,  0 bad points
+	       average error = 8.7394e-04 km
+	       std dev error = 3.8429e-03 km
+	       maximum error = 1.8608e-01 km
+	       max error was at 89.44S 52.48E
+
+9) azimuthal_equal_area.c:
+   a) In init_azimuthal_equal_area_ellipsoid(), an erroneous
+      recalculation of qp was removed as well as redundant calculations
+      of q1, cos_phi1, and sin_phi1.
+   b) In azimuthal_equal_area_ellipsoid(), for the south polar case,
+      a test of fabs(qp - q) was changed to fabs(qp + q) prior to the
+      calculation of rho.
+   c) In inverse_azimuthal_equal_area_ellipsoid(), the series equation
+      3-18 from Snyder was replaced with the iterative solution based on
+      equation 3-16 in Snyder. This improved the average accuracy for the
+      north polar case by about a factor of 4 (the old oblique and south
+      polar cases had bugs):
+      i)   macct utest_azimuthal_equal_area_e01.mpp
+	     Old:
+               102400 points,  150 bad points
+	       average error = 4.6800e-03 km
+	       std dev error = 9.9562e-02 km
+	       maximum error = 3.5940e+00 km
+	       max error was at 90.00S 51.35W
+	     New:
+               102400 points,  0 bad points
+	       average error = 1.1645e-03 km
+	       std dev error = 5.0387e-03 km
+	       maximum error = 2.0279e-01 km
+	       max error was at 89.44S 14.11W
+
+10) cdb.c:
    a) In init_cb(), added a typecast on line 134 to suppress a warning.
 
-9) cdb_edit.c:
+11) cdb_edit.c:
    a) In main(), removed declaration of unused variables "i", "ios", and
       "extent".
    b) In finish_new_file(), removed declaration of unused variable
       "command".
 
-10) cdb_list.c:
+12) cdb_list.c:
     a) In main(), removed unused variable "i".
 
-11) cylindrical_equal_area.c:
+13) cylindrical_equal_area.c:
     a) In cylindrical_equal_area() and cylindrical_equal_area_ellipsoid(),
        changed "dlon" from float to double.
+    b) In init_cylindrical_equal_area_ellipsoid(), changed use of
+       current->lat0 (Reference Latitude) to current->lat1 (Second
+       Reference Latitude) to match init_cylindrical_equal_area() as well
+       as the documentation. Thus Reference Latitude is effectively ignored
+       for both the spherical and ellipsoidal cylindrical equal area
+       projections.
 
-12) cylindrical_equidistant.c:
+14) cylindrical_equidistant.c:
     a) In cylindrical_equidistant(), changed "dlon" from float to double.
 
-13) grids.c:
+15) grids.c:
     a) In gtest main(), changed "enter r s: " prompt to "enter col row: ".
     b) Added gacct, a grid accuracy test similar to macct, but for .gpd
        files rather than .mpp files. gacct tests the accuracy for each
        point in the grid.
 
-14) keyval.c:
-    a) In get_value_keyval(), added feature such that if default_string is
+16) integerized_sinusoidal.c:
+    a) In init_integerized_sinusoidal(), replaced calculation of nrows
+       with use of Map ISin NZone (isin_nzone) parameter value.
+    b) In init_integerized_sinusoidal(), added passing of false easting
+       and false northing values to Isin_inv_init().
+
+17) keyval.c:
+    a) In get_label_keyval(), added feature such that for each line,
+       any characters following a semi-colon or a pound sign are
+       replaced with blanks.
+    b) In get_value_keyval(), added feature such that if default_string is
        "KEYVAL_UNINITIALIZED" and format is "%f" or "%lf", and the keyword
        is not found, then the value KEYWORD_UNINITIALIZED is returned.
 
-15) keyval.h:
+18) keyval.h:
     a) Added definition of KEYVAL_UNINITIALIZED to be FLT_MAX, if FLT_MAX
        is defined, or 9e30 if it isn't.
 
-15) maps.c:
-    a) Added asinz() which returns asin(x) such that x is constrained to
-       fall within the range -1 to +1; called by
-       inverse_transverse_mercator() in transvese_mercator.c.
+19) lambert_conic_conformal.c:
+    a) In init_lambert_conic_conformal_ellipsoid(), added use of Map
+       Origin Latitude (center_lat) in addition to Map Reference Latitude
+       (lat0) and Map Second Reference Latitude (lat1) as is done in
+       init_albers_conic_equal_area().
+    b) In inverse_lambert_conic_conformal_ellipsoid(), replaced lower
+       accuracy series equation 3-5 from Snyder with higher accuracy
+       iteration involving equation 7-9.
 
-16) maps.h:
-    a) Added declaration of asinz().
-
-17) mapx.c:
+20) mapx.c:
     a) Added declarations of the following functions:
        i)   init_transverse_mercator()
        ii)  transverse_mercator()
@@ -203,23 +289,28 @@ also made:
         Universal Transverse Mercator.
      c) In decode_mpp():
         i)   Added code to make Map Reference Latitude and Longitude
-             optional keywords for UTM.
+             optional keywords for UTM and ISin.
         ii)  Added code to process Map Origin X and Y keywords. These
 	     values are stored in x0 and y0 in the mapx structure.
         iii) Deferred assuming that Map Origin Latitude and Longitude
              take on Reference Latitude and Longitude values,
              respectively, when the former are not defined and the
-             projection is UTM until UTM initialization.
+             projection is UTM, until UTM initialization.
         iv)  Changed assignment of Map False Easting and Northing keyword
              values from u0, v0 to false_easting, false_northing,
              respectively, in the mapx structure.
 	v)   Deferred assigning of default values to Map False Easting and
              Northing keywords when they are not defined and the
              projection is UTM until UTM initialization.
-        vi)  Added code to process Map Center Scale and Map UTM Zone
-             keywords.
+        vi)  Added code to process Map Center Scale, Map UTM Zone, and
+             Map ISin NZone keywords.
 	vii) Added code to assign default WGS-84 values for equatorial
              radius and eccentricity if map projection is UTM.
+	viiI)Added code to assign default value for equatorial
+             radius if map projection is ISin.
+        ix)  Added code to interpret a negative eccentricity such that
+             its absolute value specifies the square of the eccentricity.
+	     This is the same scheme used by gctp.
      d) In old_fixed_format_decode_mpp():
         i)  Added code to set the default equatorial radius and
             eccentricity based on the map projection.
@@ -231,6 +322,8 @@ also made:
 	      false_northing
 	      center_scale
 	      utm_zone
+	      isin_nzone
+	      isin_justify
      e) In reinit_mapx():
         i)   If Map Origin X and Y not provided, then forward transform
              Map Origin Latitude and Longitude (center_lat and center_lon
@@ -253,8 +346,8 @@ also made:
              doubles in each inverse projection function. Changed call to
              (*(this->map_to_geo))() so that x and y are passed rather than
              u and v.
-     h) Added forward_xy_mapx converts (lat,lon) to (x,y).
-     i) Added inverse_xy_mapx converts (x,y) to (lat,lon).
+     h) Added forward_xy_mapx() which converts (lat,lon) to (x,y).
+     i) Added inverse_xy_mapx() which converts (x,y) to (lat,lon).
      j) In standard_name():
 	i)   Added support for correct spelling of "interrupted" for
 	     Goode Interrupted Homolosine Equal Area. Incorrect spelling
@@ -272,37 +365,56 @@ also made:
 	ii)  Added ability to specify the .mpp file name on the command
              line just as in gtest.
 
-18) mapx.h:
+21) mapx.h:
     a) Added definitions of WGS-84 equatorial radius and eccentricity.
-    b) Added user specified constants:
+    b) Added definition of default sphere radius for ISin.
+    c) Added user specified constants:
        i)   x0
        ii)  y0
        iii) false_easting
        iv)  false_northing
        v)   center_scale
        vi)  utm_zone
-    c) Added private projection constants:
-       i)   e0
-       ii)  e1p
-       iii) e2p
-       iv)  e3p
-       v)   ml0
-       vi)  esp
-       vii) f1
-       viii)f2
-       ix)  f3
-       x)   f4
-    d) Added funtion prototypes:
+       vii) isin_nzone
+       viii)isin_justify
+    d) Added private projection constants:
+       i)    t2
+       ii)   e0
+       iii)  e1p
+       iv)   e2p
+       v)    e3p
+       vi)   ml0
+       vii)  esp
+       viii) f1
+       ix)   f2
+       x)    f3
+       xi)   f4
+    e) Added function prototypes:
        i)   forward_xy_mapx()
        ii)  inverse_xy_mapx()
 
-19) mercator.c:
+22) mercator.c:
     a) In mercator(), changed "dlon" from float to double.
 
-20) mollweide.c:
+23) mollweide.c:
     a) In mollweide(), changed "dlon" from float to double.
+    b) In mollweide(), changed the value of epsilon from 0.0025 to 1e-6.
+       This improved the average accuracy by about a factor of 4:
+       i)   macct utest_mollweide_s00.mpp
+              Old:
+	        102400 points,  0 bad points
+		average error = 1.4197e-03 km
+		std dev error = 3.0140e-03 km
+		maximum error = 1.5307e-02 km
+		max error was at 89.44S 89.72E
+	      New:
+	        102400 points,  0 bad points
+		average error = 3.2168e-04 km
+		std dev error = 1.1635e-03 km
+		maximum error = 1.4431e-02 km
+		max error was at 90.00S 89.72W
 
-21) orthographic.c:
+24) orthographic.c:
     a) In orthographic(), changed the following temporary variables
        from float to double:
        i)   phi
@@ -313,17 +425,19 @@ also made:
        vi)  cos_lam
        vii) cos_beta
 
-22) polar_stereographic.c:
+25) polar_stereographic.c:
     a) In polar_stereographic(), changed the following temporary variables
        from float to double:
        i)   phi
        ii)  lam
        iii) rho
-    b) In init_polar_stereographic_ellipsoid(), changed the following
+    b) In inverse_polar_stereographic(), fixed a bug by negating sin(phi)
+       in the calculation of q for the south polar aspect.
+    c) In init_polar_stereographic_ellipsoid(), changed the following
        temporary variables from float to double:
        i)   numerator
        ii)  denominator
-    c) In polar_stereographic_ellipsoid(), changed the following
+    d) In polar_stereographic_ellipsoid(), changed the following
        temporary variables from float to double:
        i)   phi
        ii)  lam
@@ -331,10 +445,191 @@ also made:
        iv)  t
        v)   numerator
        vi)  denominator
+    e) Also in polar_stereographic_ellipsoid(), changed the use of
+       equation 15-9 to 15-9a.
 
-23) sinusoidal.c:
+26) sinusoidal.c:
     a) In sinusoidal(), changed "dlon" from float to double.
 
-24) Added transverse_mercator.c.
+27) Added transverse_mercator.c.
 
-25) Added universal_transverse_mercator.c.
+28) Added universal_transverse_mercator.c.
+
+29) Added UTEST directory containing utest.pl and several utest*.mpp
+    files.
+    a) In the UTEST directory, typing utest.pl produces:
+
+USAGE: utest.pl [-v] mppfile1 [mppfile2...]
+
+   input:
+       mppfile - Map Projection Parameters file to be used as input to
+                 macct and xytest to test a particular map projection.
+                 One test of macct to be performed must consist of a group
+                 of six lines in mppfile of the form:
+                   # macct
+                   # <points> points,  <bad_points> bad points
+                   # average error = <average_error> km
+                   # std dev error = <std_dev_error> km
+                   # maximum error = <max_error> km
+                   # max error was at <max_err_lat> <max_err_lon>
+                 Each test of xytest to be performed must consist of a group
+                 of three lines in mppfile (following the macct group, if any)
+                 of the form:
+                   # forward
+                   # lat,lon = <lat_in> <lon_in>
+                   # x,y = <x_expected> <y_expected> <comment>
+                 or
+                   # inverse
+                   # x,y = <x_in> <y_in>
+                   # lat,lon = <lat_expected> <lon_expected> <comment>
+
+   options:
+       -v - verbose
+
+    b) Also in the UTEST directory are utest*.mpp files which contain
+       "unit test" expected results to be used with utest.pl. Current
+       utest*.mpp files have names of the form:
+
+         utest_<projection>_<s|e><nn>.mpp
+	   where
+	     <projection> is the name of the map projection to be tested.
+	     <s|e> is s for spherical projections,
+                      e for ellipsoidal projections.
+             <nn> is a two-digit serial number. 00 is used to indicate
+                  tests that correspond to a numerical example in Snyder.
+                  Not all projections have a numerical example in Snyder
+		  (e.g. cylindrical equidistant).
+
+       This naming convention is not required by utest.pl.
+
+    c) As an example, here is utest_albers_conic_equal_area_e00.mpp:
+
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Albers Conical Equal-Area Ellipsoid pp. 292-294
+#
+Map Projection:                 Albers Conic Equal-Area Ellipsoid
+Map Equatorial Radius:          6378206.4
+Map Eccentricity:               0.0822719
+Map Reference Latitude:         29.5
+Map Second Reference Latitude:  45.5
+Map Origin Latitude:            23.0
+Map Reference Longitude:        -96.0
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 8.7394e-04 km
+#   std dev error = 3.8429e-03 km
+#   maximum error = 1.8608e-01 km
+#   max error was at 89.44S 52.48E
+#
+# forward
+#   lat,lon = 35.0 -75.0
+#   x,y = 1885472.7500000 1535925.0000000 vs. 1885472.7       1535925.0 in Snyder
+#
+# inverse
+#   x,y = 1885472.7 1535925.0
+#   lat,lon = 35.0000000 -75.0000000 vs. 35.0000015 -75.0000003 in Snyder
+
+    d) To run the unit tests for all the utest*.mpp files, cd to UTEST
+       and type:
+
+         utest.pl utest*.mpp
+
+       By default, the only output produced is for actual results that
+       don't match expected results. Note that expected results are not
+       necessarily the same as those in Snyder, but they're all very
+       close.
+
+    e) To see produce output regardless of the results, use the -v option.
+       For example, typing:
+
+         utest.pl -v utest_albers_conic_equal_area_e00.mpp
+
+       produces:
+
+****************************************************************
+mppfile: utest_albers_conic_equal_area_e00.mpp
+  Map Projection:                 Albers Conic Equal-Area Ellipsoid
+  Map Equatorial Radius:          6378206.4
+  Map Eccentricity:               0.0822719
+  Map Reference Latitude:         29.5
+  Map Second Reference Latitude:  45.5
+  Map Origin Latitude:            23.0
+  Map Reference Longitude:        -96.0
+  **************************************************************
+  macct expected results:
+    102400 points,  0 bad points
+    average error = 8.7394e-04 km
+    std dev error = 3.8429e-03 km
+    maximum error = 1.8608e-01 km
+    max error was at 89.44S 52.48E
+  macct actual results:
+    102400 points,  0 bad points
+    average error = 8.7394e-04 km
+    std dev error = 3.8429e-03 km
+    maximum error = 1.8608e-01 km
+    max error was at 89.44S 52.48E
+  Expected results match actual results
+  **************************************************************
+  xytest forward results:
+    lat,lon in:       35.0 -75.0
+    x,y expected:     1885472.7500000 1535925.0000000
+                  vs. 1885472.7       1535925.0 in Snyder
+    x,y actual:       1885472.7500000 1535925.0000000
+  Expected results match actual results
+  **************************************************************
+  xytest inverse results:
+    x,y in:           1885472.7 1535925.0
+    lat,lon expected: 35.0000000 -75.0000000
+                  vs. 35.0000015 -75.0000003 in Snyder
+    lat,lon actual:   35.0000000 -75.0000000
+  Expected results match actual results
+****************************************************************
+
+    f) Typing:
+
+         grep average utest*.mpp
+
+       produces:
+
+utest_albers_conic_equal_area_e00.mpp:#   average error = 8.7394e-04 km
+utest_albers_conic_equal_area_e01.mpp:#   average error = 9.2418e-04 km
+utest_albers_conic_equal_area_s00.mpp:#   average error = 5.9359e-03 km
+utest_albers_conic_equal_area_s01.mpp:#   average error = 5.6677e-03 km
+utest_azimuthal_equal_area_e00.mpp:#   average error = 3.6016e-04 km
+utest_azimuthal_equal_area_e01.mpp:#   average error = 1.1645e-03 km
+utest_azimuthal_equal_area_e02.mpp:#   average error = 4.2699e-04 km
+utest_azimuthal_equal_area_e03.mpp:#   average error = 1.2262e-03 km
+utest_azimuthal_equal_area_s00.mpp:#   average error = 5.1295e-03 km
+utest_cylindrical_equal_area_e00.mpp:#   average error = 9.1734e-03 km
+utest_cylindrical_equal_area_s00.mpp:#   average error = 8.1742e-03 km
+utest_cylindrical_equidistant_s01.mpp:#   average error = 2.2924e-05 km
+utest_homolosine_s01.mpp:#   average error = 3.7073e-04 km
+utest_integerized_sinusoidal_s01.mpp:#   average error = 1.1599e-04 km
+utest_lambert_conic_conformal_e00.mpp:#   average error = 1.1262e-04 km
+utest_lambert_conic_conformal_e01.mpp:#   average error = 1.9469e-04 km
+utest_mercator_s00.mpp:#   average error = 1.8420e-04 km
+utest_mollweide_s00.mpp:#   average error = 3.2168e-04 km
+utest_orthographic_s00.mpp:#   average error = 1.0413e-03 km
+utest_polar_stereographic_e00.mpp:#   average error = 7.9947e-05 km
+utest_polar_stereographic_e01.mpp:#   average error = 1.7042e-04 km
+utest_polar_stereographic_s01.mpp:#   average error = 7.7328e-05 km
+utest_polar_stereographic_s02.mpp:#   average error = 1.6675e-04 km
+utest_sinusoidal_s00.mpp:#   average error = 1.9859e-04 km
+utest_sinusoidal_s01.mpp:#   average error = 1.9859e-04 km
+utest_transverse_mercator_e00.mpp:#   average error = 4.3851e+03 km
+utest_transverse_mercator_e01.mpp:#   average error = 4.3850e+03 km
+utest_transverse_mercator_s00.mpp:#   average error = 1.4980e-04 km
+utest_universal_transverse_mercator_e01.mpp:#   average error = 4.3851e+03 km
+
+       Note that the average error is less than 10 m for all projections
+       except transverse mercator ellipsoid and universal transverse
+       mercator; their high average errors are apparently due to the
+       use of series approximations that are very accurate "close" (i.e.
+       within about +- 10 degrees) to the central meridian, but then become
+       highly inaccurate farther away.
+
+    g) The utest*.mpp files produced to date do not necessarily exercise
+       all the paths through the code for each projection. More files
+       could be added to do this.
