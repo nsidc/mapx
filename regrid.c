@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.8 1998-09-03 22:06:51 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.9 1999-04-20 19:08:32 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.8 $\n"                                                             \
+"$Revision: 1.9 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -478,7 +478,7 @@ int inv_dist(grid_class *from_grid, float **from_data,
       if (!status) continue;
 
       status = forward_grid(to_grid, lat, lon, &r, &s);
-      if (!status) continue;
+      if (!status || !within_mapx(to_grid->mapx, lat, lon)) continue;
 
       if (verbose > 1 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
