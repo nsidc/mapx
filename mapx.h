@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.12 1994-04-07 16:16:35 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.13 1994-05-09 10:41:20 knowles Exp $";
 
 /* 
  * useful macros
@@ -17,8 +17,14 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.12 1
   while (lon >  180) lon -= 360; \
 }
 
+#ifndef SQRT2
 #define SQRT2 1.414213562373095
+#endif
+
+#ifndef PI
 #define PI 3.141592653589793
+#endif
+
 /* radius of the earth in km, authalic sphere based on International datum */
 #define mapx_Re_km  6371.228	/* radius of the earth in km */
 
