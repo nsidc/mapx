@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.3 2003-04-12 00:51:33 haran Exp $
+# $Id: utest.pl,v 1.4 2003-04-14 21:09:37 haran Exp $
 #
 
 #
@@ -136,10 +136,13 @@ foreach $mppfile (@mppfiles) {
 	    while($i < scalar(@mpp)) {
 		my $line = $mpp[$i++];
 		chomp $line;
-		($x_expected, $y_expected) =
-		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
+		($x_expected, $y_expected, $xy_comment) =
+		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
 		if (defined($x_expected) && defined($y_expected)) {
 		    $got_xy_expected = 1;
+		    if (!defined($xy_comment)) {
+			$xy_comment = "";
+		    }
 		    last;
 		}
 	    }
@@ -180,10 +183,13 @@ foreach $mppfile (@mppfiles) {
 	    while($i < scalar(@mpp)) {
 		my $line = $mpp[$i++];
 		chomp $line;
-		($lat_expected, $lon_expected) =
-		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
+		($lat_expected, $lon_expected, $latlon_comment) =
+		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
 		if (defined($lat_expected) && defined($lon_expected)) {
 		    $got_latlon_expected = 1;
+		    if (!defined($latlon_comment)) {
+			$latlon_comment = "";
+		    }
 		    last;
 		}
 	    }
@@ -254,7 +260,8 @@ foreach $mppfile (@mppfiles) {
 		print STDERR ("**********************************************\n");
 		print STDERR ("$mppfile forward:\n");
 		print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
-		print STDERR ("  x,y expected:     $x_expected $y_expected\n");
+		print STDERR ("  x,y expected:     $x_expected $y_expected" .
+			      " $xy_comment\n");
 		print STDERR ("  x,y actual:       $x_actual $y_actual\n");
 	    }
 
@@ -277,17 +284,16 @@ foreach $mppfile (@mppfiles) {
 		print STDERR ("**********************************************\n");
 		print STDERR ("$mppfile inverse:\n");
 		print STDERR ("  x,y in:           $x_in $y_in\n");
-		print STDERR ("  lat,lon expected: $lat_expected $lon_expected\n");
+		print STDERR ("  lat,lon expected: $lat_expected $lon_expected".
+			      " $latlon_comment\n");
 		print STDERR ("  lat,lon actual:   $lat_actual $lon_actual\n");
 	    }
 	}
 	if (!$ok) {
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-			  "Expected and actual results differ\n");
+	    print STDERR ("  Expected and actual results differ\n");
 	}
 	if ($verbose && $ok) {
-	    print STDERR ("$script: MESSAGE: $mppfile:\n" .
-			  "Expected results match actual results\n");
+	    print STDERR ("  Expected results match actual results\n");
 	}
 	system("rm -f $tmpfile");
 	$got_one_result = 1;
