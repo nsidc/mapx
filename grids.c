@@ -4,7 +4,7 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.9 1994-04-07 16:16:36 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.10 1994-07-18 14:38:03 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,8 +161,8 @@ int forward_grid(grid_class *this, float lat, float lon, float *r, float *s)
   *r = this->map_origin_col + u * this->cols_per_map_unit;
   *s = this->map_origin_row - v * this->rows_per_map_unit;
 
-  if (*r <= -0.5 || *r >= this->cols - 0.5 
-      || *s <= -0.5 || *s >= this->rows - 0.5)
+  if (*r < -0.5 || *r >= this->cols - 0.5 
+      || *s < -0.5 || *s >= this->rows - 0.5)
     return FALSE;
   else
     return TRUE;
