@@ -7,9 +7,18 @@
 #ifndef keyval_h_
 #define keyval_h_
 
-static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.4 1999-11-19 16:55:50 knowles Exp $";
+static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.5 2003-06-24 22:35:21 haran Exp $";
 
 #include "define.h"
+
+/*
+ * define symbol to use for marking uninitialized keyword values
+ */
+#ifdef FLT_MAX
+#define KEYVAL_UNINITIALIZED ((double)FLT_MAX)
+#else
+#define KEYVAL_UNINITIALIZED ((double)9e30)
+#endif
 
 static const char *keyval_FALL_THRU_STRING = "-+-keyval_FALL_THRU_STRING-+-";
 static const char *keyval_LATITUDE = "NSns";
@@ -27,6 +36,6 @@ bool get_value_keyval(const char *label, const char *keyword,
 int boolean_keyval(const char *field_ptr, bool *value);
 
 int lat_lon_keyval(const char *field_ptr, const char *designators, 
-		   float *value);
+		   double *value);
 
 #endif
