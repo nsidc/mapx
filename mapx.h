@@ -7,7 +7,19 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.18 1999-07-28 22:24:59 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.19 1999-08-02 16:58:07 knowles Exp $";
+
+/*
+ * global verbose flag
+ */
+#ifdef MAPX_C_
+#  define GLOBAL
+#else
+#  define GLOBAL extern
+#endif
+
+GLOBAL int mapx_verbose;
+
 
 /* 
  * useful macros
@@ -30,8 +42,11 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.18 1
 #define PI 3.141592653589793
 #endif
 
-/* radius of the earth in km, authalic sphere based on International datum */
-#define mapx_Re_km  6371.228	/* radius of the earth in km */
+/* radius of the Earth in km, authalic sphere based on International datum */
+#define mapx_Re_km  6371.228
+/* equatorial radius in km and eccentricity of the Earth based on Clark 1866 Datum */
+#define mapx_equatorial_radius_km 6378.2064
+#define mapx_eccentricity 0.082271673
 
 #define RADIANS(t) ((t) * PI/180)
 #define DEGREES(t) ((t) * 180/PI)
@@ -75,7 +90,7 @@ typedef struct {
 /*
  * function prototypes
  */
-mapx_class *init_mapx(char *map_filename);
+mapx_class *init_mapx(char *mpp_filename);
 void close_mapx(mapx_class *this);
 int reinit_mapx(mapx_class *this);
 int within_mapx(mapx_class *this, float lat, float lon);
