@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.13 2000-10-05 20:11:02 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.14 2001-06-26 16:57:09 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.13 $\n"                                                             \
+"$Revision: 1.14 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -429,6 +429,9 @@ main (int argc, char *argv[])
 	{ to_data[i][j] /= to_beta[i][j];
 	}
 	else
+	  /*
+	   * beta==0 indicates missing data
+	   */
 	{ to_data[i][j] = fill;
 	}
       }
@@ -717,7 +720,12 @@ int nearestn(grid_class *from_grid, float **from_data,
 	    || (0 == to_beta[i][j] && fill == to_data[i][j]))
 	{
 	  to_data[i][j] = from_data[row][col];
-	  to_beta[i][j] = dd;
+	  /*
+	   * since beta==0 indicates missing data
+	   * and these are just relative weights
+	   * bump the distance up by 1
+	   */
+	  to_beta[i][j] = dd + 1;
 	}
       }
 
