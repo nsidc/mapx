@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.13 2003-05-02 19:32:47 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.14 2003-05-02 22:46:13 haran Exp $
 #
 
 #
@@ -306,7 +306,7 @@ foreach $mppfile (@mppfiles) {
 	#
 	my $command = "../xytest $mppfile <$tmpfile 2>&1";
 	my @xytest = `$command`;
-	if (!defined(@xytest)) {
+	if (!@xytest) {
 	    print STDERR ("$script: ERROR: $mppfile:\n" .
 			  "Can't run $command\n");
 	    last;
@@ -322,7 +322,7 @@ foreach $mppfile (@mppfiles) {
 	# Find expected x,y or lat,lon
 	#
 	my @actual = grep(/$target/, @xytest);
-	if (!defined(@actual)) {
+	if (!@actual) {
 	    print STDERR (@xytest);
 	    print STDERR ("$script: ERROR: $mppfile:\n" .
 			  "Can't find $target in output from $command\n");
