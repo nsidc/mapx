@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.31 1994-11-03 20:52:35 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.32 1995-02-03 18:45:02 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -77,7 +77,7 @@ clean :
 tar :
 	- $(CO) Makefile ppgc.ps regrid.c cdb_edit.mpp cdb_edit.c \
 		cdb_list.c wdbtocdb.c wdbpltc.c mapenum.c $(SRCS) $(HDRS)
-	$(CP) $(INCDIR)/define.h $(INCDIR)/byteswap.h .
+	- $(CP) $(INCDIR)/define.h $(INCDIR)/byteswap.h .
 	$(TAR) cvf $(TARFILE) define.h byteswap.h \
 		Makefile ppgc.ps regrid.c cdb_edit.mpp cdb_edit.c \
                 cdb_list.c wdbtocdb.c wdbpltc.c mapenum.c $(SRCS) $(HDRS)
@@ -96,7 +96,7 @@ regrid: regrid.o $(LIBDIR)/libmaps.a
 cdb_edit: cdb_edit.o $(LIBDIR)/libmaps.a
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
-	$(INSTALL) cdb_edit.mpp $(MAPDIR)
+	$(CP) cdb_edit.mpp $(MAPDIR)
 cdb_list: cdb_list.o $(LIBDIR)/libmaps.a
 	$(CC) -o cdb_list cdb_list.o $(LIBS)
 	$(INSTALL) cdb_list $(BINDIR)
@@ -130,22 +130,6 @@ gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h
 #
 macct : maps.c maps.h mapx.c mapx.h
 	$(CC) -O -DMACCT -o macct maps.c mapx.c $(LIBS)
-#
-#------------------------------------------------------------------------
-# coastlines database aplications
-#
-cdb_edit: cdb_edit.o $(LIBDIR)/libmaps.a
-	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
-	$(INSTALL) cdb_edit $(BINDIR)
-cdb_edit.mpp: cdb_edit.mpp,v
-	$(CO) cdb_edit.mpp
-	$(INSTALL) cdb_edit.mpp $(MAPDIR)
-cdb_list: cdb_list.o $(LIBDIR)/libmaps.a
-	$(CC) -o cdb_list cdb_list.o $(LIBS)
-	$(INSTALL) cdb_list $(BINDIR)
-wdbtocdb: wdbtocdb.o wdbpltc.o $(LIBDIR)/libmaps.a
-	$(CC) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
-	$(INSTALL) wdbtocdb $(BINDIR)
 #
 #------------------------------------------------------------------------
 
