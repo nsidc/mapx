@@ -7,14 +7,14 @@ SHELL = /bin/sh
 TOP = /usr/local
 LOCAL_LIB = $(TOP)/lib
 LOCAL_INCLUDE = $(TOP)/include
-CC = cc
-AR = ar
-RANLIB = touch
-CO = co
-INSTALL = cp
-RM = /rm -f
-TAR = tar
-COMPRESS = compress
+CC = /usr/bin/cc
+AR = /usr/bin/ar
+RANLIB = /bin/touch
+CO = /usr/sbin/co
+INSTALL = /bin/cp
+RM = /bin/rm -f
+TAR = /bin/tar
+COMPRESS = /usr/bsd/compress
 TARFILE = maps.tar
 DEBUG_FLAGS = -O
 CLIBS = -lm
@@ -42,18 +42,18 @@ tar:
 	$(COMPRESS) $(TARFILE)
 
 # interactive tests
-mtest : mapx.c mapx.h
-	$(CC) $(DEBUG_FLAGS) -DMTEST -o mtest mapx.c $(CLIBS)
+mtest : mapx.c mapx.h maps.c maps.h
+	$(CC) $(DEBUG_FLAGS) -DMTEST -o mtest mapx.c maps.c $(CLIBS)
 
-gtest : grids.c grids.h mapx.c mapx.h
-	$(CC) $(DEBUG_FLAGS) -DGTEST -o gtest grids.c mapx.c $(CLIBS)
+gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h
+	$(CC) $(DEBUG_FLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(CLIBS)
 
 # performance tests
-mpmon : mapx.c mapx.h
-	$(CC) -O -p -DMPMON -o mpmon mapx.c -lm -lmalloc
+mpmon : mapx.c mapx.h maps.c maps.h
+	$(CC) -O -p -DMPMON -o mpmon mapx.c $(CLIBS)
 
-gpmon : grids.c grids.h mapx.c mapx.h
-	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c -lm -lmalloc
+gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h
+	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c $(CLIBS)
 
 # accuracy tests
 macct : maps.c maps.h mapx.c mapx.h
