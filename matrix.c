@@ -5,9 +5,9 @@
  *========================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
-#include <matrix.h>
+#include "matrix.h"
 
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.1 1993-08-02 10:21:07 knowles Exp $";
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.2 1993-10-26 11:27:57 knowles Exp $";
 
 /*------------------------------------------------------------------------
  * matrix - allocate 2-D matrix

@@ -8,10 +8,10 @@
  *========================================================================*/
 #include <stdio.h>
 #include <float.h>
-#include <define.h>
-#include <smodel.h>
+#include "define.h"
+#include "smodel.h"
 
-static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.1 1993-08-02 10:24:52 knowles Exp $";
+static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.2 1993-10-26 11:26:43 knowles Exp $";
 
 static smodel *new_smodel(int n);
 static double linearize(double lon1, double lon2, int topo);
