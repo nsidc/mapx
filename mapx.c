@@ -6,6 +6,7 @@
  *	2-July-1992 K.Knowles - init returns pointer to struct
  *      10-Dec-1992 R.Swick - added error checking and flexible names
  *      15-Dec-1992 R.Swick - added ellipsoid projections.
+ *	30-Dec-1992 K.Knowles - added interactive and performance tests
  *========================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,7 +90,7 @@ mapx_class *init_mapx (char *map_file_name)
   float f1, f2, f3, f4;
   int i1, i2, i3, ios;
   char projection[80], readln[80], old_projection[80];
-  char *change(char *);
+  char *standardize(char *);
   mapx_class *this;
 
   this = (mapx_class *) malloc(sizeof(mapx_class));
@@ -110,7 +111,7 @@ mapx_class *init_mapx (char *map_file_name)
 
   fgets (readln, sizeof(readln), this->mpp_file);
   sscanf (readln, "%s", old_projection);
-  strcpy(projection, change(old_projection));
+  strcpy(projection, standardize(old_projection));
 
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f %f %f", &f1, &f2, &f3, &f4);
@@ -310,12 +311,15 @@ mapx_class *init_mapx (char *map_file_name)
 				   (1.0/(2.0*(this->eccentricity))) * 
 				   log((1.0-((this->eccentricity) * (this->sin_phi1))) / 
 				       (1.0+((this->eccentricity) * (this->sin_phi1)))));
-    this->beta1 = asin(this->q1/this->qp);
+    if (fabs(this->q1)>fabs(this->qp))
+      this->beta1 = RADIANS(90)*(fabs(this->q1/this->qp)/(this->q1/this->qp));
+    else
+      this->beta1 = asin(this->q1/this->qp);
     this->sin_beta1 = sin(this->beta1);
     this->cos_beta1 = cos(this->beta1);
     this->m1 = (this->cos_phi1)/sqrt(1.0-((this->e2) * ((this->sin_phi1)*(this->sin_phi1))));
     this->D = ((this->Rg) * (this->m1)) / ((this->Rq) * (this->cos_beta1));
-
+    
   }
 
   else if ((strcmp (projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) || 
@@ -487,7 +491,7 @@ static int azimuthal_equal_area (float lat, float lon, float *u, float *v)
 	  x =  rho * sin(lam);
 	  y =  rho * cos(lam);
 	}
-	else
+ 	else
 	{ kp = sqrt(2./(1+current->sin_phi1*sin(phi) 
 	    + current->cos_phi1*cos(phi)*cos(lam)));
 	  x = current->Rg*kp*cos(phi)*sin(lam);
@@ -538,56 +542,63 @@ static int inverse_azimuthal_equal_area (float u, float v, float *lat, float *lo
 /*-----------------------------------------------------------------------
  * Azimuthal_Equal_Area_Ellipsoid
  *------------------------------------------------------------------------*/
-
 static int azimuthal_equal_area_ellipsoid (float lat, float lon, float *u, float *v)
 {
-  	float x,y;
-	double phi, lam, rho, beta; 
-	double sin_phi, cos_phi, sin_beta, cos_beta, q, B;
-	
-	phi = RADIANS (lat);
-	lam = RADIANS (lon - current->lon0);
-	sin_phi = sin(phi);
-	cos_phi = cos(phi);
+  float x,y;
+  double phi, lam, rho, beta; 
+  double sin_phi,sin_beta, cos_beta, q, B;
 
-	q = (1.0-(current->e2)) * (((sin_phi)/(1.0-((current->e2)*(sin_phi * sin_phi))))-
-				   (1.0/(2.0 * (current->eccentricity))) * 
-				   log((1-(current->eccentricity * sin_phi)) /
-				       (1.0+(current->eccentricity * sin_phi))));
+  phi = RADIANS (lat);
+  lam = RADIANS (lon - current->lon0);
+  sin_phi = sin(phi);
 
-	if (current->lat0 == 90.00)
-	{ rho = (current->Rg) * (sqrt((current->qp) - q));
-	  x = rho * (sin(lam));
-	  y = -rho * (cos(lam));
-	}
-	else if (current->lat0 == -90.00)
-	{ rho = (current->Rg) * (sqrt((current->qp) + q));
-	  x = rho * (sin(lam));
-	  y = rho * (cos(lam));
-	}
 
-	else
-	{ if(fabs(fabs(q)-fabs(current->qp))<0.00000001)
-	    beta = RADIANS(90.0)*(fabs(q)/q);
-	  else
-	    beta = asin(q/(current->qp));
-	  sin_beta = sin(beta);
-	  cos_beta = cos(beta);
-	  B = (current->Rq) * (sqrt(2.0/(1.0+((current->sin_beta1) * sin_beta)+
-					 ((current->cos_beta1) * cos_beta * 
-					  cos(lam)))));
-	  x = B * (current->D) * cos_beta * sin(lam);
-	  y = (B/(current->D)) * (((current->cos_beta1) * sin_beta)-
-				  ((current->sin_beta1) * cos_beta * 
-				   cos(lam)));
-	}
-	
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-	
-	return(0);
-      
-      }   
+  q = (1.0-(current->e2)) * (((sin_phi)/(1.0-((current->e2)*(sin_phi * sin_phi))))-
+			     (1.0/(2.0 * (current->eccentricity))) * 
+			     log((1-(current->eccentricity * sin_phi)) /
+				 (1.0+(current->eccentricity * sin_phi))));
+
+  if (current->lat0 == 90.00)
+  {
+    if (fabs((current->qp) - q)<0.00000001)
+      rho = 0.0;
+    else
+      rho = (current->Rg) * (sqrt((current->qp) - q));
+    x = rho * (sin(lam));
+    y = -rho * (cos(lam));
+  }
+  else if (current->lat0 == -90.00)
+  {
+    if (fabs((current->qp) - q)<0.00000001)
+      rho = 0.0;
+    else 
+      rho = (current->Rg) * (sqrt((current->qp) + q));
+    x = rho * (sin(lam));
+    y = rho * (cos(lam));
+  }
+
+  else
+  {
+    if(fabs(fabs(q)-fabs(current->qp))<0.00000001)
+      beta = RADIANS(90.0)*(fabs(q)/q);
+    else
+      beta = asin(q/(current->qp));
+    sin_beta = sin(beta);
+    cos_beta = cos(beta);
+    B = (current->Rq) * (sqrt(2.0/(1.0+((current->sin_beta1) * sin_beta)+
+				   ((current->cos_beta1) * cos_beta * 
+				    cos(lam)))));
+    x = B * (current->D) * cos_beta * sin(lam);
+    y = (B/(current->D)) * (((current->cos_beta1) * sin_beta)-
+			    ((current->sin_beta1) * cos_beta * 
+			     cos(lam)));
+  }
+
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+
+  return(0);
+}   
 
 static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat, float *lon)
 {
@@ -597,37 +608,67 @@ static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat,
   y = -current->T10 * (u + current->u0) + (current->T11) * (v + current->v0);
   
   if (current->lat0 == 90.00)
-  { rho = sqrt((x*x)+(y*y));
-    beta = asin(1.0-(rho*rho)/((current->Rg)*(current->Rg)*
-			       (1.0-(((1.0-(current->e2))/(2.0 * (current->eccentricity)))*
-				(log((1.0-(current->eccentricity))/
-				     (1.0+(current->eccentricity))))))));
-    phi = beta + ((((current->e2)/3.0)+((31.0/180.0)*(current->e4))+
-			((517.0/5040.0)*(current->e6)))*sin(2.0*beta))+
-			  ((((23.0/360.0)*(current->e4))+
-			    ((251.0/3780.0)*(current->e6)))*sin(4.0*beta))+
-			      (((761.0/45360.0)*(current->e6))*sin(6.0*beta));
-    lam = atan2(x,(-y));
+  {
+    if(x==0.0 && y==0.0)
+    {
+      phi = RADIANS(current->lat0);
+      lam = 0.0;
+    }
+    else
+    {
+      rho = ((x*x)+(y*y));
+      if (rho<0.00000000001)
+	beta = asin(1.0-(0.00000000001)/((current->Rg)*(current->Rg)*
+					 (1.0-(((1.0-(current->e2))/(2.0 * (current->eccentricity)))*
+					       (log((1.0-(current->eccentricity))/
+						    (1.0+(current->eccentricity))))))));
+      else
+	beta = asin(1.0-(rho)/((current->Rg)*(current->Rg)*
+				   (1.0-(((1.0-(current->e2))/(2.0 * (current->eccentricity)))*
+					 (log((1.0-(current->eccentricity))/
+					      (1.0+(current->eccentricity))))))));
+      phi = beta + ((((current->e2)/3.0)+((31.0/180.0)*(current->e4))+
+		     ((517.0/5040.0)*(current->e6)))*sin(2.0*beta))+
+		       ((((23.0/360.0)*(current->e4))+
+			 ((251.0/3780.0)*(current->e6)))*sin(4.0*beta))+
+			   (((761.0/45360.0)*(current->e6))*sin(6.0*beta));
+      lam = atan2(x,(-y));
+    }
   }
+
   else if (current->lat0 == -90.00)
-  { rho = sqrt((x*x) + (y*y));
-    beta = asin(1.0-(rho*rho)/((current->Rg)*(current->Rg)*
+  { 
+    if (x == 0.0 && y == 0.0)
+    {
+      phi = RADIANS(current->lat0);
+      lam = 0.0;
+    }
+    else
+    { rho = ((x*x) + (y*y));
+      if(rho<0.00000000001)
+	beta = asin(1.0-(0.00000000001)/((current->Rg)*(current->Rg)*
+					 (1.0-(((1.0-(current->e2))/(2.0 * (current->eccentricity)))*
+					       (log((1.0-(current->eccentricity))/
+						    (1.0+(current->eccentricity))))))));
+      else
+	beta = asin(1.0-(rho)/((current->Rg)*(current->Rg)*
 			       (1.0-(((1.0-(current->e2))/(2.0 * (current->eccentricity)))*
-				(log((1.0-(current->eccentricity))/
-				     (1.0+(current->eccentricity))))))));
-    lam = atan2(x,y);
-    phi = (-beta) +((((current->e2)/3.0)+((31.0/180.0)*(current->e4))+
-			 ((517.0/5040.0)*(current->e6)))*sin(2.0*beta))+
-			   ((((23.0/360.0)*(current->e4))+
-			     ((251.0/3780.0)*(current->e6)))*sin(4.0*beta))+
-			       (((761.0/45360.0)*(current->e6))*sin(6.0*beta));
+				     (log((1.0-(current->eccentricity))/
+					  (1.0+(current->eccentricity))))))));
+      lam = atan2(x,y);
+      phi = (-beta) +((((current->e2)/3.0)+((31.0/180.0)*(current->e4))+
+		       ((517.0/5040.0)*(current->e6)))*sin(2.0*beta))+
+			 ((((23.0/360.0)*(current->e4))+
+			   ((251.0/3780.0)*(current->e6)))*sin(4.0*beta))+
+			     (((761.0/45360.0)*(current->e6))*sin(6.0*beta));
+    }
   }
   else 
   { rho = sqrt(((x/(current->D))*(x/(current->D)))+
 	       (((current->D)*y)*((current->D)*y)));
     ce = 2*asin(rho/(2.0*(current->Rq)));
-    
-    if (fabs(rho)<0.00000001)
+
+    if (rho<0.00000001)
       beta = current->beta1;
     else
       beta = asin ((cos(ce)*(current->sin_beta1))+
@@ -640,13 +681,12 @@ static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat,
     lam = atan2((x*sin(ce)),(((current->D)*rho*(current->cos_beta1)*cos(ce))-
 			     (((current->D)*(current->D))*y*(current->sin_beta1)*sin(ce))));
 
- }
+  }
   *lat = DEGREES(phi);
   *lon = DEGREES(lam) + (current->lon0);
   NORMALIZE(*lon);
 
   return(0);
-
 }
 
 /*------------------------------------------------------------------------
@@ -816,11 +856,10 @@ static int inverse_equal_area_cylindrical (float u, float v, float *lat, float *
 /*--------------------------------------------------------------------------
  * equal_area_cylindrical_ellipsoid (normal aspect)
  *--------------------------------------------------------------------------*/
-
 static int equal_area_cylindrical_ellipsoid (float lat, float lon, float *u, float *v)
 {
   float x, y, dlon;
-  double phi, lam, kz, q, sin_phi;
+  double phi, lam, q, sin_phi;
 
   dlon = (lon - current->lon0);
   NORMALIZE (dlon);
@@ -830,9 +869,9 @@ static int equal_area_cylindrical_ellipsoid (float lat, float lon, float *u, flo
 
   sin_phi = sin(phi);
   q = (1.0 - (current->e2)) * ((sin_phi/(1.0 - ((current->e2) * sin_phi * sin_phi)))
-			    - (1.0/(2.0*(current->eccentricity))) * 
-				log((1.0 - ((current->eccentricity)*sin_phi))/
-				    (1.0 + ((current->eccentricity)*sin_phi))));
+			       - (1.0/(2.0*(current->eccentricity))) * 
+			       log((1.0 - ((current->eccentricity)*sin_phi))/
+				   (1.0 + ((current->eccentricity)*sin_phi))));
 
   x = ((current->Rg) * (current->kz) * lam);
   y = ((current->Rg) * q)/(2.0 * (current->kz));
@@ -843,14 +882,13 @@ static int equal_area_cylindrical_ellipsoid (float lat, float lon, float *u, flo
   return(0);
 }
 
-
 static int inverse_equal_area_cylindrical_ellipsoid (float u, float v, float *lat, float *lon)
 {
-  double phi, lam, x, y, kz, f, e, phis, qp, beta, alpha;
+  double phi, lam, x, y, beta;
 
   x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
   y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+
   beta = asin(2.0 * y * (current->kz)/((current->Rg) * (current->qp)));
 
   phi = beta +((((current->e2)/3.0)+((31.0/180.0)*(current->e4))+
@@ -1053,10 +1091,10 @@ static int inverse_sinusoidal (float u, float v, float *lat, float *lon)
 
 
 /*--------------------------------------------------------------------------
- * change projection name
+ * standardize projection name
  *-------------------------------------------------------------------------*/
 
-char *change(char *s)
+char *standardize(char *s)
 {
   static char new_projection[80];
   char *p = new_projection;
@@ -1068,6 +1106,9 @@ char *change(char *s)
     else 
       *p++ = toupper(*s);
   }
+
+  *p = '\0';
+         
   return new_projection;
 }
 
@@ -1171,18 +1212,18 @@ main(int argc, char *argv[])
   float err=0, sum=0, sum2=0, stdv=0, max_err=0, lat_max=0, lon_max=0;
 #endif
 
-  if (argc < 2) 
+  if (argc < 2)
 #ifdef MACCT
   { fprintf(stderr,"#\tmacct can be used to test the accuracy\n");
     fprintf(stderr,"#\tof the mapx routines. It runs the forward and\n");
     fprintf(stderr,"#\tinverse transforms at ~100K points over the whole\n");
     fprintf(stderr,"#\tmap. Error statistics are accumulated in kilometers.\n");
-    fprintf(stderr,"#\To run the test type:\n");
+    fprintf(stderr,"#\tTo run the test type:\n");
     fprintf(stderr,"#\t\tmacct test.mpp\n");
     fprintf(stderr,"\n");
     error_exit(usage);
   }
-#else
+else
   { fprintf(stderr,"#\tmpmon can be used to monitor the performance\n");
     fprintf(stderr,"#\tof the mapx routines. It runs the forward and\n");
     fprintf(stderr,"#\tinverse transforms at ~100K points over the whole\n");
