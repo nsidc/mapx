@@ -4,6 +4,8 @@
 #ifndef define_h_
 #define define_h_
 
+static const char define_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/define.h,v 1.9 2003-06-23 15:56:00 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
