@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * orthographic
  *------------------------------------------------------------------------*/
-static const char orthographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/orthographic.c,v 1.2 2003-06-24 22:58:58 haran Exp $";
+static const char orthographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/orthographic.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_orthographic(void)
+const char *id_orthographic(void)
 {
-  return((char *)orthographic_c_rcsid);
+  return orthographic_c_rcsid;
 }
 
 int init_orthographic(mapx_class *current)

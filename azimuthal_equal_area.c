@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------
  * azimuthal_equal_area
  *------------------------------------------------------------------------*/
-static const char azimuthal_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/azimuthal_equal_area.c,v 1.3 2003-06-23 15:39:30 haran Exp $";
+static const char azimuthal_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/azimuthal_equal_area.c,v 1.4 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "proj.h"
 #include "define.h"
 #include "mapx.h"
 
-char *id_azimuthal_equal_area(void)
+const char *id_azimuthal_equal_area(void)
 {
-  return((char *)azimuthal_equal_area_c_rcsid);
+  return azimuthal_equal_area_c_rcsid;
 }
 
 int init_azimuthal_equal_area(mapx_class *current)

@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * polar_stereographic
  *------------------------------------------------------------------------*/
-static const char polar_stereographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/polar_stereographic.c,v 1.3 2003-06-24 23:01:10 haran Exp $";
+static const char polar_stereographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/polar_stereographic.c,v 1.4 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_polar_stereographic(void)
+const char *id_polar_stereographic(void)
 {
-  return((char *)polar_stereographic_c_rcsid);
+  return polar_stereographic_c_rcsid;
 }
 
 int init_polar_stereographic(mapx_class *current)

@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * cylindrical_equidistant
  *------------------------------------------------------------------------*/
-static const char cylindrical_equidistant_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equidistant.c,v 1.2 2003-06-23 15:55:01 haran Exp $";
+static const char cylindrical_equidistant_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equidistant.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_cylindrical_equidistant(void)
+const char *id_cylindrical_equidistant(void)
 {
-  return((char *)cylindrical_equidistant_c_rcsid);
+  return cylindrical_equidistant_c_rcsid;
 }
 
 int init_cylindrical_equidistant(mapx_class *current)

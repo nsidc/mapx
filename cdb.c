@@ -7,7 +7,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1992 University of Colorado
  *===========================================================================*/
-static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.15 2004-01-19 00:57:22 knowlesk Exp $";
+static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.16 2004-01-21 23:54:17 knowlesk Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,9 +20,9 @@ static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.15 200
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
 static cdb_seg_data *cdb_read_memory(cdb_class *this);
 
-char *id_cdb(void)
+const char *id_cdb(void)
 {
-  return((char *)cdb_c_rcsid);
+  return cdb_c_rcsid;
 }
 
 /*----------------------------------------------------------------------

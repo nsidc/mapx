@@ -5,16 +5,19 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1996 University of Colorado
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.9 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <ctype.h>
 #include "define.h"
 #include "keyval.h"
 #include "mapx.h"
 
-char *id_keyval(void)
+static const char *keyval_LATITUDE = "NSns";
+static const char *keyval_LONGITUDE = "EWew";
+
+const char *id_keyval(void)
 {
-  return((char *)keyval_c_rcsid);
+  return keyval_c_rcsid;
 }
 
 /*------------------------------------------------------------------------

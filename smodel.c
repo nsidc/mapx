@@ -8,7 +8,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1992 University of Colorado
  *========================================================================*/
-static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
+static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.6 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <stdio.h>
 #include <float.h>
@@ -19,9 +19,9 @@ static smodel *new_smodel(int n);
 static double linearize(double lon1, double lon2, int topo);
 static double normalize(double lon, int topo);
 
-char *id_smodel(void)
+const char *id_smodel(void)
 {
-  return((char *)smodel_c_rcsid);
+  return smodel_c_rcsid;
 }
 
 /*------------------------------------------------------------------------

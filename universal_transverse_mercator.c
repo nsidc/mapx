@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * universal_transverse_mercator
  *------------------------------------------------------------------------*/
-static const char universal_transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/universal_transverse_mercator.c,v 1.2 2004-01-05 22:48:12 knowlesk Exp $";
+static const char universal_transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/universal_transverse_mercator.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
@@ -19,9 +19,9 @@ int init_transverse_mercator_ellipsoid(mapx_class *current);
 
 static int process_utm_zone(mapx_class *current);
 
-char *id_unversal_transverse_mercator(void)
+const char *id_unversal_transverse_mercator(void)
 {
-  return((char *)universal_transverse_mercator_c_rcsid);
+  return universal_transverse_mercator_c_rcsid;
 }
 
 int init_universal_transverse_mercator(mapx_class *current)

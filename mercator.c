@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * mercator
  *------------------------------------------------------------------------*/
-static const char mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mercator.c,v 1.2 2003-06-24 22:55:08 haran Exp $";
+static const char mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mercator.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_mercator(void)
+const char *id_mercator(void)
 {
-  return((char *)mercator_c_rcsid);
+  return mercator_c_rcsid;
 }
 
 int init_mercator(mapx_class *current)

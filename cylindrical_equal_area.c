@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * cylindrical_equal_area
  *------------------------------------------------------------------------*/
-static const char cylindrical_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equal_area.c,v 1.2 2003-06-23 15:53:23 haran Exp $";
+static const char cylindrical_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equal_area.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_cylindrical_equal_area(void)
+const char *id_cylindrical_equal_area(void)
 {
-  return((char *)cylindrical_equal_area_c_rcsid);
+  return cylindrical_equal_area_c_rcsid;
 }
 
 int init_cylindrical_equal_area(mapx_class *current)

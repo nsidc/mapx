@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * sinusoidal
  *------------------------------------------------------------------------*/
-static const char sinusoidal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/sinusoidal.c,v 1.2 2003-06-24 23:05:35 haran Exp $";
+static const char sinusoidal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/sinusoidal.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_sinusoidal(void)
+const char *id_sinusoidal(void)
 {
-  return((char *)sinusoidal_c_rcsid);
+  return sinusoidal_c_rcsid;
 }
 
 int init_sinusoidal(mapx_class *current)

@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1991 University of Colorado
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.39 2004-01-19 00:57:22 knowlesk Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.40 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,9 +135,9 @@ int init_universal_transverse_mercator(void *);
   uses inverse_transverse_mercator_ellipsoid
 */
 
-char *id_mapx(void)
+const char *id_mapx(void)
 {
-  return((char *)mapx_c_rcsid);
+  return mapx_c_rcsid;
 }
 
 /*----------------------------------------------------------------------

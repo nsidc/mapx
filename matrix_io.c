@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1997 University of Colorado
  *======================================================================*/
-static const char matrix_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.10 2004-01-19 00:57:22 knowlesk Exp $";
+static const char matrix_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.11 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,9 +13,9 @@ static const char matrix_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,
 
 #define ZERO_BYTES 0;
 
-char *id_matrix_io(void)
+const char *id_matrix_io(void)
 {
-  return((char *)matrix_io_c_rcsid);
+  return matrix_io_c_rcsid;
 }
 
 /*----------------------------------------------------------------------

@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1991 University of Colorado
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.17 2004-01-19 00:57:22 knowlesk Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.18 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,9 +20,9 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.17
 static bool decode_gpd(grid_class *this, char *label);
 static bool old_fixed_format_decode_gpd(grid_class *this, char *label);
 
-char *id_grids(void)
+const char *id_grids(void)
 {
-  return((char *)grids_c_rcsid);
+  return grids_c_rcsid;
 }
 
 /*----------------------------------------------------------------------

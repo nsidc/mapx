@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.9 2004-01-19 00:57:22 knowlesk Exp $";
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.10 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +14,9 @@ static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.
 #include "define.h"
 #include "matrix.h"
 
-char *id_matrix(void)
+const char *id_matrix(void)
 {
-  return((char *)matrix_c_rcsid);
+  return matrix_c_rcsid;
 }
 
 /*------------------------------------------------------------------------

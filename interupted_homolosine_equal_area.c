@@ -2,7 +2,7 @@
  * interupted homolosine equal-area
  * reference: http://edcwww.cr.usgs.gov/landdaac/1KM/goodesarticle.html
  *--------------------------------------------------------------------------*/
-static const char interupted_homolosine_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/interupted_homolosine_equal_area.c,v 1.2 2003-06-24 22:11:01 haran Exp $";
+static const char interupted_homolosine_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/interupted_homolosine_equal_area.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
@@ -60,9 +60,9 @@ static const double IH_lam0[] =
  */
 #define IH_mc3 0.0528035274542
 
-char *id_interupted_homolosine_equal_area(void)
+const char *id_interupted_homolosine_equal_area(void)
 {
-  return((char *)interupted_homolosine_equal_area_c_rcsid);
+  return interupted_homolosine_equal_area_c_rcsid;
 }
 
 int init_interupted_homolosine_equal_area(mapx_class *current)

@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------
  * albers_conic_equal_area
  *------------------------------------------------------------------------*/
-static const char albers_conic_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/albers_conic_equal_area.c,v 1.3 2003-06-23 15:38:24 haran Exp $";
+static const char albers_conic_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/albers_conic_equal_area.c,v 1.4 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "proj.h"
 #include "define.h"
 #include "mapx.h"
 
-char *id_albers_conic_equal_area(void)
+const char *id_albers_conic_equal_area(void)
 {
-  return((char *)albers_conic_equal_area_c_rcsid);
+  return albers_conic_equal_area_c_rcsid;
 }
 
 int init_albers_conic_equal_area(mapx_class *current)

@@ -1,14 +1,14 @@
 /*------------------------------------------------------------------------
  * mollweide
  *------------------------------------------------------------------------*/
-static const char mollweide_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mollweide.c,v 1.2 2003-06-24 22:56:37 haran Exp $";
+static const char mollweide_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mollweide.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 
-char *id_mollweide(void)
+const char *id_mollweide(void)
 {
-  return((char *)mollweide_c_rcsid);
+  return mollweide_c_rcsid;
 }
 
 int init_mollweide(mapx_class *current)

@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * transverse_mercator
  *------------------------------------------------------------------------*/
-static const char transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/transverse_mercator.c,v 1.1 2003-06-25 22:47:19 haran Exp $";
+static const char transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/transverse_mercator.c,v 1.2 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "proj.h"
 #include "define.h"
@@ -12,9 +12,9 @@ static double tm_mlfn(mapx_class *current, double phi);
 static void init_phi1fn(mapx_class *current);
 static double phi1fn(mapx_class *current, double mu);
 
-char *id_transverse_mercator(void)
+const char *id_transverse_mercator(void)
 {
-  return((char *)transverse_mercator_c_rcsid);
+  return transverse_mercator_c_rcsid;
 }
 
 int init_transverse_mercator(mapx_class *current)

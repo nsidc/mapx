@@ -1,15 +1,15 @@
 /*------------------------------------------------------------------------
  * integerized sinusoidal
  *------------------------------------------------------------------------*/
-static const char integerized_sinusoidal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/integerized_sinusoidal.c,v 1.2 2003-06-24 22:08:02 haran Exp $";
+static const char integerized_sinusoidal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/integerized_sinusoidal.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include "isin.h"
 #include "define.h"
 #include "mapx.h"
 
-char *id_integerized_sinusoidal(void)
+const char *id_integerized_sinusoidal(void)
 {
-  return((char *)integerized_sinusoidal_c_rcsid);
+  return integerized_sinusoidal_c_rcsid;
 }
 
 int init_integerized_sinusoidal(mapx_class *current)

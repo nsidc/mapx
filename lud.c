@@ -10,7 +10,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1990 University of Colorado
  *======================================================================*/
-static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
+static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.6 2004-01-21 23:54:17 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,9 +18,9 @@ static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.5 2004
 #include "define.h"
 #include "lud.h"
 
-char *id_lud(void)
+const char *id_lud(void)
 {
-  return((char *)lud_c_rcsid);
+  return lud_c_rcsid;
 }
 
 /*----------------------------------------------------------------------
