@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.42 2001-01-11 17:27:47 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.43 2001-01-18 20:22:28 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -77,7 +77,7 @@ MODELS_OBJS = smodel.o pmodel.o svd.o lud.o matrix.o matrix_io.o
 MODELS_HDRS = smodel.h pmodel.h svd.h lud.h matrix.h matrix_io.h
 
 SRCS = $(MAPX_SRCS) $(MODELS_SRCS)
-HDRS = define.h $(MAPX_HDRS) $(MODELS_HDRS)
+HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS)
 OBJS = $(MAPX_OBJS) $(MODELS_OBJS)
 
 all : libmaps.a install
@@ -98,8 +98,7 @@ tar :
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
-	- $(CP) $(INCDIR)/define.h $(INCDIR)/byteswap.h .
-	$(TAR) cvf $(TARFILE) define.h byteswap.h \
+	$(TAR) cvf $(TARFILE) \
 		Makefile ppgc.ps regrid.c resamp.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
