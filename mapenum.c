@@ -4,7 +4,7 @@
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.4 1994-04-07 16:17:40 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.5 1994-10-21 23:27:18 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -126,7 +126,7 @@ static int draw_pd(float lat, float lon)
 { int on_grid;
 
   on_grid = forward_grid(grid, lat, lon, &pen_x2, &pen_y2);
-  if (on_grid) 
+  if (on_grid && within_mapx(grid->mapx, lat, lon))
   { printf("%d %f %f %f %f\n", pen_style, pen_x1, pen_y1, pen_x2, pen_y2);
   }
   pen_x1 = pen_x2;
