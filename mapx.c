@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.13 1993-10-27 15:02:11 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.14 1993-10-27 15:35:27 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +12,9 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.13 1
 #include <errno.h>
 #include <ctype.h>
 #include <math.h>
-#include <define.h>
-#include <maps.h>
-#include <mapx.h>
+#include "define.h"
+#include "maps.h"
+#include "mapx.h"
 
 /*
  * local mapx parameters for map transformation functions
@@ -910,13 +910,13 @@ static int polar_stereographic (float lat, float lon, float *u, float *v)
   lam = RADIANS (lon - current->lon0);
   
   if (current->lat0 == 90)
-  { rho = 2*current->Rg * cos(phi) 
+  { rho = current->Rg * cos(phi) 
       * (1 + current->sin_phi1) / (1 + sin(phi));
     x =  rho * sin(lam);
     y = -rho * cos(lam);
   }
   else if (current->lat0 == -90)
-  { rho = 2*current->Rg * cos(phi) 
+  { rho = current->Rg * cos(phi) 
       * (1 - current->sin_phi1) / (1 - sin(phi));
     x = rho * sin(lam);
     y = rho * cos(lam);
@@ -936,7 +936,7 @@ static int inverse_polar_stereographic (float u, float v, float *lat, float *lon
   y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
   
   rho = sqrt(x*x + y*y);
-  q = 2*current->Rg*(1 + current->sin_phi1);
+  q = current->Rg*(1 + current->sin_phi1);
   c = 2*atan2(rho,q);
   
   if (current->lat0 == 90)
