@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 04/24/03
+Terry Haran 05/02/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
@@ -66,7 +66,9 @@ In addition to the changes mentioned in 1-4, the following changes were
 also made:
 
 5) ppgc.html:
-   a) Added statement that keywords and their values are not case sensitive.
+   a) Added statement that keywords are not case sensitive, and that
+      a colon must delimit the end of a keyword without any intervening
+      spaces, tabs, or newlines.
    b) Added the use of pound sign (#) to denote comments.
    c) Added statement that all text following a semi-colon or pound sign
       on a particular line is ignored.
@@ -113,8 +115,8 @@ also made:
       and cproj, and created GCTP_HDRS containing isin.h, cproj.h, and
       proj.h. All of these files are from the gctp directory in the
       MODIS Reprojection Tool version 3.1.
-   k) In the "tar" build, included new directory UTEST, and the files
-      UTEST/utest.pl, and UTEST/*.mpp.
+   k) In the "tar" build, included new directory unit_test, and the files
+      unit_test/utest.pl, and unit_test/*.mpp.
 
 7) The following changes were made to all projection .c files:
    a) For forward projection functions, the output parameters *u and *v were
@@ -256,11 +258,12 @@ also made:
 
 17) keyval.c:
     a) In get_label_keyval(), added feature such that for each line,
-       all lowercase characters are converted to uppercase, and any
-       characters following a semi-colon or a pound sign are replaced
+       any characters following a semi-colon or a pound sign are replaced
        with blanks.
-    b) In get_field_keyval(), added feature such that keyword is
-       converted to uppercase before the search is performed.
+    b) In get_field_keyval(), added feature such that keyword and label
+       being searched are both converted to uppercase before the search
+       is performed, and that a valid keyword must be followed immediately
+       by a colon.
     c) In get_value_keyval(), added feature such that if default_string is
        "KEYVAL_UNINITIALIZED" and format is "%f" or "%lf", and the keyword
        is not found, then the value KEYVAL_UNINITIALIZED is returned.
@@ -459,9 +462,9 @@ also made:
 
 28) Added universal_transverse_mercator.c.
 
-29) Added UTEST directory containing utest.pl and several utest*.mpp
+29) Added unit_test directory containing utest.pl and several utest*.mpp
     files.
-    a) In the UTEST directory, typing utest.pl produces:
+    a) In the unit_test directory, typing utest.pl produces:
 
 USAGE: utest.pl [-v] mppfile1 [mppfile2...]
 
@@ -490,7 +493,7 @@ USAGE: utest.pl [-v] mppfile1 [mppfile2...]
    options:
        -v - verbose
 
-    b) Also in the UTEST directory are utest*.mpp files which contain
+    b) Also in the unit_test directory are utest*.mpp files which contain
        "unit test" expected results to be used with utest.pl. Current
        utest*.mpp files have names of the form:
 
@@ -535,7 +538,7 @@ Map Reference Longitude:        -96.0
 #   x,y = 1885472.7 1535925.0
 #   lat,lon = 35.0000000 -75.0000000 vs. 35.0000015 -75.0000003 in Snyder
 
-    d) To run the unit tests for all the utest*.mpp files, cd to UTEST
+    d) To run the unit tests for all the utest*.mpp files, cd to unit_test
        and type:
 
          utest.pl utest*.mpp
