@@ -17,7 +17,7 @@
 #include <define.h>
 #include <pmodel.h>
 
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.1 1993-08-02 10:02:08 knowles Exp $";
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.2 1993-08-02 10:30:58 knowles Exp $";
 
 static void design();
 static void factor();

@@ -1,12 +1,12 @@
 /*======================================================================
  * pmodel - approximation by polynomial model
  *
- * 2-Aug-1990 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *======================================================================*/
 #ifndef pmodel_h_
 #define pmodel_h_
 
-static const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.1 1993-08-02 10:01:35 knowles Exp $";
+static const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.2 1993-08-02 10:30:26 knowles Exp $";
 
 #define MAXVARS 64
 #define MAXPOINTS 450
