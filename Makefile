@@ -36,10 +36,10 @@ clean :
 	- $(RM) libmaps.a $(OBJECTS) $(SOURCES) $(HEADERS)
 
 tar:
-	$(CO) Makefile $(SOURCES)
-	$(TAR) cvf $(TARFILE) Makefile $(SOURCES)
+	$(CO) Makefile $(SOURCES) $(HEADERS)
+	$(TAR) cvf $(TARFILE) Makefile $(SOURCES) $(HEADERS)
 	$(COMPRESS) $(TARFILE)
-	- $(RM) $(SOURCES)
+	- $(RM) $(SOURCES) $(HEADERS)
 
 # interactive tests
 mtest : mapx.c mapx.h
