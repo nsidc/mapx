@@ -9,24 +9,26 @@ LOCAL_INCLUDE = /usr/local/include
 CC = /usr/bin/cc
 AR = /usr/bin/ar
 RANLIB = /bin/touch
+CO = /usr/sbin/co
 MV = /bin/mv
 RM = /bin/rm -f
 DEBUG_FLAGS = -O
 CLIBS = -lc_s -lm -lmalloc
 CFLAGS = -I$(LOCAL_INCLUDE) $(DEBUG_FLAGS)
-OBJS = mapx.o grids.o cdb.o maps.o
+SOURCES = mapx.c grids.c cdb.c maps.c
+HEADERS = mapx.h grids.h cdb.h maps.h
+OBJECTS = mapx.o grids.o cdb.o maps.o
 
-all : libmaps.a install clean
+all : libmaps.a clean
 
-libmaps.a : $(OBJS)
-	$(AR) ruv libmaps.a $(OBJS)
+libmaps.a : $(OBJECTS) $(HEADERS)
+	$(MV) $(HEADERS) $(LOCAL_INCLUDE)
+	$(AR) ruv libmaps.a $(OBJECTS)
 	$(RANLIB) libmaps.a
-
-install : libmaps.a
-	$(MV) libmaps.a $(LOCAL_LIBS)
+	$(MV) libmaps.a $(LOCAL_LIB)
 
 clean :
-	$(RM) $(OBJS)
+	- $(RM) $(OBJECTS) $(SOURCES) $(HEADERS)
 
 # interactive tests
 mtest : mapx.c mapx.h
@@ -51,4 +53,17 @@ mapx.o:		$(LOCAL_INCLUDE)/mapx.h
 grids.o:	$(LOCAL_INCLUDE)/grids.h $(LOCAL_INCLUDE)/mapx.h
 maps.o:		$(LOCAL_INCLUDE)/mapx.h $(LOCAL_INCLUDE)/grids.h \
 		$(LOCAL_INCLUDE)/cdb.h $(LOCAL_INCLUDE)/maps.h
+
+.SUFFIXES : .c,v .h,v
+
+.c,v.o :
+	$(CO) $<
+	$(CC) $(CFLAGS) -c $*.c
+	- $(RM) $*.c
+
+.c,v.c :
+	$(CO) $<
+
+.h,v.h :
+	$(CO) $<
 
