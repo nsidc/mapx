@@ -136,6 +136,7 @@ int init_azimuthal_equal_area_ellipsoid(mapx_class *current)
 					 * current->sin_phi1 
 					 * current->sin_phi1);
   current->D = (current->Rg * current->m1) / (current->Rq * current->cos_beta1);
+  return 0;
 }
 
 int azimuthal_equal_area_ellipsoid(mapx_class *current, float lat, float lon, 
@@ -202,98 +203,98 @@ int inverse_azimuthal_equal_area_ellipsoid(mapx_class *current, float u, float v
   double phi, lam, rho, x, y, ce, beta;
   
   if (current->eccentricity == 0.0)
-  {
-    inverse_azimuthal_equal_area(current, u, v, lat, lon);
-  }
-  else
-  {
-    x = current->T00 * (u + current->u0) - (current->T01) * (v + current->v0);
-    y = -current->T10 * (u + current->u0) + (current->T11) * (v + current->v0);
-    
-    if (current->lat0 == 90.00)
     {
-      if(x==0.0 && y==0.0)
-      {
-	phi = RADIANS(current->lat0);
-	lam = 0.0;
-      }
-      else
-      {
-	rho = ((x*x)+(y*y));
-	if (rho<0.00000000001)
-	  beta = asin(1.0 - 0.00000000001/(current->Rg * current->Rg *
-					   (1.0-(((1.0 - current->e2) /
-						  (2.0 * current->eccentricity))) *
-					    (log((1.0 - current->eccentricity) /
-						 (1.0 + current->eccentricity))))));
-	else
-	  beta = asin(1.0 - rho /(current->Rg * current->Rg *
-				  (1.0 - (((1.0 - current->e2)/
-					   (2.0 * current->eccentricity))*
-					  (log((1.0 - current->eccentricity)/
-					       (1.0 + current->eccentricity)))))));
-	phi = beta + ((current->e2 / 3.0 +((31.0/180.0) * current->e4)+
-		       ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
-			 ((((23.0/360.0) * current->e4)+
-			   ((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
-			     (((761.0/45360.0)*current->e6) * sin(6.0*beta));
-	lam = atan2(x,(-y));
-      }
+      return inverse_azimuthal_equal_area(current, u, v, lat, lon);
     }
-    
-    else if (current->lat0 == -90.00)
-    { 
-      if (x == 0.0 && y == 0.0)
-      {
-	phi = RADIANS(current->lat0);
-	lam = 0.0;
-      }
-      else
-      { rho = ((x*x) + (y*y));
-	if(rho<0.00000000001)
-	  beta = asin(1.0 - 0.00000000001 /(current->Rg * current->Rg *
-					    (1.0-(((1.0 - current->e2)/
-						   (2.0 * current->eccentricity))*
-						  (log((1.0 - current->eccentricity)/
-						       (1.0 + current->eccentricity)))))));
-	else
-	  beta = asin(1.0- rho/(current->Rg * current->Rg *
-				(1.0 - (((1.0 - current->e2)/
-					 (2.0 * current->eccentricity))*
-					(log((1.0 - current->eccentricity)/
-					     (1.0 + current->eccentricity)))))));
-	lam = atan2(x,y);
-	phi = (-beta) +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
-			 ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
-			   ((((23.0/360.0) * current->e4)+
-			     ((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
-			       (((761.0/45360.0) * current->e6) * sin(6.0*beta));
-      }
-    }
-    else 
-    { rho = sqrt(((x / current->D) * (x / current->D)) +
-		 (current->D * y *current->D * y));
-      ce = 2*asin(rho/(2.0 * current->Rq));
+  else
+    {
+      x = current->T00 * (u + current->u0) - (current->T01) * (v + current->v0);
+      y = -current->T10 * (u + current->u0) + (current->T11) * (v + current->v0);
       
-      if (rho<0.00000001)
-	beta = current->beta1;
-      else
-	beta = asin ((cos(ce) * current->sin_beta1)+
-		     (current->D * y * sin(ce) * current->cos_beta1 / rho));
-      phi = beta +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
-		    ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
-		      ((((23.0/360.0) * current->e4)+
-			((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
-			  (((761.0/45360.0) * current->e6) * sin(6.0*beta));
-      lam = atan2(x * sin(ce),((current->D * rho * current->cos_beta1 * cos(ce))-
-			       (current->D * current->D * y * 
-				current->sin_beta1 * sin(ce))));
+      if (current->lat0 == 90.00)
+	{
+	  if(x==0.0 && y==0.0)
+	    {
+	      phi = RADIANS(current->lat0);
+	      lam = 0.0;
+	    }
+	  else
+	    {
+	      rho = ((x*x)+(y*y));
+	      if (rho<0.00000000001)
+		beta = asin(1.0 - 0.00000000001/(current->Rg * current->Rg *
+						 (1.0-(((1.0 - current->e2) /
+							(2.0 * current->eccentricity))) *
+						  (log((1.0 - current->eccentricity) /
+						       (1.0 + current->eccentricity))))));
+	      else
+		beta = asin(1.0 - rho /(current->Rg * current->Rg *
+					(1.0 - (((1.0 - current->e2)/
+						 (2.0 * current->eccentricity))*
+						(log((1.0 - current->eccentricity)/
+						     (1.0 + current->eccentricity)))))));
+	      phi = beta + ((current->e2 / 3.0 +((31.0/180.0) * current->e4)+
+			     ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
+		((((23.0/360.0) * current->e4)+
+		  ((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
+		(((761.0/45360.0)*current->e6) * sin(6.0*beta));
+	      lam = atan2(x,(-y));
+	    }
+	}
       
+      else if (current->lat0 == -90.00)
+	{ 
+	  if (x == 0.0 && y == 0.0)
+	    {
+	      phi = RADIANS(current->lat0);
+	      lam = 0.0;
+	    }
+	  else
+	    { rho = ((x*x) + (y*y));
+	    if(rho<0.00000000001)
+	      beta = asin(1.0 - 0.00000000001 /(current->Rg * current->Rg *
+						(1.0-(((1.0 - current->e2)/
+						       (2.0 * current->eccentricity))*
+						      (log((1.0 - current->eccentricity)/
+							   (1.0 + current->eccentricity)))))));
+	    else
+	      beta = asin(1.0- rho/(current->Rg * current->Rg *
+				    (1.0 - (((1.0 - current->e2)/
+					     (2.0 * current->eccentricity))*
+					    (log((1.0 - current->eccentricity)/
+						 (1.0 + current->eccentricity)))))));
+	    lam = atan2(x,y);
+	    phi = (-beta) +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
+			     ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
+	      ((((23.0/360.0) * current->e4)+
+		((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
+	      (((761.0/45360.0) * current->e6) * sin(6.0*beta));
+	    }
+	}
+      else 
+	{ rho = sqrt(((x / current->D) * (x / current->D)) +
+		     (current->D * y *current->D * y));
+	ce = 2*asin(rho/(2.0 * current->Rq));
+	
+	if (rho<0.00000001)
+	  beta = current->beta1;
+	else
+	  beta = asin ((cos(ce) * current->sin_beta1)+
+		       (current->D * y * sin(ce) * current->cos_beta1 / rho));
+	phi = beta +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
+		      ((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
+	  ((((23.0/360.0) * current->e4)+
+	    ((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
+	  (((761.0/45360.0) * current->e6) * sin(6.0*beta));
+	lam = atan2(x * sin(ce),((current->D * rho * current->cos_beta1 * cos(ce))-
+				 (current->D * current->D * y * 
+				  current->sin_beta1 * sin(ce))));
+	
+	}
+      *lat = DEGREES(phi);
+      *lon = DEGREES(lam) + current->lon0;
+      NORMALIZE(*lon);
+      
+      return 0;
     }
-    *lat = DEGREES(phi);
-    *lon = DEGREES(lam) + current->lon0;
-    NORMALIZE(*lon);
-    
-    return 0;
-  }
 }
