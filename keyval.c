@@ -4,11 +4,10 @@
  * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.2 1996-10-25 20:38:39 knowles Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.3 1996-10-25 21:44:04 knowles Exp $";
 
 #include <ctype.h>
 #include "define.h"
-#include "maps.h"
 #include "keyval.h"
 
 /*------------------------------------------------------------------------
@@ -85,7 +84,8 @@ char *get_label_keyval(const char *filename, FILE *fp, int label_length)
  *		is obtained with malloc
  *
  *------------------------------------------------------------------------*/
-char *get_field_keyval(const char *label, const char *keyword, const char *default_string)
+char *get_field_keyval(const char *label, const char *keyword, 
+		       const char *default_string)
 { register char *field_ptr, *field_start;
   int field_length;
 
@@ -147,8 +147,9 @@ char *get_field_keyval(const char *label, const char *keyword, const char *defau
  *	result: TRUE = success, FALSE = error
  *
  *------------------------------------------------------------------------*/
-bool get_value_keyval(const char *label, const char *keyword, const char *format, 
-		      void *value, const char *default_string)
+bool get_value_keyval(const char *label, const char *keyword, 
+		      const char *format, void *value, 
+		      const char *default_string)
 { int status;
   char *field_ptr;
 
@@ -162,13 +163,13 @@ bool get_value_keyval(const char *label, const char *keyword, const char *format
  *	decode field based on format
  */
   if (streq("%lat", format))
-  { status = lat_lon_decode(field_ptr, LAT_DESIGNATORS, value);
+  { status = lat_lon_keyval(field_ptr, keyval_LATITUDE, value);
   }
   else if (streq("%lon", format))
-  { status = lat_lon_decode(field_ptr, LON_DESIGNATORS, value);
+  { status = lat_lon_keyval(field_ptr, keyval_LONGITUDE, value);
   }
   else if (streq("%bool", format))
-  { status = boolean_decode(field_ptr, value);
+  { status = boolean_keyval(field_ptr, value);
   }
   else
   { status = sscanf(field_ptr, format, value);
@@ -185,7 +186,7 @@ bool get_value_keyval(const char *label, const char *keyword, const char *format
 }
 
 /*------------------------------------------------------------------------
- * boolean_decode - interpret boolean indicator
+ * boolean_keyval - interpret boolean indicator
  *
  *	input : field_ptr - pointer to NULL terminated string
  *
@@ -198,14 +199,14 @@ bool get_value_keyval(const char *label, const char *keyword, const char *format
  *	not case sensitive
  *
  *------------------------------------------------------------------------*/
-int boolean_decode(const char *field_ptr, bool *value)
+int boolean_keyval(const char *field_ptr, bool *value)
 { register char *test, *cur;
 
 /*
  *	get a copy of the input and convert to all upper case  
  */
   test = strdup(field_ptr);
-  if (NULL == test) { perror("boolean_decode"); return FALSE; }
+  if (NULL == test) { perror("boolean_keyval"); return FALSE; }
 
   for (cur = test; *cur != '\0'; cur++) *cur = (char)toupper((int)*cur);
 
@@ -237,4 +238,50 @@ int boolean_decode(const char *field_ptr, bool *value)
  *	no match
  */
   return 0;
+}
+
+/*------------------------------------------------------------------------
+ * lat_lon_keyval - decode lat or lon (decimal degrees) from buffer
+ *
+ *	input : field_ptr - pointer to buffer
+ *		designators - string of possible hemisphere designators
+ *			for example "EWew" to extract a longitude
+ *
+ *	output: value - latitude or longitude in decimal degrees
+ *
+ *	result: number of values transferred (0 on failure, 1 on success)
+ *
+ *	format: dd.dd[optional white space]designator
+ *
+ *------------------------------------------------------------------------*/
+int lat_lon_keyval(const char *field_ptr, const char *designators, 
+		   float *value)
+{ const char *end, *pos;
+  char hemi, number[80];
+  int len;
+
+  end = strchr(field_ptr, '\n');
+  if (NULL == end) end = field_ptr + strlen(field_ptr);
+
+  pos = strpbrk(field_ptr, designators);
+  if (NULL == pos || pos > end) return 0;
+
+  hemi = toupper(*pos);
+
+  while (pos > field_ptr && isspace(*--pos));
+
+  while (pos > field_ptr && NULL != strchr("0123456789.+-", *--pos));
+
+  if (NULL == strchr("0123456789.+-", *pos)) ++pos;
+
+  len = strspn(pos, "0123456789.+-");
+  if (len <= 0) return 0;
+  strncpy(number, pos, len);
+  number[len] = '\0';
+
+  if (sscanf(number, "%f", value) != 1) return 0;
+
+  if ('W' == hemi || 'S' == hemi) *value = -(*value);
+
+  return 1;
 }
