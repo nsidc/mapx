@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 01/22/03
+Terry Haran 02/14/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
@@ -62,12 +62,10 @@ In addition to the changes mentioned in 1-4, the following changes were
 also made:
 
 5) ppgc.html:
-   a) Modified keywords Map Reference Latitude and Longitude default
-      behavior for UTM.
+   a) Provided expanded description of map eccentricity and radius.
    b) Added keywords Map Origin X and Y.
-   c) Modified keywords Map False Easting and Northing default behavior
-      for UTM.
-   d) Added keywords Map Center Scale and Map UTM Zone.
+   c) Modified keywords Map False Easting and Northing.
+   d) Added keyword Map Center Scale.
    e) Fixed the spelling of Interrupted Homolosine Equal-Area. The
       mispelled form is still supported in the code.
    f) Added the following map projection names:
@@ -75,9 +73,7 @@ also made:
       ii)  Transverse Mercator
       iii) Transverse Mercator (ellipsoid)
       iv)  Universal Transverse Mercator
-      v)   Universal Transverse Mercator (ellipsoid)
-   g) Added or expanded explanations of several map keywords including
-      how the default values are modified for UTM.
+   g) Added a separate table and explanation of map parameters for UTM.
 
 6) Makefile:
    a) Changed TOPDIR from HOME to ../.. (temporary changed to aid in
@@ -96,6 +92,7 @@ also made:
       "$(INSTALL) cdb_edit.mpp $(MAPDIR)".
    g) Added build of xytest and gacct.
    h) Added $(INSTALL) for each test program.
+   i) Changed name of tar file to mapsnew.tar.gz temporarily during testing.
 
 7) The following changes were made to all projection .c files:
    a) For forward projection functions, the output parameters *u and *v were
@@ -144,10 +141,10 @@ also made:
                max error was at 29.22S 157.43W
 	     New:
                102400 points,  0 bad points
-               average error = 8.6325e-05 km
-               std dev error = 1.3475e-04 km
-               maximum error = 8.3848e-04 km
-               max error was at 7.90N 37.81E
+               average error = 5.5762e-05 km
+               std dev error = 1.1409e-04 km
+               maximum error = 7.8288e-04 km
+               max error was at 55.55S 25.39W
 
 8) cdb.c:
    a) In init_cb(), added a typecast on line 134 to suppress a warning.
@@ -176,8 +173,12 @@ also made:
 
 14) keyval.c:
     a) In get_value_keyval(), added feature such that if default_string is
-       "FLT_MAX" and format is "%f" or "%lf", and the keyword is not
-       found, then the value FLT_MAX is returned.
+       "KEYVAL_UNINITIALIZED" and format is "%f" or "%lf", and the keyword
+       is not found, then the value KEYWORD_UNINITIALIZED is returned.
+
+15) keyval.h:
+    a) Added definition of KEYVAL_UNINITIALIZED to be FLT_MAX, if FLT_MAX
+       is defined, or 9e30 if it isn't.
 
 15) maps.c:
     a) Added asinz() which returns asin(x) such that x is constrained to
@@ -196,7 +197,6 @@ also made:
        v)   transverse_mercator_ellipsoid()
        vi)  inverse_transverse_mercator_ellipsoid()
        vii) init_universal_transverse_mercator()
-       viii)init_universal_transverse_mercator_ellipsoid()
        Note that no forward or inverse functions for UTM are declared,
        since UTM uses transverse mercator forward and inverse functions.
      b) In new_mapx(), added initialization for Transverse Mercator and
@@ -218,15 +218,19 @@ also made:
              projection is UTM until UTM initialization.
         vi)  Added code to process Map Center Scale and Map UTM Zone
              keywords.
+	vii) Added code to assign default WGS-84 values for equatorial
+             radius and eccentricity if map projection is UTM.
      d) In old_fixed_format_decode_mpp():
-        i) Added code to initialize the following new mpp parameters that
-           are not supported by the old format:
-             x0
-             y0
-	     false_easting
-	     false_northing
-	     center_scale
-	     utm_zone
+        i)  Added code to set the default equatorial radius and
+            eccentricity based on the map projection.
+        ii) Added code to initialize the following new mpp parameters that
+            are not supported by the old format:
+              x0
+              y0
+	      false_easting
+	      false_northing
+	      center_scale
+	      utm_zone
      e) In reinit_mapx():
         i)   If Map Origin X and Y not provided, then forward transform
              Map Origin Latitude and Longitude (center_lat and center_lon
@@ -249,8 +253,8 @@ also made:
              doubles in each inverse projection function. Changed call to
              (*(this->map_to_geo))() so that x and y are passed rather than
              u and v.
-     h) Added mapx_forward_xy converts (lat,lon) to (x,y).
-     i) Added mapx_inverse_xy converts (x,y) to (lat,lon).
+     h) Added forward_xy_mapx converts (lat,lon) to (x,y).
+     i) Added inverse_xy_mapx converts (x,y) to (lat,lon).
      j) In standard_name():
 	i)   Added support for correct spelling of "interrupted" for
 	     Goode Interrupted Homolosine Equal Area. Incorrect spelling
@@ -258,7 +262,8 @@ also made:
 	ii)  Added Transverse Mercator.
 	iii) Added Transverse Mercator Ellipsoid.
 	iv)  Added Universal Transverse Mercator.
-	v)   Added Universal Transverse Mercator Ellipsoid.
+             Note that Universal Transverse Mercator Ellipsoid is mapped
+             to Universal Transverse Mercator.
      k) Added main program xytest, an interactive test for mapx routines
         that is similar to mtest, but works with original map coordinates
         (x,y) rather than rotated and translated coordinates (u,v).
@@ -268,14 +273,15 @@ also made:
              line just as in gtest.
 
 18) mapx.h:
-    a) Added user specified constants:
+    a) Added definitions of WGS-84 equatorial radius and eccentricity.
+    b) Added user specified constants:
        i)   x0
        ii)  y0
        iii) false_easting
        iv)  false_northing
        v)   center_scale
        vi)  utm_zone
-    b) Added private projection constants:
+    c) Added private projection constants:
        i)   e0
        ii)  e1p
        iii) e2p
@@ -286,9 +292,9 @@ also made:
        viii)f2
        ix)  f3
        x)   f4
-    c) Added funtion prototypes:
-       i)   forward_mapx_xy()
-       ii)  inverse_mapx_xy()
+    d) Added funtion prototypes:
+       i)   forward_xy_mapx()
+       ii)  inverse_xy_mapx()
 
 19) mercator.c:
     a) In mercator(), changed "dlon" from float to double.
