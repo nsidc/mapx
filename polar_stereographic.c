@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * polar_stereographic
  *------------------------------------------------------------------------*/
+static const char polar_stereographic_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/polar_stereographic.c,v 1.3 2003-06-24 23:01:10 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_polar_stereographic(void)
+{
+  return((char *)polar_stereographic_c_rcsid);
+}
 
 int init_polar_stereographic(mapx_class *current)
 {
@@ -16,10 +23,10 @@ int init_polar_stereographic(mapx_class *current)
   return 0;
 }
 
-int polar_stereographic(mapx_class *current, float lat, float lon, float *u, float *v)
+int polar_stereographic(mapx_class *current,
+			double lat, double lon, double *x, double *y)
 {
-  float x, y;
-  float phi, lam, rho;
+  double phi, lam, rho;
   
   phi = RADIANS (lat);
   lam = RADIANS (lon - current->lon0);
@@ -27,39 +34,44 @@ int polar_stereographic(mapx_class *current, float lat, float lon, float *u, flo
   if (90.0 == current->lat0)
   { rho = current->Rg * cos(phi) 
       * (1 + current->sin_phi1) / (1 + sin(phi));
-    x =  rho * sin(lam);
-    y = -rho * cos(lam);
+    *x =  rho * sin(lam);
+    *y = -rho * cos(lam);
   }
   else if (-90.0 == current->lat0)
   { rho = current->Rg * cos(phi) 
       * (1 - current->sin_phi1) / (1 - sin(phi));
-    x = rho * sin(lam);
-    y = rho * cos(lam);
+    *x = rho * sin(lam);
+    *y = rho * cos(lam);
   }
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_polar_stereographic(mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_polar_stereographic(mapx_class *current,
+				double x, double y, double *lat, double *lon)
 {
-  double phi, lam, rho, c, q, x, y;
+  double phi, lam, rho, c, q;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   rho = sqrt(x*x + y*y);
-  q = current->Rg*(1 + current->sin_phi1);
-  c = 2*atan2(rho, q);
   
   if (90.0 == current->lat0)
-  { phi = asin(cos(c));
+  { 
+    q = current->Rg*(1 + current->sin_phi1);
+    c = 2*atan2(rho, q);
+    phi = asin(cos(c));
     lam = atan2(x, -y);
   }
   else if (-90.0 == current->lat0)
-  { phi = asin(-cos(c));
+  { 
+    q = current->Rg*(1 - current->sin_phi1);
+    c = 2*atan2(rho, q);
+    phi = asin(-cos(c));
     lam = atan2(x, y);
   }
   
@@ -76,7 +88,7 @@ int inverse_polar_stereographic(mapx_class *current, float u, float v, float *la
 
 int init_polar_stereographic_ellipsoid(mapx_class *current)
 {
-  float numerator, denominator;
+  double numerator, denominator;
 
   if (current->lat1 == 999) current->lat1 = current->lat0;
   if (current->lat0 != 90.00 && current->lat0 != -90.00)
@@ -121,12 +133,13 @@ int init_polar_stereographic_ellipsoid(mapx_class *current)
   return 0;
 }
 
-int polar_stereographic_ellipsoid(mapx_class *current, float lat, float lon, 
-					 float *u, float *v)
+int polar_stereographic_ellipsoid(mapx_class *current,
+				  double lat, double lon, 
+				  double *x, double *y)
 {
-  float x, y;
-  float phi, lam, rho, t;
-  float numerator, denominator;
+  double phi, lam, rho, t;
+  double numerator, denominator;
+  double sin_phi;
     
   if (90.0 == current->lat0)
   {  
@@ -139,10 +152,11 @@ int polar_stereographic_ellipsoid(mapx_class *current, float lat, float lon,
     lam = RADIANS(-lon + current->lon0);
   }
 
-  numerator = (1 - current->eccentricity * sin(phi));
-  denominator =  (1 + current->eccentricity * sin(phi));
-  t = tan(PI / 4 - phi / 2) 
-    / pow(numerator / denominator, current->eccentricity / 2);
+  sin_phi = sin(phi);
+  numerator = 1.0 + current->eccentricity * sin_phi;
+  denominator =  1.0 - current->eccentricity * sin_phi;
+  t = sqrt((1.0 - sin_phi) / (1.0 + sin_phi) *
+	   pow(numerator / denominator, current->eccentricity));
 
   if((90.0 != current->lat1) && (-90.0 != current->lat1))
   {
@@ -156,31 +170,32 @@ int polar_stereographic_ellipsoid(mapx_class *current, float lat, float lon,
     rho = numerator / denominator;
   }
 
-  x =  rho * sin(lam);
-  y = -rho * cos(lam);
+  *x =  rho * sin(lam);
+  *y = -rho * cos(lam);
 
   if(-90.0 == current->lat0)
   {
-    x = -x;
-    y = -y;
+    *x = -*x;
+    *y = -*y;
   }
 
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_polar_stereographic_ellipsoid(mapx_class *current, float u, float v, 
-						 float *lat, float *lon)
+int inverse_polar_stereographic_ellipsoid(mapx_class *current,
+					  double x, double y, 
+					  double *lat, double *lon)
 {
-  double phi, lam, rho, chi, t, x, y;
+  double phi, lam, rho, chi, t;
   double numerator, denominator;
   double sin2chi, sin4chi, sin6chi;
 
-  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   rho = sqrt(x*x + y*y);
 
   if(90.0 == current->lat1 || -90.0 == current->lat1)
