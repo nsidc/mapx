@@ -3,11 +3,14 @@
  *
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  93/02/25  11:48:55  knowles
+ * Initial revision
+ * 
  * Revision 1.1  93/02/18  16:13:51  knowles
  * Initial revision
  * 
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.1 1993-02-25 11:48:55 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.2 1993-08-19 10:15:39 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,41 +38,49 @@ void draw_graticule(mapx_class *mapx, void (*move_pu)(float lat, float lon),
 /*
  *	draw parallels
  */
-  for (lat = mapx->south; lat <= mapx->north; lat += mapx->lat_interval)
-  { move_pu(lat, (float)mapx->west);
-    for (lon = mapx->west+1; lon < east; lon++)
-      draw_pd(lat, lon);
-    draw_pd(lat, east);
+  if (mapx->lat_interval > 0)
+  { for (lat = mapx->south; lat <= mapx->north; lat += mapx->lat_interval)
+    { move_pu(lat, (float)mapx->west);
+      for (lon = mapx->west+1; lon < east; lon++)
+	draw_pd(lat, lon);
+      draw_pd(lat, east);
+    }
   }
-  
+
 /*
  *	draw meridians
  */
-  for (lon = mapx->west; lon <= east; lon += mapx->lon_interval)
-  { move_pu((float)mapx->south, lon);
-    for (lat = mapx->south+1; lat < mapx->north; lat++)
-      draw_pd(lat, lon);
-    draw_pd((float)mapx->north, lon);
+  if (mapx->lon_interval > 0)
+  { for (lon = mapx->west; lon <= east; lon += mapx->lon_interval)
+    { move_pu((float)mapx->south, lon);
+      for (lat = mapx->south+1; lat < mapx->north; lat++)
+	draw_pd(lat, lon);
+      draw_pd((float)mapx->north, lon);
+    }
   }
-  
+
 /*
  *	label parallels
  */
   if (label != NULL)
-  { lon = mapx->label_lon;
-    for (lat = mapx->south; lat <= mapx->north; lat += mapx->lat_interval)
-    { sprintf(label_string,"%3d%c", (int)fabs(lat), lat < 0 ? 'S' : 'N');
-      label(label_string, lat, lon);
+  { if (mapx->lat_interval > 0)
+    { lon = mapx->label_lon;
+      for (lat = mapx->south; lat <= mapx->north; lat += mapx->lat_interval)
+      { sprintf(label_string,"%3d%c", (int)fabs(lat), lat < 0 ? 'S' : 'N');
+	label(label_string, lat, lon);
+      }
     }
-    
+
 /*
  *	label meridians
  */
-    lat = mapx->label_lat;
-    for (lon = mapx->west; lon <= east; lon += mapx->lon_interval)
-    { llon = lon < 180 ? lon : lon-360;
-      sprintf(label_string,"%3d%c", (int)fabs(llon), llon < 0 ? 'W' : 'E');
-      label(label_string, lat, lon);
+    if (mapx->lon_interval > 0)
+    { lat = mapx->label_lat;
+      for (lon = mapx->west; lon <= east; lon += mapx->lon_interval)
+      { llon = lon < 180 ? lon : lon-360;
+	sprintf(label_string,"%3d%c", (int)fabs(llon), llon < 0 ? 'W' : 'E');
+	label(label_string, lat, lon);
+      }
     }
   }
 }
