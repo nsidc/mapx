@@ -5,10 +5,13 @@
  * 15-Dec-1992 R.Swick added constants for ellipsoid projections
  * 01-Feb-1993 R.Swick added constants for LCC projection 
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  93/02/18  15:28:45  knowles
+ * added projection init routines and reinit_mapx
+ * 
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.4 1993-02-18 15:28:45 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.5 1993-02-18 15:59:13 knowles Exp $";
 
 /* 
  * useful macros
@@ -21,7 +24,7 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.4 19
 #define SQRT2 1.414213562373095
 #define PI 3.141592653589793
 /* radius of the earth in km, authalic sphere based on International datum */
-#define Re  6371.228	/* radius of the earth in km */
+#define Re_km  6371.228	/* radius of the earth in km */
 
 #define RADIANS(t) ((t) * PI/180)
 #define DEGREES(t) ((t) * 180/PI)
