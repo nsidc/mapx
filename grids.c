@@ -1,24 +1,13 @@
 /*========================================================================
  * grids - grid coordinate system definition and transformations
- *
- * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * 7-July-1992 K.Knowles - changed grid_struct to grid_class
- *			   updated references to mapx
- * 30-Dec-1992 K.Knowles - added interactive and performance tests
- * $Log: not supported by cvs2svn $
- * Revision 1.4  93/02/24  10:18:43  knowles
- * fixed search_path
- * 
- * Revision 1.3  93/02/19  12:37:22  knowles
- * added search path for .gpd files
- * 
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.5 1993-05-27 15:25:07 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.6 1993-09-24 11:21:18 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <define.h>
+#include <maps.h>
 #include <mapx.h>
 #include <grids.h>
 
@@ -73,7 +62,7 @@ grid_class *init_grid(const char *grid_filename)
     return NULL;
   }
   strncpy(this->gpd_filename, grid_filename, MAX_STRING);
-  this->gpd_file = search_path(this->gpd_filename, "PATHGPD", "r");
+  this->gpd_file = search_path_fopen(this->gpd_filename, "PATHGPD", "r");
   if (this->gpd_file == NULL)
   { fprintf(stderr,"init_grid: error opening parameters file.\n");
     perror(grid_filename);

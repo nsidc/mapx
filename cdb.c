@@ -5,14 +5,14 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.4 1993-04-15 14:34:41 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.5 1993-09-24 11:24:01 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
 #include <define.h>
-#include <mapx.h>
+#include <maps.h>
 #include <cdb.h>
 
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
@@ -80,7 +80,7 @@ cdb_class *init_cdb(const char *cdb_filename)
     return NULL;
   }
   strncpy(this->filename, cdb_filename, MAX_STRING);
-  this->fp = search_path(this->filename, "PATHCDB", "r");
+  this->fp = search_path_fopen(this->filename, "PATHCDB", "r");
   if (this->fp == NULL)
   { fprintf(stderr,"init_cdb: error openning data file.\n");
     perror(cdb_filename);
