@@ -5,7 +5,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.5 1993-09-28 13:23:08 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.6 1993-10-25 14:43:01 knowles Exp $";
 
 #include <define.h>
 
@@ -195,7 +195,7 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
 			 float upper_bound);
 int segment_bounds_test_cdb(cdb_class *this, float south, float north,
 			    float west, float east);
-void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
+int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
 	      void (*move_pu)(float,float), void (*draw_pd)(float,float));
 
 #endif
