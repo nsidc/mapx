@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 06/25/03
+Terry Haran 06/26/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
@@ -624,15 +624,15 @@ also made:
 
     b) On an sgi system, you can run all the sgi unit tests by typing:
 
-         utest.pl sgi/*
+         utest.pl sgi/sgi*
 
        on a linux system, try typing:
 
-         utest.pl linux/*
+         utest.pl linux/linux*
 
        on a hp system running linux, type:
 
-         utest.pl linuxhp/*
+         utest.pl linuxhp/linuxhp*
 
        No screen output should be produced on any system. To produce
        screen output for each test regardless of the outcome, use the
@@ -645,15 +645,15 @@ also made:
        regenerate the unit tests for an existing target) using
        the source unit tests in the "snyder", "tilecalc", and "other"
        subdirectories by means of the utest_new_target.pl script. This
-       is how the sgi and linux subdirectories were created on barrow
-       and wuzzles, respectively.
+       is how the sgi, linux, and linuxhp subdirectories were created on glacier,
+       wuzzles, and megadune, respectively.
 
        Note that the -v option can also be used with utest_new_target.pl.
 
        Let's say you're on a sun, and you want to create a new set of unit
        tests. Then in the unit_test directory, you would type:
 
-         utest_new_target.pl sun >&source2sun.log
+         utest_new_target.pl -v sun >&source2sun.log
 
        This will create a new set of unit tests in a new sun subdirectory.
        Once this is done, you can browse source2sun.log to verify that
@@ -665,7 +665,7 @@ also made:
 
        Then to run the new unit tests, you would type:
 
-         utest.pl sun/*
+         utest.pl sun/sun*
 
        No screen output should be produced.
 
@@ -673,7 +673,7 @@ also made:
        results, you could create the sun tests using the sgi tests for
        the expected results. To do this, you would type:
 
-         utest.pl -o sgi2sun -c sgi/* >&sgi2sun.log
+         utest.pl -v -o sgi2sun -c sgi/sgi* >&sgi2sun.log
 
        The -o sgi2sun option says that a subdirectory called sgi2sun
        should be created containing the new expected results. The -c
@@ -751,7 +751,7 @@ Grid Map Origin Row:            149.5
 #   lat,lon = dummy dummy
 
     f) As mentioned above, to see produce output regardless of the
-       results, use the -v option. For example on an sgi, typing:
+       results, use the -v option. For example on a linuxhp, typing:
 
          utest.pl -v snyder/snyder_albers_conic_equal_area_e00.gpd
 
@@ -780,10 +780,10 @@ file: snyder/snyder_albers_conic_equal_area_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 1.3655e-05 km
-    std dev error = 3.4695e-05 km
-    maximum error = 1.3426e-04 km
-    max error was at 73.07S 96.49E
+    average error = 4.8582e-06 km
+    std dev error = 2.0920e-05 km
+    maximum error = 9.4939e-05 km
+    max error was at 40.34S 159.69W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -794,49 +794,49 @@ file: snyder/snyder_albers_conic_equal_area_e00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.7697e-12 pixels
-    std dev error = 1.2859e-11 pixels
-    maximum error = 7.6006e-11 pixels
-    max error was at col: 5  row: 151   lat: 20.635139  lon: -116.380350
+    average error = 4.6741e-12 pixels
+    std dev error = 1.2855e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   Expected and actual results differ
   **************************************************************
   xytest forward results:
     lat,lon in:       35.0 -75.0
     x,y expected:     1885472.7       1535925.0
-                  
+
     x,y actual:       1885472.7282290 1535924.9987983
   Expected and actual results differ
   **************************************************************
   xytest inverse results:
     x,y in:       1885472.7 1535925.0
     lat,lon expected:     35.0000015 -75.0000003
-                      
+
     lat,lon actual:       35.0000001 -75.0000003
   Expected and actual results differ
   **************************************************************
   crtest forward results:
     lat,lon in:       35.0 -75.0
     col,row expected:     dummy dummy
-                      
+
     col,row actual:       275.1981819 47.1050001
   Expected and actual results differ
   **************************************************************
   crtest inverse results:
     col,row in:       275.1981819 47.1050001
     lat,lon expected:     dummy dummy
-                      
+
     lat,lon actual:       35.0000000 -75.0000000
   Expected and actual results differ
 ****************************************************************
 
-    g) Again on an sgi, typing:
+    g) Again on a linuxhp, typing:
 
-         utest.pl -v sgi/sgi_albers_conic_equal_area_e00.gpd
+         utest.pl -v linuxhp/linuxhp_albers_conic_equal_area_e00.gpd
 
        produces:
 
 ****************************************************************
-file: sgi/sgi_albers_conic_equal_area_e00.gpd
+file: linuxhp/linuxhp_albers_conic_equal_area_e00.gpd
   Map Projection:                 Albers Conic Equal-Area Ellipsoid
   Map Equatorial Radius:          6378206.4
   Map Eccentricity:               0.0822719
@@ -852,30 +852,30 @@ file: sgi/sgi_albers_conic_equal_area_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 1.3655e-05 km
-    std dev error = 3.4695e-05 km
-    maximum error = 1.3426e-04 km
-    max error was at 73.07S 96.49E
+    average error = 4.8582e-06 km
+    std dev error = 2.0920e-05 km
+    maximum error = 9.4939e-05 km
+    max error was at 40.34S 159.69W
   macct actual results:
     102400 points,  0 bad points
-    average error = 1.3655e-05 km
-    std dev error = 3.4695e-05 km
-    maximum error = 1.3426e-04 km
-    max error was at 73.07S 96.49E
+    average error = 4.8582e-06 km
+    std dev error = 2.0920e-05 km
+    maximum error = 9.4939e-05 km
+    max error was at 40.34S 159.69W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 4.7697e-12 pixels
-    std dev error = 1.2859e-11 pixels
-    maximum error = 7.6006e-11 pixels
-    max error was at col: 5  row: 151   lat: 20.635139  lon: -116.380350
+    average error = 4.6741e-12 pixels
+    std dev error = 1.2855e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.7697e-12 pixels
-    std dev error = 1.2859e-11 pixels
-    maximum error = 7.6006e-11 pixels
-    max error was at col: 5  row: 151   lat: 20.635139  lon: -116.380350
+    average error = 4.6741e-12 pixels
+    std dev error = 1.2855e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -895,14 +895,14 @@ file: sgi/sgi_albers_conic_equal_area_e00.gpd
   crtest forward results:
     lat,lon in:       35.0 -75.0
     col,row expected:     275.1981819 47.1050001
-                      
+
     col,row actual:       275.1981819 47.1050001
   Expected results match actual results
   **************************************************************
   crtest inverse results:
     col,row in:       275.1981819 47.1050001
     lat,lon expected:     35.0000000 -75.0000000
-                      
+
     lat,lon actual:       35.0000000 -75.0000000
   Expected results match actual results
 ****************************************************************
@@ -940,7 +940,7 @@ other/other_N200correct.mpp map projection parameters   # AVHRR 25km EASE-Grid
 
        Note that old format gpd files can only contain gacct and crtest
        tests; the macct and xytest tests are contained in the
-       corresponding mpp file, in this case other/otherN200correct.mpp:
+       corresponding mpp file, in this case other/other_N200correct.mpp:
 
 # file: other_N200corrent.mpp
 # Unit Test
