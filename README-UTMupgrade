@@ -12,16 +12,10 @@ an existing directory structure for mapx under your home directory, you'll
 have to first type:
 
 cd
-mkdir src
-mkdir src/maps
-mkdir bin
-mkdir include
-mkdir lib
-mkdir lib/maps
+mkdir mapx
 
 Then to retrieve mapx from the cvs repository and compile it, type:
 
-cd src
 cvs checkout maps
 make allall
 
