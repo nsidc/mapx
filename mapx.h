@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.13 1994-05-09 10:41:20 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.14 1996-03-20 20:40:58 knowles Exp $";
 
 /* 
  * useful macros
@@ -30,6 +30,11 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.13 1
 
 #define RADIANS(t) ((t) * PI/180)
 #define DEGREES(t) ((t) * 180/PI)
+
+/*
+ * environment variable for parameter files search path
+ */
+#define mapx_PATH "PATHMPP"
 
 /*
  * map parameters structure
