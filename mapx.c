@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.18 1993-11-03 11:50:10 swick Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.19 1993-11-18 11:37:31 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1458,7 +1458,9 @@ static int inverse_mollweide (float u, float v, float *lat, float *lon)
 
 static int init_cylindrical_equidistant(void)
 { 
-  current->cos_phi1 = cos (RADIANS (current->lat0));
+  if (current->lat1 == 999) current->lat1 = 0.00;
+  current->cos_phi1 = cos (RADIANS (current->lat1));
+
   return 0;
 }
 
