@@ -14,6 +14,8 @@
  *  7-Apr-1993 R.Swick swick@chukchi.colorado.edu  303-492-6069  
  *  National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
+static const char cdb_edit_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_edit.c,v 1.6 2003-06-23 15:48:35 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,17 +62,17 @@ static int do_sort = FALSE;
 static int verbose = FALSE;
 static int very_verbose = FALSE;
 static int very_very_verbose = FALSE;
-static float thin = 0.01;
-static float north = 90.0, south = -90.0, east = 180.0, west = -180.0;
+static double thin = 0.01;
+static double north = 90.0, south = -90.0, east = 180.0, west = -180.0;
 static char label[32] = "created by cdb_edit";  
-static float current_x_start, current_y_start;
-static float current_x_end, current_y_end;
+static double current_x_start, current_y_start;
+static double current_x_end, current_y_end;
   
 /*------------------------------------------------------------------------
  * function prototypes
  *------------------------------------------------------------------------*/
-int move_pu(float, float);
-int draw_pd(float, float);
+int move_pu(double, double);
+int draw_pd(double, double);
 void write_segment_data(int);
 int parallels_min(cdb_index_entry *, cdb_index_entry *);
 int meridians_min(cdb_index_entry *, cdb_index_entry *);
@@ -81,9 +83,10 @@ void copy_current_segment(void);
 void thin_map(void);
 void reverse_current_segment(void);
 void join_map(void);
-void append_candidate(int, float *, float *, float *, float *);
-void clip_and_concat_files(int, char **, float, float, float, float);
+void append_candidate(int, double *, double *, double *, double *);
+void clip_and_concat_files(int, char **, double, double, double, double);
 cdb_index_entry *find_best_candidate(cdb_edit_join_method *);
+void finish_new_file();
 
 /*------------------------------------------------------------------------
  * usage
@@ -112,10 +115,14 @@ cdb_index_entry *find_best_candidate(cdb_edit_join_method *);
  "         v - verbose diagnostic messages (may be repeated)\n"\
  "\n"
 
+char *id_cdb_edit(void)
+{
+  return((char *)cdb_edit_c_rcsid);
+}
+
 
 main(int argc, char *argv[])
 { 
-  register int i, ios, extent;
   char *option;
   char command[MAX_STRING];
     
@@ -130,23 +137,23 @@ main(int argc, char *argv[])
       { 
       case 't':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &thin) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &thin) != 1) error_exit(usage);
 	break;
       case 'n':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &north) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &north) != 1) error_exit(usage);
 	break;
       case 's':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &south) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &south) != 1) error_exit(usage);
 	break;
       case 'e':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &east) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &east) != 1) error_exit(usage);
 	break;
       case 'w':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &west) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &west) != 1) error_exit(usage);
 	break;
       case 'v':
 	if (very_verbose) very_very_verbose = TRUE;
@@ -175,7 +182,7 @@ main(int argc, char *argv[])
 	break;
       case 'j':
 	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%f", &thin) != 1) error_exit(usage);
+	if (argc <= 0 || sscanf(*argv,"%lf", &thin) != 1) error_exit(usage);
 	join = TRUE;
 	break;
       default:
@@ -199,7 +206,7 @@ main(int argc, char *argv[])
   
   argc--; argv++;
   if (verbose) 
-    fprintf(stderr,">creating: %s\n>thin: %f km\n",
+    fprintf(stderr,">creating: %s\n>thin: %lf km\n",
 	    new_filename, thin);
 
 /*
@@ -315,9 +322,9 @@ main(int argc, char *argv[])
  * return: FALSE on success
  *         TRUE if fatal error occurs (unabel to allocate enough memory)
  *------------------------------------------------------------------------*/
- int move_pu(float lat, float lon)
+ int move_pu(double lat, double lon)
 {
-  float nlon;
+  double nlon;
 
 /*
  *	write current segment
@@ -367,7 +374,7 @@ main(int argc, char *argv[])
   map->lon0 = nlon;
   reinit_mapx(map);
   dest->npoints = 0;
-  if (very_very_verbose)fprintf(stderr,">>> recentered map to %f %f.\n",
+  if (very_very_verbose)fprintf(stderr,">>> recentered map to %lf %lf.\n",
 				map->lat0,  map->lon0);
   return 0;
   }
@@ -384,11 +391,11 @@ main(int argc, char *argv[])
  * return: 0 on success
  *         -1 if fatal error occurs (unabel to allocate enough memory)
  *------------------------------------------------------------------------*/
-int draw_pd(float lat, float lon)
+int draw_pd(double lat, double lon)
 {
   register int ilat, ilon;
-  static float lat1,lon1;
-  auto float lat3,lon3;
+  static double lat1,lon1;
+  auto double lat3,lon3;
 
 /*
  *	make sure segment is big enough
@@ -415,7 +422,7 @@ int draw_pd(float lat, float lon)
   {
     lat1 = dest->index[dest->seg_count].ilat0 * CDB_LAT_SCALE;
     lon1 = dest->index[dest->seg_count].ilon0 * CDB_LON_SCALE;
-    if (very_verbose)fprintf(stderr,">>new segment: %f %f.\n",lat1,lon1);
+    if (very_verbose)fprintf(stderr,">>new segment: %lf %lf.\n",lat1,lon1);
   }
 
 /*
@@ -451,7 +458,7 @@ int draw_pd(float lat, float lon)
  */ 
   if (dest->header->max_seg_size < dest->npoints*sizeof(cdb_seg_data))
     dest->header->max_seg_size = dest->npoints*sizeof(cdb_seg_data);
-  if (very_very_verbose)fprintf(stderr,">>>add point %f %f.\n",lat3,lon3);
+  if (very_very_verbose)fprintf(stderr,">>>add point %lf %lf.\n",lat3,lon3);
   
 /*
  *	update index entry
@@ -473,7 +480,7 @@ int draw_pd(float lat, float lon)
   map->lat0 = lat1;
   map->lon0 = lon1;
   reinit_mapx(map);
-  if (very_very_verbose)fprintf(stderr,">>> recentered map to %f %f.\n",
+  if (very_very_verbose)fprintf(stderr,">>> recentered map to %lf %lf.\n",
 				lat1, lon1);
 
   return 0;
@@ -597,7 +604,7 @@ void thin_current_segment()
 {
   int idata, ipoints;
   double lat = 0.0, lon = 0.0;
-  float x1, x2, x3, y1, y2, y3;
+  double x1, x2, x3, y1, y2, y3;
   int next_point_ok = FALSE, inside = TRUE;
   lat = (double)source->segment->ilat0 * CDB_LAT_SCALE;
   lon = (double)source->segment->ilon0 * CDB_LON_SCALE;
@@ -707,13 +714,13 @@ void thin_current_segment()
 
  void reverse_current_segment()
 { 
-  static float *lat = NULL;
-  static float *lon = NULL;
+  static double *lat = NULL;
+  static double *lon = NULL;
   int ipoints;
 
   ipoints = dest->npoints + 1;
-  lat = (float *)realloc(lat, ipoints * sizeof(double));
-  lon = (float *)realloc(lon, ipoints * sizeof(double));
+  lat = (double *)realloc(lat, ipoints * sizeof(double));
+  lon = (double *)realloc(lon, ipoints * sizeof(double));
   if(NULL == lat || NULL == lon)
     {
       fprintf(stderr,"reverse_current_segment: Unable to allocate %d points for segment %d\n", 
@@ -725,8 +732,8 @@ void thin_current_segment()
 	    dest->index[dest->seg_count].ID);
 
 
-  lat[0] = (float) dest->index[dest->seg_count].ilat0 * CDB_LAT_SCALE;
-  lon[0] = (float) dest->index[dest->seg_count].ilon0 * CDB_LON_SCALE;
+  lat[0] = (double) dest->index[dest->seg_count].ilat0 * CDB_LAT_SCALE;
+  lon[0] = (double) dest->index[dest->seg_count].ilon0 * CDB_LON_SCALE;
 
 /*
  *       Load true lat/lon for all segment points
@@ -735,9 +742,9 @@ void thin_current_segment()
  for(ipoints = 0; ipoints < dest->npoints; ipoints++)
  {
    lat[ipoints + 1] = lat[ipoints] + 
-     (float) dest->data_buffer[ipoints].dlat * CDB_LAT_SCALE;
+     (double) dest->data_buffer[ipoints].dlat * CDB_LAT_SCALE;
    lon[ipoints + 1] = lon[ipoints] + 
-     (float) dest->data_buffer[ipoints].dlon * CDB_LON_SCALE;
+     (double) dest->data_buffer[ipoints].dlon * CDB_LON_SCALE;
  }
 
 /*
@@ -773,8 +780,8 @@ void thin_current_segment()
  *----------------------------------------------------------------------*/
 
  void clip_and_concat_files(int number_of_files, char *filenames[],
-			    float lat_max, float lat_min, 
-			    float lon_max, float lon_min)
+			    double lat_max, double lat_min, 
+			    double lon_max, double lon_min)
 {
   int map_stradles_180;
   int ifiles, iseg, ios;
@@ -866,7 +873,6 @@ void thin_current_segment()
 void finish_new_file()
 {
   int iseg, extent, ios;
-  char command[MAX_STRING];
 
 /*
  *	get maximum lat,lon extent 
@@ -987,7 +993,7 @@ void finish_new_file()
       next_segment_cdb(source))
   {
     current_segment = source->segment;
-    if(NULL == current_segment->addr)
+    if((byte4)NULL == current_segment->addr)
       continue;
 
 /*
@@ -1123,17 +1129,17 @@ void finish_new_file()
  *------------------------------------------------------------------------*/ 
 
 void append_candidate(int reverse_candidate, 
-		      float *current_x_start, float *current_y_start, 
-		      float *current_x_end, float *current_y_end)
+		      double *current_x_start, double *current_y_start, 
+		      double *current_x_end, double *current_y_end)
 {
-  float temp_lat, temp_lon;
-  float *lat = NULL;
-  float *lon = NULL;
+  double temp_lat, temp_lon;
+  double *lat = NULL;
+  double *lon = NULL;
   int status, ipoints;
 
   ipoints = source->npoints + 1;
-  lat = (float *) calloc(1, ipoints * sizeof(float));
-  lon = (float *) calloc(1, ipoints * sizeof(float));
+  lat = (double *) calloc(1, ipoints * sizeof(double));
+  lon = (double *) calloc(1, ipoints * sizeof(double));
 
   if(NULL == lat || NULL == lon)
   {
@@ -1183,7 +1189,7 @@ void append_candidate(int reverse_candidate,
   }
 
   free(lat); free(lon);
-  source->segment->addr = NULL;
+  source->segment->addr = (byte4)NULL;
 }
 
 
@@ -1204,9 +1210,9 @@ cdb_index_entry *find_best_candidate(cdb_edit_join_method *join_method)
   double temp_distance, distance = 100;
   double candidate_start_lat, candidate_start_lon;
   double candidate_end_lat, candidate_end_lon;
-  float candidate_x_start, candidate_y_start;
-  float candidate_x_end, candidate_y_end;
-  float temp_x, temp_y;
+  double candidate_x_start, candidate_y_start;
+  double candidate_x_end, candidate_y_end;
+  double temp_x, temp_y;
   cdb_index_entry *best_candidate = NULL;
   cdb_index_entry *candidate_segment = NULL;
   
@@ -1226,7 +1232,7 @@ cdb_index_entry *find_best_candidate(cdb_edit_join_method *join_method)
  *   Don't try to join a segment which has already been joined
  */  
   
-    if(NULL == candidate_segment->addr)
+    if((byte4)NULL == candidate_segment->addr)
     {
       if (very_very_verbose) 
 	fprintf(stderr,">>>Segment %d has already been joined.\n",
