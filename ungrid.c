@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.4 2004-09-14 17:31:52 haran Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.5 2004-09-14 19:53:54 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -28,7 +28,7 @@ static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.
 "             If binary is set, the location is not echoed to\n"		\
 "             the output but the data values are written in the\n"		\
 "             same order as the input points.\n"				\
-"         e - If binary is not set, then output ASCII in exponential (%e)\n"	\
+"         e - If binary is not set, then output ASCII in exponential (%15.8e)\n"\
 "             format (default is %f). If binary is set, then -e is ignored.\n"  \
 "         i fill - fill value for missing data (default = 0)\n"			\
 "         n min_value - ignore data values less than min_value\n"		\
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     if (method == 'I') fprintf(stderr,"> Power:\t%g\n", control.power);
     fprintf(stderr,"> Format:\t%s\n",
                    do_binary ? "binary" : 
-                               (do_exponential ? "ascii %%e" : "ascii %%f"));
+                               (do_exponential ? "ascii %15.8e" : "ascii %f"));
   }
 
 /*
