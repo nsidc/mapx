@@ -2,13 +2,13 @@
 #
 
 #==============================================================================
-# mapx_utest.pl - run mapx unit test for a single mpp file
+# utest.pl - run mapx unit test for one or more mpp files
 #
 # 11-Apr-2003 Terry Haran, tharan@nsidc.org, 303-492-1847
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.9 2003-04-23 00:33:00 haran Exp $
+# $Id: utest.pl,v 1.10 2003-04-23 16:34:34 haran Exp $
 #
 
 #
@@ -18,11 +18,11 @@ $| = 1;
 select(STDERR);
 select(STDOUT);
 
-$script = "MAPX_UTEST";
+$script = "UTEST";
 $script = $script;
 
 $Usage = "\n
-USAGE: mapx_utest.pl [-v] mppfile1 [mppfile2...]
+USAGE: utest.pl [-v] mppfile1 [mppfile2...]
 
        mppfile - Map Projection Parameters file to be used as input to
                  macct and xytest to test a particular map projection.
@@ -59,7 +59,7 @@ if ($ARGV[0] eq "-v") {
 }
 my @mppfiles = @ARGV;
 my $mppfile;
-my $tmpfile = "mapx_utest_temp.txt";
+my $tmpfile = "utest_temp.txt";
 my $exit_value = 0;
 
 #
