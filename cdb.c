@@ -6,7 +6,7 @@
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.13 2002-01-08 21:05:16 knowles Exp $";
+static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.14 2003-06-23 15:43:59 haran Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +18,11 @@ static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.13 2002-01-0
 
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
 static cdb_seg_data *cdb_read_memory(cdb_class *this);
+
+char *id_cdb(void)
+{
+  return((char *)cdb_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * new_cdb - create new cdb_class instance
@@ -126,7 +131,7 @@ cdb_class *init_cdb(const char *cdb_filename)
 
   this->segment = this->index;
   this->seg_count = this->header->index_size/sizeof(cdb_index_entry);
-  this->index_order = this->header->index_order;
+  this->index_order = (cdb_index_sort)(this->header->index_order);
 
   if (this->header->max_seg_size > CDB_MAX_BUFFER_SIZE)
   { free_cdb(this);
@@ -407,11 +412,11 @@ cdb_seg_data *load_current_seg_data_cdb(cdb_class *this)
  *		N < 0 = max_pts is too small, need -N points
  *
  *--------------------------------------------------------------------*/
-int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts)
+int get_current_seg_cdb(cdb_class *this, double *lat, double *lon, int max_pts)
 {
   register cdb_seg_data *data;
   register int ipt;
-  register float clat, clon;
+  register double clat, clon;
 
 /*
  *	read segment point data
@@ -455,12 +460,12 @@ int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts)
  *
  *--------------------------------------------------------------------*/
 int draw_current_seg_cdb(cdb_class *this,
-			 int (*move_pu)(float lat, float lon), 
-			 int (*draw_pd)(float lat, float lon))
+			 int (*move_pu)(double lat, double lon), 
+			 int (*draw_pd)(double lat, double lon))
 {
   register int ipt;
   register cdb_seg_data *data;
-  register float lat, lon;
+  register double lat, lon;
 
 /*
  *	read segment point data
@@ -735,11 +740,11 @@ static int cdb_find_seg_ID(cdb_index_entry *key, cdb_index_entry *seg)
 /*
  *	find method
  */
-cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value)
+cdb_index_entry *find_segment_cdb(cdb_class *this, double key_value)
 {
   cdb_index_entry key;
   int (*compare)();
-  register float bottom_value;
+  register double bottom_value;
 
   switch (this->index_order)
   { case CDB_INDEX_LAT_MAX:
@@ -801,10 +806,10 @@ cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value)
  *	result: 1 iff current segment is within bounds
  *
  *--------------------------------------------------------------------*/
-int index_limit_test_cdb(cdb_class *this, float lower_bound,
-			 float upper_bound)
+int index_limit_test_cdb(cdb_class *this, double lower_bound,
+			 double upper_bound)
 {
-  float test_val;
+  double test_val;
   switch (this->index_order)
   { case CDB_INDEX_LAT_MAX:
       test_val = this->segment->ilat_max*CDB_LAT_SCALE;
@@ -844,12 +849,12 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
  *	effect: calls draw_current_segment_cdb for each segment within bounds
  *
  *--------------------------------------------------------------------*/
-int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
-	      int (*move_pu)(float lat, float lon), 
-	      int (*draw_pd)(float lat, float lon))
+int draw_cdb(cdb_class *this, double start, double stop, cdb_index_sort order,
+	      int (*move_pu)(double lat, double lon), 
+	      int (*draw_pd)(double lat, double lon))
 {
   int split_search = FALSE;
-  float lower, upper;
+  double lower, upper;
   cdb_index_entry *last;
 
   last = last_segment_cdb(this);
