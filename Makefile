@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.41 2001-01-11 16:48:50 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.42 2001-01-11 17:27:47 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -68,7 +68,7 @@ mercator.o mollweide.o cylindrical_equidistant.o sinusoidal.o \
 lambert_conic_conformal.o interupted_homolosine_equal_area.o \
 albers_conic_equal_area.o azimuthal_equal_area.o 
 
-MAPX_SRCS = mapx.c grids.c cdb.c maps.c keyval.c grid_io.c $(PROJECTION_OBJS)
+MAPX_SRCS = mapx.c grids.c cdb.c maps.c keyval.c grid_io.c $(PROJECTION_SRCS)
 MAPX_HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h keyval.h grid_io.h
 MAPX_OBJS = mapx.o grids.o cdb.o maps.o keyval.o grid_io.o $(PROJECTION_OBJS)
 
