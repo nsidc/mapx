@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.26 1998-04-02 17:34:40 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.27 1999-04-19 21:20:41 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,6 +64,9 @@ static int inverse_lambert_conic_conformal_ellipsoid(float,float,float*,float*);
 static int init_interupted_homolosine_equal_area(void);
 static int interupted_homolosine_equal_area(float,float,float*,float*);
 static int inverse_interupted_homolosine_equal_area(float,float,float*,float*);
+static int init_albers_conic_equal_area(void);
+static int albers_conic_equal_area(float,float,float*,float*);
+static int inverse_albers_conic_equal_area(float,float,float*,float*);
 static char *standard_name(char *);
 
 /*----------------------------------------------------------------------
@@ -99,13 +102,14 @@ static char *standard_name(char *);
  *			 Cylindrical_Equal_Area_Ellipsoid
  *                       Lambert_Conic_Conformal_Ellipsoid
  *			 Interupted_Homolosine_Equal_Area
+ *                       Albers_Conic_Equal_Area
  *			or anything reasonably similar
  *
  *	The parameter lat1 is currently used for the Polar_Stereographic
  *	projection to define the "true at" parallel (default pole) and
  *	the Cylindrical_Equal_Area projection to define the latitude of
  *	1:1 aspect ratio (default 30.00). In the Lambert Conic Conformal
- *	lat0 and lat1 are the standard parallels.
+ *	and Albers Conic Equal-Area lat0 and lat1 are the standard parallels.
  *
  *	result: pointer to new mapx_class instance for this map
  *		or NULL if an error occurs during initialization
@@ -326,9 +330,15 @@ mapx_class *init_mapx (char *map_filename)
     this->geo_to_map = interupted_homolosine_equal_area;
     this->map_to_geo = inverse_interupted_homolosine_equal_area;
   }
+  if (strcmp (projection, "ALBERSCONICEQUALAREA") == 0)     
+  { this->initialize = init_albers_conic_equal_area; 
+    this->geo_to_map = albers_conic_equal_area;
+    this->map_to_geo = inverse_albers_conic_equal_area;
+  }
   else
   { fprintf (stderr, "init_mapx: unknown projection %s\n", original_name);
     fprintf (stderr, "valid types are:\n");
+    fprintf (stderr, " Albers Conic Equal-Area\n");
     fprintf (stderr, " Azimuthal Equal-Area\n");
     fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
     fprintf (stderr, " Cylindrical Equal-Area\n");
@@ -429,17 +439,18 @@ int reinit_mapx (mapx_class *this)
   this->e6 = (this->e4) * (this->e2); 
   this->e8 = (this->e4) * (this->e4);
   
-  /*
-   *	set projection constants
-   */
-  current = this;
-  if ((*(this->initialize))()) return -1;
-  
+
   /*
    *	set scaled radius for spherical projections
    */
   this->Rg = this->equatorial_radius / this->scale;
   
+  /*
+   *	set projection constants
+   */
+  current = this;
+  if ((*(this->initialize))()) return -1;
+
   /*
    *	create rotation matrix
    */
@@ -608,6 +619,15 @@ static char *standard_name(char *s)
 	   streq(new_name, "GOODEHOMOLOSINE") ||
 	   streq(new_name, "GOODESHOMOLOSINE"))
   { strcpy(new_name, "INTERUPTEDHOMOLOSINEEQUALAREA");
+  }
+  else if (streq(new_name, "ALBERSCONICEQUALAREA") || 
+      streq(new_name, "ALBERSCONICEQUALAREASPHERE") || 
+      streq(new_name, "ALBERSEQUALAREACONIC") || 
+      streq(new_name, "CONICEQUALAREA") || 
+      streq(new_name, "EQUALAREACONIC") || 
+      streq(new_name, "ALBERSCONIC") || 
+      streq(new_name, "ALBERSEQUALAREA"))
+  { strcpy(new_name,"ALBERSCONICEQUALAREA");
   }
   
   return new_name;
@@ -1899,6 +1919,73 @@ static int inverse_interupted_homolosine_equal_area(float u, float v, float *lat
 
   *lat = DEGREES(phi);
   *lon = DEGREES(lam);
+  NORMALIZE(*lon);
+  
+  return 0;
+}
+
+/*------------------------------------------------------------------------
+ * albers_conic_equal_area
+ *------------------------------------------------------------------------*/
+static int init_albers_conic_equal_area(void)
+{
+  current->sin_phi0 = sin(RADIANS(current->center_lat));
+  current->sin_phi1 = sin(RADIANS(current->lat0));
+  current->cos_phi1 = cos(RADIANS (current->lat0));
+
+  if (999 == current->lat1 || current->lat0 == current->lat1)
+    current->n = current->sin_phi1;
+  else
+    current->n = (current->sin_phi1 + sin(RADIANS(current->lat1)))/2;
+
+  current->C = (current->cos_phi1*current->cos_phi1
+		+ 2*current->n*current->sin_phi1);
+
+  current->rho0 = 
+    current->Rg*sqrt(current->C - 2*current->n*current->sin_phi0)/current->n;
+
+  return 0;
+}
+
+static int albers_conic_equal_area(float lat, float lon, float *u, float *v)
+{
+  float x, y;
+  double phi, lam, sin_phi, rho, theta;
+  
+  phi = RADIANS(lat);
+  lam = RADIANS(lon - current->lon0);
+
+  sin_phi = sin(phi);
+  rho = current->Rg*sqrt(current->C - 2*current->n*sin_phi)/current->n;
+  theta = current->n*lam;
+
+  x = rho*sin(theta);
+  y = current->rho0 - rho*cos(theta);
+
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
+}
+
+static int inverse_albers_conic_equal_area(float u, float v, 
+					   float *lat, float *lon)
+{
+  double phi, lam, rho, rmy, theta, chi, x, y;
+
+  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v + current->v0);
+
+  rmy = current->rho0 - y;
+  rho = sqrt(x*x + rmy*rmy);
+  theta = atan2(x, rmy);
+
+  chi = rho*current->n/current->Rg;
+  phi = asin((current->C - chi*chi)/(2*current->n));
+  lam = theta/current->n;
+
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
   NORMALIZE(*lon);
   
   return 0;
