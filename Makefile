@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.35 1996-11-19 18:34:05 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.36 1998-03-16 16:47:12 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -29,7 +29,7 @@ INSTALL = cp
 CP = cp
 RM = rm -f
 TAR = tar
-COMPRESS = compress
+COMPRESS = gzip
 
 #
 #	archive file name
