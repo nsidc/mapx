@@ -5,8 +5,9 @@
  *	16-Dec-1991 K.Knowles - put all global parameters into mapx_struct
  *	2-July-1992 K.Knowles - init returns pointer to struct
  *      10-Dec-1992 R.Swick - added error checking and flexible names
- *      15-Dec-1992 R.Swick - added ellipsoid projections.
+ *      15-Dec-1992 R.Swick - added ellipsoid projections. (Azimuthal and Cylindrical)
  *	30-Dec-1992 K.Knowles - added interactive and performance tests
+ *  	01-Feb-1993 R.Swick - added Lambert conic conformal ellipsoid projection
  *========================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +45,8 @@ static int azimuthal_equal_area_ellipsoid(float,float,float*,float*);
 static int inverse_azimuthal_equal_area_ellipsoid(float,float,float*,float*);
 static int equal_area_cylindrical_ellipsoid(float,float,float*,float*);
 static int inverse_equal_area_cylindrical_ellipsoid(float,float,float*,float*);
+static int lambert_conic_conformal_ellipsoid(float,float,float*,float*);
+static int inverse_lambert_conic_conformal_ellipsoid(float,float,float*,float*);
 
 /*----------------------------------------------------------------------
  * init_mapx - initialize map projection 
@@ -74,7 +77,8 @@ static int inverse_equal_area_cylindrical_ellipsoid(float,float,float*,float*);
  *			 Polar_Stereographic
  *			 Azimuthal_Equal_Area_Ellipsoid			 
  *			 Equal_Area_Cylindrical_Ellipsoid
- *
+ *                       Lambert_Conic_Conformal_Ellipsoid
+ *       
  *	The parameter lat1 is currently used for the Polar_Stereographic
  *	projection to define the "true at" parallel (default pole) and
  *	the Equal_Area_Cylindrical projection to define the latitude of
@@ -172,13 +176,19 @@ mapx_class *init_mapx (char *map_file_name)
   fgets (readln, sizeof(readln), this->mpp_file);       /******************/
   if feof(this->mpp_file)
   {this->equitorial_radius = 6378.2064;
-   this->flattening = (1.0/294.98);
+   this->flattening = (1.0/294.98); 
  }
   else
   {ios = sscanf (readln, "%lf %lf", &d1, &d2);             /****************/
-  this->equitorial_radius = (ios >= 1) ? d1 : 6378.2064; /*****Clarke******/
-  this->flattening = (ios >= 2) ? d2 : (1.0/294.98);     /******1866******/
+   this->equitorial_radius = (ios >= 1) ? d1 : 6378.2064; /*****Clarke******/
+   this->flattening = (ios >= 2) ? d2 : (1.0/294.98);     /******1866******/
  }
+  this->eccentricity = sqrt((2.0*this->flattening) - (this->flattening * this->flattening));
+  this->e2 = (this->eccentricity) * (this->eccentricity);
+  this->e4 = (this->e2) * (this->e2);
+  this->e6 = (this->e4) * (this->e2); 
+  this->e8 = (this->e4) * (this->e4);
+  
 
   if ferror(this->mpp_file)
   {fprintf (stderr, "init_mapx: error reading parameters file.\n");
@@ -230,20 +240,13 @@ mapx_class *init_mapx (char *map_file_name)
   NORMALIZE(this->west);
 
 
-  if ((strcmp (projection, "AZIMUTHALEQUALAREA") == 0) || 
-      (strcmp (projection, "AZIMUTHALEQUALAREASPHERICAL") == 0) || 
-      (strcmp (projection, "SPHERICALAZIMUTHALEQUALAREA") == 0) || 
-      (strcmp (projection, "SPHERICALEQUALAREAAZIMUTHAL") == 0) || 
-      (strcmp (projection, "EQUALAREAAZIMUTHALSPHERICAL") == 0) || 
-      (strcmp (projection, "EQUALAREASPHERICALAZIMUTHAL") == 0) || 
-      (strcmp (projection, "EQUALAREAAZIMUTHAL") == 0))
+  if (strcmp (projection, "AZIMUTHALEQUALAREA") == 0)     
   { this->geo_to_map = azimuthal_equal_area;
     this->map_to_geo = inverse_azimuthal_equal_area;
     this->sin_phi1 = sin (RADIANS (this->lat0));
     this->cos_phi1 = cos (RADIANS (this->lat0));
   }
-  else if ((strcmp (projection, "EQUALAREACYLINDRICAL") == 0) || 
-	   (strcmp (projection, "CYLINDRICALEQUALAREA") == 0))
+  else if (strcmp (projection, "EQUALAREACYLINDRICAL") == 0)
   { this->geo_to_map = equal_area_cylindrical;
     this->map_to_geo = inverse_equal_area_cylindrical;
     if (this->lat1 == 999) this->lat1 = 30.00;
@@ -269,14 +272,12 @@ mapx_class *init_mapx (char *map_file_name)
   { this->geo_to_map = sinusoidal;
     this->map_to_geo = inverse_sinusoidal;
   }
-  else if ((strcmp (projection, "CYLINDRICALEQUIDISTANT") == 0) || 
-	   (strcmp (projection, "EQUIDISTANTCYLINDRICAL") == 0))
+  else if (strcmp (projection, "CYLINDRICALEQUIDISTANT") == 0)
   { this->geo_to_map = cylindrical_equidistant;
     this->map_to_geo = inverse_cylindrical_equidistant;
     this->cos_phi1 = cos (RADIANS (this->lat0));
   }
-  else if ((strcmp (projection, "POLARSTEREOGRAPHIC") == 0)|| 
-	   (strcmp (projection, "STEREOGRAPHICPOLAR") == 0))
+  else if (strcmp (projection, "POLARSTEREOGRAPHIC") == 0)
   { this->geo_to_map = polar_stereographic;
     this->map_to_geo = inverse_polar_stereographic;
     if (this->lat1 == 999) this->lat1 = this->lat0;
@@ -288,18 +289,9 @@ mapx_class *init_mapx (char *map_file_name)
     }
   }
 
-  else if ((strcmp (projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) || 
-	   (strcmp (projection, "ELLIPSOIDAZIMUTHALEQUALAREA") == 0) || 
-	   (strcmp (projection, "EQUALAREAELLIPSOIDAZIMUTHAL") == 0) || 
-	   (strcmp (projection, "EQUALAREAAZIMUTHALELLIPSOID") == 0) || 
-	   (strcmp (projection, "AZIMUTHALELLIPSOIDEQUALAREA") == 0) || 
-	   (strcmp (projection, "ELLIPSOIDEQUALAREAAZIMUTHAL") == 0) )
+  else if (strcmp (projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) 
   { this->geo_to_map = azimuthal_equal_area_ellipsoid;
     this->map_to_geo = inverse_azimuthal_equal_area_ellipsoid;
-    this->eccentricity = sqrt((2.0*this->flattening) - (this->flattening * this->flattening));
-    this->e2 = (this->eccentricity) * (this->eccentricity);
-    this->e4 = (this->e2) * (this->e2);
-    this->e6 = (this->e4) * (this->e2);
     this->qp = (1.0-(((1.0-(this->e2))/(2.0*(this->eccentricity)))*
 		     (log((1.0-(this->eccentricity))/(1.0+(this->eccentricity))))));
     this->Rg = this->equitorial_radius / this->scale;
@@ -322,24 +314,37 @@ mapx_class *init_mapx (char *map_file_name)
     
   }
 
-  else if ((strcmp (projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) || 
-	   (strcmp (projection, "ELLIPSOIDCYLINDRICALEQUALAREA") == 0) || 
-	   (strcmp (projection, "EQUALAREAELLIPSOIDCYLINDRICAL") == 0) || 
-	   (strcmp (projection, "EQUALAREACYLINDRICALELLIPSOID") == 0) || 
-	   (strcmp (projection, "CYLINDRICALELLIPSOIDEQUALAREA") == 0) || 
-	   (strcmp (projection, "ELLIPSOIDEQUALAREACYLINDRICAL") == 0) )
+  else if (strcmp (projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) 
   { this->geo_to_map = equal_area_cylindrical_ellipsoid;
     this->map_to_geo = inverse_equal_area_cylindrical_ellipsoid;
-    this->Rg = this->equitorial_radius / this->scale;
+    this->Rg = this->equitorial_radius / this->scale; 
     this->phis = RADIANS(this->lat0);
-    this->eccentricity = sqrt((2.0*this->flattening) - (this->flattening * this->flattening));
-    this->e2 = (this->eccentricity) * (this->eccentricity);
-    this->e4 = (this->e2) * (this->e2);
-    this->e6 = (this->e4) * (this->e2);
     this->kz = cos(this->phis)/(sqrt(1.0 - ((this->e2)*sin(this->phis)*sin(this->phis))));
     this->qp = (1.0 - (this->e2)) * ((1.0/(1.0 - (this->e2)))
 			     - (1.0/(2.0*(this->eccentricity))) * 
 				log((1.0 - (this->eccentricity))/(1.0 + (this->eccentricity))));
+  } 
+  else if (strcmp (projection, "LAMBERTCONICCONFORMALELLIPSOID") == 0) 
+  { this->geo_to_map = lambert_conic_conformal_ellipsoid;
+    this->map_to_geo = inverse_lambert_conic_conformal_ellipsoid;
+    this->Rg = this->equitorial_radius / this->scale;
+    this->cos_phi0 = cos(RADIANS(this->lat0));
+    this->cos_phi1 = cos(RADIANS(this->lat1));
+    this->sin_phi0 = sin(RADIANS(this->lat0));
+    this->sin_phi1 = sin(RADIANS(this->lat1));
+    this->m0 = ((this->cos_phi0)/sqrt(1-(this->e2 * this->sin_phi0 * this->sin_phi0))); 
+    this->m1 = ((this->cos_phi1)/sqrt(1-(this->e2 * this->sin_phi1 * this->sin_phi1)));
+    this->t0 = sqrt( ((1.0 - this->sin_phi0)/(1.0 + this->sin_phi0)) * 
+		     pow(((1.0 + (this->eccentricity * this->sin_phi0))/
+			  (1.0 - (this->eccentricity * this->sin_phi0))),this->eccentricity) ); 
+    this->t1 = sqrt( ((1.0 - this->sin_phi1)/(1.0 + this->sin_phi1)) * 
+		     pow(((1.0 +(this->eccentricity * this->sin_phi1))/
+			  (1.0 - (this->eccentricity * this->sin_phi1))),
+			 this->eccentricity) ); 
+    this->n = (log(this->m0)-log(this->m1))/((log(this->t0)-log(this->t1)));
+    this->F = this->m0/(this->n * pow(this->t0,this->n));
+    this->rho0 = this->Rg * this->F * pow(this->t0, this->n);
+
   }
   else
   { fprintf (stderr, "init_mapx: unknown projection %s\n", old_projection);
@@ -1055,39 +1060,103 @@ static int inverse_cylindrical_equidistant (float u, float v, float *lat, float 
  *------------------------------------------------------------------------*/
 static int sinusoidal (float lat, float lon, float *u, float *v)
 {
-	float x, y, dlon;
-	double phi, lam;
-
-	dlon = lon - current->lon0;
-	NORMALIZE(dlon);
-
-	phi = RADIANS (lat);
-	lam = RADIANS (dlon);
-
-	x =  current->Rg * lam * cos (phi);
-	y =  current->Rg * phi;
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y, dlon;
+  double phi, lam;
+  
+  dlon = lon - current->lon0;
+  NORMALIZE(dlon);
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (dlon);
+  
+  x =  current->Rg * lam * cos (phi);
+  y =  current->Rg * phi;
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return(0);
 }
 
 static int inverse_sinusoidal (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	phi = y/current->Rg;
-	lam = x/(current->Rg*cos(phi));
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-
-	return(0);
+  double phi, lam, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  phi = y/current->Rg;
+  lam = x/(current->Rg*cos(phi));
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  
+  return(0);
 }
+
+
+/*--------------------------------------------------------------------------
+ * Lambert conic conformal ellipsoid
+ *--------------------------------------------------------------------------*/
+
+static int lambert_conic_conformal_ellipsoid (float lat, float lon, float *u, float *v)
+{
+  double phi, lam, x, y, chi, rho, theta, sin_phi, t;
+  
+  lam = lon - current->lon0;
+  NORMALIZE (lam);
+  lam = RADIANS(lam);
+  phi = RADIANS(lat);
+  sin_phi = sin(phi);
+
+  t = sqrt( ((1 - sin_phi)/(1 + sin_phi)) * 
+		    pow(((1+(current->eccentricity * sin_phi))/(1-(current->eccentricity * sin_phi))),
+			current->eccentricity) );
+  rho = (current->Rg * current->F) * pow(t,current->n);
+  theta = current->n * lam;
+
+  x = rho * sin(theta);
+  y = current->rho0 - (rho * cos(theta));
+
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return(0);
+}
+  
+static int inverse_lambert_conic_conformal_ellipsoid (float u, float v, float *lat, float *lon)
+{
+  double rho, x, y, t, chi, lam, phi, theta; 
+
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+
+  rho = (fabs(current->n)/(current->n)) * 
+    sqrt((x*x)+((current->rho0 - y) * (current->rho0 - y)));
+  t = pow((rho/(current->Rg * current->F)), (1/current->n));
+  chi = ((PI/2.0) - (2.0 * atan(t)));
+
+  if (current->n < 0.0)
+    theta = atan((-x)/(y - current->rho0));
+  else
+    theta = atan((x)/(current->rho0 - y));
+
+  lam = (theta/current->n);
+  phi = chi + (((current->e2/2.0) + ((5.0/24.0) * current->e4) +
+		(current->e6/12.0) + ((13.0/360.0) * current->e8)) * sin(2.0 * chi)) +
+		  ((((7.0/48.0) *current->e4) + ((29.0/240.0) * current->e6) +
+		    ((811.0/11520.0) * current->e8)) * sin(6.0 * chi)) +
+		      ((((7.0/120.0) * current->e6) + ((81.0/1120.0) * current->e8)) * sin(6.0 * chi)) +
+			(((4279.0/161280.0) * current->e8) * sin(8.0 * chi));
+		  
+
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE (*lon);
+  
+  return(0);
+}
+
 
 
 /*--------------------------------------------------------------------------
@@ -1109,6 +1178,69 @@ char *standardize(char *s)
 
   *p = '\0';
          
+  if ((strcmp (new_projection, "AZIMUTHALEQUALAREA") == 0) || 
+      (strcmp (new_projection, "AZIMUTHALEQUALAREASPHERICAL") == 0) || 
+      (strcmp (new_projection, "SPHERICALAZIMUTHALEQUALAREA") == 0) || 
+      (strcmp (new_projection, "SPHERICALEQUALAREAAZIMUTHAL") == 0) || 
+      (strcmp (new_projection, "EQUALAREAAZIMUTHALSPHERICAL") == 0) || 
+      (strcmp (new_projection, "EQUALAREASPHERICALAZIMUTHAL") == 0) || 
+      (strcmp (new_projection, "EQUALAREAAZIMUTHAL") == 0))
+    strcpy (new_projection,"AZIMUTHALEQUALAREA");
+ 
+  else if ((strcmp (new_projection, "EQUALAREACYLINDRICAL") == 0) || 
+	   (strcmp (new_projection, "CYLINDRICALEQUALAREA") == 0)) 
+    strcpy (new_projection,"EQUALAREACYLINDRICAL");
+
+  else if ((strcmp (new_projection, "CYLINDRICALEQUIDISTANT") == 0) || 
+	   (strcmp (new_projection, "EQUIDISTANTCYLINDRICAL") == 0))
+    strcpy (new_projection, "CYLINDRICALEQUIDISTANT");
+  
+  else if ((strcmp (new_projection, "POLARSTEREOGRAPHIC") == 0)|| 
+	   (strcmp (new_projection, "STEREOGRAPHICPOLAR") == 0))
+    strcpy (new_projection, "POLARSTEREOGRAPHIC");
+
+  else if ((strcmp (new_projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) || 
+	   (strcmp (new_projection, "ELLIPSOIDAZIMUTHALEQUALAREA") == 0) || 
+	   (strcmp (new_projection, "EQUALAREAELLIPSOIDAZIMUTHAL") == 0) || 
+	   (strcmp (new_projection, "EQUALAREAAZIMUTHALELLIPSOID") == 0) || 
+	   (strcmp (new_projection, "AZIMUTHALELLIPSOIDEQUALAREA") == 0) || 
+	   (strcmp (new_projection, "ELLIPSOIDEQUALAREAAZIMUTHAL") == 0) )
+    strcpy (new_projection, "AZIMUTHALEQUALAREAELLIPSOID");
+
+  else if ((strcmp (new_projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) || 
+	   (strcmp (new_projection, "ELLIPSOIDCYLINDRICALEQUALAREA") == 0) || 
+	   (strcmp (new_projection, "EQUALAREAELLIPSOIDCYLINDRICAL") == 0) || 
+	   (strcmp (new_projection, "EQUALAREACYLINDRICALELLIPSOID") == 0) || 
+	   (strcmp (new_projection, "CYLINDRICALELLIPSOIDEQUALAREA") == 0) || 
+	   (strcmp (new_projection, "ELLIPSOIDEQUALAREACYLINDRICAL") == 0) )
+     strcpy (new_projection,  "CYLINDRICALEQUALAREAELLIPSOID");
+  
+  else if ((strcmp (new_projection, "LAMBERTCONICCONFORMALELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "LAMBERTCONICELLIPSOIDCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "LAMBERTCONFORMALCONICELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "LAMBERTCONFORMALELLIPSOIDCONIC") == 0) ||
+	   (strcmp (new_projection, "LAMBERTELLIPSOIDCONICCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "LAMBERTELLIPSOIDCONFORMALCONIC") == 0) ||
+	   (strcmp (new_projection, "CONICLAMBERTCONFORMALELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "CONICLAMBERTELLIPSOIDCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "CONFORMALLAMBERTCONICELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "CONFORMALLAMBERTELLIPSOIDCONIC") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDLAMBERTCONICCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDLAMBERTCONFORMALCONIC") == 0) ||
+	   (strcmp (new_projection, "CONICCONFORMALLAMBERTELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "CONICELLIPSOIDLAMBERTCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "CONFORMALCONICLAMBERTELLIPSOID") == 0) ||
+	   (strcmp (new_projection, "CONFORMALELLIPSOIDLAMBERTCONIC") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDCONICLAMBERTCONFORMAL") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDCONFORMALLAMBERTCONIC") == 0) ||
+	   (strcmp (new_projection, "CONICCONFORMALELLIPSOIDLAMBERT") == 0) ||
+	   (strcmp (new_projection, "CONICELLIPSOIDCONFORMALLAMBERT") == 0) ||
+	   (strcmp (new_projection, "CONFORMALCONICELLIPSOIDLAMBERT") == 0) ||
+	   (strcmp (new_projection, "CONFORMALELLIPSOIDCONICLAMBERT") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDCONICCONFORMALLAMBERT") == 0) ||
+	   (strcmp (new_projection, "ELLIPSOIDCONFORMALCONICLAMBERT") == 0) )  
+    strcpy (new_projection, "LAMBERTCONICCONFORMALELLIPSOID");
+
   return new_projection;
 }
 
