@@ -1,0 +1,37 @@
+# file: sgi_M200corrent.mpp
+# Unit Test
+# EASE-Grid Global
+#
+Cylindrical Equal-Area
+0.0 0.0 30.0    lat0 lon0 lat1
+0.0             rotation
+200.5402        scale (km/in)
+00.00   00.00   center lat lon
+-90.00  90.00   lat min max
+-180.00 180.00  lon min max
+ 30.00 30.00    grid
+00.00   00.00   label lat lon
+1 0 0           cil bdy riv
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 1.5521e-05 km
+#   std dev error = 3.6941e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 55.58S 180.00W
+#
+# xytest forward
+#   lat,lon = 75.0 -150.0
+#   x,y = -72.0312517 35.4351968 
+#
+# xytest inverse
+#   x,y = -72.0312517 35.4351968
+#   lat,lon = 74.9999997 -150.0000000 
+#
+# xytest forward
+#   lat,lon = -75.0 150.0
+#   x,y = 72.0312517 -35.4351968 
+#
+# xytest inverse
+#   x,y = 72.0312517 -35.4351968
+#   lat,lon = -74.9999997 150.0000000 
