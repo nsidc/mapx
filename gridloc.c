@@ -4,7 +4,7 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.4 2000-12-12 20:58:44 knowles Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.5 2001-06-26 17:02:03 knowles Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -15,20 +15,21 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 #include "grids.h"
 #include "byteswap.h"
 
-#define usage \
-"usage: gridloc [-pmq -o output_name] file.gpd\n"\
-"\n"\
-" input : file.gpd  - grid parameters definition file\n"\
-"\n"\
-" output: grid of signed decimal latitudes and/or longitudes\n"\
-"         4 byte floats by row\n"\
-"\n"\
-" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.float\n"\
-"             otherwise output goes to stdout\n"\
-"         p - do latitudes only\n"\
-"         m - do longitudes only\n"\
-"         pm - do latitudes followed by longitudes\n"\
-"         mp - do longitudes followed by latitudes (default)\n"\
+#define usage									\
+"usage: gridloc [-pmdq -o output_name] file.gpd\n"				\
+"\n"										\
+" input : file.gpd  - grid parameters definition file\n"			\
+"\n"										\
+" output: grid of signed decimal latitudes and/or longitudes\n"			\
+"         4 byte floats by row\n"						\
+"\n"										\
+" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.float\n"	\
+"             otherwise output goes to stdout\n"				\
+"         p - do latitudes only\n"						\
+"         m - do longitudes only\n"						\
+"         pm - do latitudes followed by longitudes\n"				\
+"         mp - do longitudes followed by latitudes (default)\n"			\
+"         d x y - displace point by x,y (e.g. to get corners)\n"		\
 "         q - quiet\n"\
 "\n"
 
@@ -41,6 +42,7 @@ main (int argc, char *argv[])
   int nbytes, row_bytes, status, total_bytes;
   bool verbose;
   float coord[2];
+  float delta_col, delta_row;
   float *value, *undefined;
   char *option, *output_name, output_filename[MAX_STRING];
   static char *coord_name[2] = {"latitude", "longitude"};
@@ -51,6 +53,7 @@ main (int argc, char *argv[])
  *	set defaults
  */
   nbands = 0;
+  delta_col = delta_row = 0;
   verbose = TRUE;
   output_name = NULL;
 
@@ -79,6 +82,15 @@ main (int argc, char *argv[])
 	  ++argv; --argc;
 	  if (argc <= 0) error_exit(usage);
 	  output_name = strdup(*argv);
+	  break;
+        case 'd':
+	  ++argv; --argc;
+	  if (argc <= 0) error_exit(usage);
+	  if (1 != sscanf(*argv, "%f", &delta_col)) error_exit(usage);
+	  ++argv; --argc;
+	  if (argc <= 0) error_exit(usage);
+	  if (1 != sscanf(*argv, "%f", &delta_row)) error_exit(usage);
+	  if (verbose) fprintf(stderr,"%f dx %f dy\n", delta_col, delta_row);
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);
@@ -133,7 +145,7 @@ main (int argc, char *argv[])
     for (i = 0; i < grid_def->rows; i++) 
     { memcpy(value, undefined, row_bytes);
       for (j = 0; j < grid_def->cols; j++)
-      { status = inverse_grid(grid_def, (float)j, (float)i, 
+      { status = inverse_grid(grid_def, j+delta_col, i+delta_row, 
 			      &(coord[0]), &(coord[1]));
 	if (!status) continue;
 	value[j] = coord[band[k]];
