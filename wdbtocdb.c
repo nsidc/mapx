@@ -6,6 +6,8 @@
  *		with -DLSB1ST
  *
  *========================================================================*/
+static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.4 2003-06-24 23:09:21 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,8 +17,6 @@
 #include "mapx.h"
 #include "cdb.h"
 #include "cdb_byteswap.h"
-
-static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.3 2002-01-08 21:38:29 knowles Exp $";
 
 /*------------------------------------------------------------------------
  * globals
@@ -41,9 +41,9 @@ static int very_very_verbose = FALSE;
 /*------------------------------------------------------------------------
  * function prototypes
  *------------------------------------------------------------------------*/
-int move_pu(float, float);
-int draw_pd(float, float);
-int write_segment_data(int);
+void move_pu(float, float);
+void draw_pd(float, float);
+void write_segment_data(int);
 
 /*------------------------------------------------------------------------
  * usage
@@ -66,6 +66,11 @@ int write_segment_data(int);
 "         v - verbose diagnostic messages (may be repeated)\n"\
 "\n"
 
+char *id_wdbtocdb(void)
+{
+  return((char *)wdbtocdb_c_rcsid);
+}
+
 /*------------------------------------------------------------------------
  * wdbtocdb - create coastline database from binary WDB2 and/or WVS files
  *
@@ -80,7 +85,8 @@ int main(int argc, char *argv[])
   char *option;
   int detail = 1;
   float north = 90, south = -90, east = 180, west = -180;
-  char thin = 1, rank[MAX_RANKS+1], rank_string[MAX_STRING] = "";
+  int thin = 1;
+  char rank[MAX_RANKS+1], rank_string[MAX_STRING] = "";
   char label[MAX_STRING] = "wdbtocdb";
 
 /*
@@ -173,7 +179,8 @@ int main(int argc, char *argv[])
  */
   for (; argc > 0; argc--, argv++)
   { if (verbose) fprintf(stderr,">processing %s...\n", *argv);
-    wdbplt(*argv, south, 0., north, 0., west, 0., east, 0., 0., rank, thin);
+    wdbplt(*argv, south, 0., north, 0., west, 0., east, 0., 0., rank,
+	   (char)thin);
   }
 
 /*
@@ -244,7 +251,7 @@ int main(int argc, char *argv[])
 /*------------------------------------------------------------------------
  * move_pu - first point of next segment
  *------------------------------------------------------------------------*/
-int move_pu(float lat, float lon)
+void move_pu(float lat, float lon)
 {
   float nlon;
 
@@ -285,7 +292,7 @@ int move_pu(float lat, float lon)
 /*------------------------------------------------------------------------
  * draw_pd - add a point to the current segment
  *------------------------------------------------------------------------*/
-int draw_pd(float lat, float lon)
+void draw_pd(float lat, float lon)
 {
   register int split = 0, ilat, ilon;
   static float lat1,lon1;
@@ -397,7 +404,7 @@ void curve(float *lon, float *lat, short count, char color)
 /*------------------------------------------------------------------------
  * write_segment_data - and get segment address and size
  *------------------------------------------------------------------------*/
-int write_segment_data(int seg)
+void write_segment_data(int seg)
 {
   register int ios;
 
