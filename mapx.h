@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.14 1996-03-20 20:40:58 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.15 1998-04-02 17:34:40 knowles Exp $";
 
 /* 
  * useful macros
@@ -15,6 +15,11 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.14 1
 #define NORMALIZE(lon) \
 { while (lon < -180) lon += 360; \
   while (lon >  180) lon -= 360; \
+}
+
+#define RNORMALIZE(lam) \
+{ while (lam < -PI) lam += 2*PI; \
+  while (lam >  PI) lam -= 2*PI; \
 }
 
 #ifndef SQRT2
