@@ -4,7 +4,7 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.11 1999-06-29 17:53:43 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.12 2003-06-24 22:42:30 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +15,11 @@ static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.11 1
 #include "define.h"
 #include "maps.h"
 
+char *id_maps(void)
+{
+  return((char *)maps_c_rcsid);
+}
+
 /*------------------------------------------------------------------------
  * draw_graticule - draw and (optionally) label grid of lat,lon lines
  *
@@ -24,10 +29,10 @@ static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.11 1
  *		label - print label function or NULL
  *
  *------------------------------------------------------------------------*/
-void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
-		    int (*draw_pd)(float lat, float lon),
-		    int (*label)(char *string, float lat, float lon))
-{ float lat, lon, east, llon;
+void draw_graticule(mapx_class *mapx, int (*move_pu)(double lat, double lon),
+		    int (*draw_pd)(double lat, double lon),
+		    int (*label)(char *string, double lat, double lon))
+{ double lat, lon, east, llon;
   char label_string[5];
   
   east = mapx->map_stradles_180 ? mapx->east+360 : mapx->east;
@@ -37,7 +42,7 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
  */
   if (mapx->lat_interval > 0)
   { for (lat = mapx->south; lat <= mapx->north; lat += mapx->lat_interval)
-    { move_pu(lat, (float)mapx->west);
+    { move_pu(lat, (double)mapx->west);
       for (lon = mapx->west+1; lon < east; lon++)
 	draw_pd(lat, lon);
       draw_pd(lat, east);
@@ -49,10 +54,10 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
  */
   if (mapx->lon_interval > 0)
   { for (lon = mapx->west; lon <= east; lon += mapx->lon_interval)
-    { move_pu((float)mapx->south, lon);
+    { move_pu((double)mapx->south, lon);
       for (lat = mapx->south+1; lat < mapx->north; lat++)
 	draw_pd(lat, lon);
-      draw_pd((float)mapx->north, lon);
+      draw_pd((double)mapx->north, lon);
     }
   }
 
@@ -90,10 +95,10 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
  *		Re - Earth radius
  *
  *----------------------------------------------------------------------*/
-float arc_length(float lat1, float lon1, float lat2, float lon2, float Re)
+double arc_length(double lat1, double lon1, double lat2, double lon2, double Re)
 { double phi1, lam1, phi2, lam2, beta;
 
-  if (lat1 == lat2 && lon1 == lon2) return (float)0;
+  if (lat1 == lat2 && lon1 == lon2) return (double)0;
 
   phi1 = radians(lat1);
   lam1 = radians(lon1);
@@ -101,7 +106,7 @@ float arc_length(float lat1, float lon1, float lat2, float lon2, float Re)
   lam2 = radians(lon2);
   beta = acos( cos(phi1) * cos(phi2) * cos(lam1-lam2)
 	      + sin(phi1) * sin(phi2) );
-  return (float)(Re * beta);
+  return (double)(Re * beta);
 }
 /*----------------------------------------------------------------------
  * arc_length_km - returns arc length (km) from lat1,lon1 to lat2,lon2
@@ -109,7 +114,7 @@ float arc_length(float lat1, float lon1, float lat2, float lon2, float Re)
  *	input : lat1,lon1, lat2,lon2 - in decimal degrees
  *
  *----------------------------------------------------------------------*/
-float arc_length_km (float lat1, float lon1, float lat2, float lon2)
+double arc_length_km (double lat1, double lon1, double lat2, double lon2)
 { 
   return arc_length(lat1, lon1, lat2, lon2, mapx_Re_km);
 }
@@ -122,7 +127,7 @@ float arc_length_km (float lat1, float lon1, float lat2, float lon2)
  *	result: signed angle west of north from pt. 1 to 2 (decimal degrees)
  *
  *----------------------------------------------------------------------*/
-float west_azimuth(float lat1, float lon1, float lat2, float lon2)
+double west_azimuth(double lat1, double lon1, double lat2, double lon2)
 { double phi1, phi2, dlam, sin_A, cos_A, A;
 
   phi1 = radians(lat1);
@@ -133,7 +138,7 @@ float west_azimuth(float lat1, float lon1, float lat2, float lon2)
   cos_A = cos(phi1)*sin(phi2) - sin(phi1)*cos(phi2)*cos(dlam);
   A = (cos_A != 0 ? atan2(sin_A, cos_A) : 0);
 
-  return (float)degrees(A);
+  return (double)degrees(A);
 }
 
 /*----------------------------------------------------------------------
@@ -147,8 +152,8 @@ float west_azimuth(float lat1, float lon1, float lat2, float lon2)
  *		FALSE == error, lat,lon are undefined
  *
  *----------------------------------------------------------------------*/
-bool bisect(float lat1, float lon1, float lat2, float lon2, 
-	    float *lat, float *lon)
+bool bisect(double lat1, double lon1, double lat2, double lon2, 
+	    double *lat, double *lon)
 { double phi1,lam1, phi2, lam2, beta;
   double x1, y1, z1, x2, y2, z2, x, y, z, d;
   static double tolerance=0;
@@ -207,11 +212,12 @@ bool bisect(float lat1, float lon1, float lat2, float lon2,
  *		[+/-]dd.dd [N/S] [+/-]dd.dd [E/W] => decimal degrees
  *
  *------------------------------------------------------------------------*/
-int sscanf_lat_lon(char *readln, float *lat, float *lon)
-{ float dlat, dlon, mlat, mlon;
+int sscanf_lat_lon(char *readln, double *lat, double *lon)
+{ double dlat, dlon, mlat, mlon;
   char ns[2], ew[2];
   
-  if (sscanf(readln,"%f %f %s %f %f %s", &dlat,&mlat,ns, &dlon,&mlon,ew) == 6)
+  if (sscanf(readln,"%lf %lf %s %lf %lf %s",
+	     &dlat,&mlat,ns, &dlon,&mlon,ew) == 6)
   { *lat = (dlat + mlat/60.);
     if (*ns == 's' || *ns == 'S')
       *lat = -*lat;
@@ -226,7 +232,7 @@ int sscanf_lat_lon(char *readln, float *lat, float *lon)
     
     return 2;
   }
-  else if (sscanf(readln,"%f %s %f %s", &dlat,ns, &dlon,ew) == 4)
+  else if (sscanf(readln,"%lf %s %lf %s", &dlat,ns, &dlon,ew) == 4)
   { *lat = dlat;
     if (*ns == 's' || *ns == 'S')
       *lat = -*lat;
@@ -242,7 +248,7 @@ int sscanf_lat_lon(char *readln, float *lat, float *lon)
     
     return 2;
   }
-  else if (sscanf(readln,"%f %f", &dlat, &dlon) == 2)
+  else if (sscanf(readln,"%lf %lf", &dlat, &dlon) == 2)
   { *lat = dlat;
     *lon = dlon;
     return 2;
@@ -274,7 +280,7 @@ int sscanf_lat_lon(char *readln, float *lat, float *lon)
  *		anywhere in the buffer up to the first newline
  *
  *------------------------------------------------------------------------*/
-int lat_lon_decode(const char *readln, const char *designators, float *value)
+int lat_lon_decode(const char *readln, const char *designators, double *value)
 { const char *end, *pos;
   char hemi, number[80];
   int len;
@@ -298,7 +304,7 @@ int lat_lon_decode(const char *readln, const char *designators, float *value)
   strncpy(number, pos, len);
   number[len] = '\0';
 
-  if (sscanf(number, "%f", value) != 1) return 0;
+  if (sscanf(number, "%lf", value) != 1) return 0;
 
   if ('W' == hemi || 'S' == hemi) *value = -(*value);
 
@@ -392,7 +398,7 @@ double ellipsoid_radius(double sin_phig, double cos_phig,
  *	output: r - rectangular coord.s (same units as Ae and Be)
  *
  *------------------------------------------------------------------------*/
-void geo_to_rectangular(double r[3], float lat, float lon, 
+void geo_to_rectangular(double r[3], double lat, double lon, 
 			double Ae2, double Be2)
 { 
   double phi, phig, lam, sin_phig, cos_phig, Re;
@@ -502,8 +508,8 @@ static bool point_within_polygon(double pt[3], double poly[][3],
  *		FALSE == point is probably not in box
  *
  *------------------------------------------------------------------------*/
-bool point_within_box(float lat_pt, float lon_pt, 
-		      float lat_box[4], float lon_box[4])
+bool point_within_box(double lat_pt, double lon_pt, 
+		      double lat_box[4], double lon_box[4])
 {
   register int dim, vertex, concave_vertex=-1;
   static const char *triangle1[] = { "\0\1\2", "\1\0\3", "\2\3\0", "\3\0\1" };
