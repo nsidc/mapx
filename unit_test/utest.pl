@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.4 2003-04-14 21:09:37 haran Exp $
+# $Id: utest.pl,v 1.5 2003-04-15 15:31:29 haran Exp $
 #
 
 #
@@ -73,8 +73,9 @@ foreach $mppfile (@mppfiles) {
     
     my $got_one_result = 0;
     my $i = 0;
+    my @mpp_lines;
     while(1) {
-
+	
 	#
 	# Find the next forward or inverse line
 	#
@@ -82,6 +83,9 @@ foreach $mppfile (@mppfiles) {
 	my $got_inverse = 0;
 	while($i < scalar(@mpp)) {
 	    my $line = $mpp[$i++];
+	    if (substr($line, 0, 1) ne "#") {
+		push(@mpp_lines, $line);
+	    }
 	    chomp $line;
 	    $got_forward = ($line =~ /\#\s+forward/);
 	    $got_inverse = ($line =~ /\#\s+inverse/);
@@ -259,6 +263,7 @@ foreach $mppfile (@mppfiles) {
 	    if ($verbose || !$ok) {
 		print STDERR ("**********************************************\n");
 		print STDERR ("$mppfile forward:\n");
+		print STDERR @mpp_lines;
 		print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
 		print STDERR ("  x,y expected:     $x_expected $y_expected" .
 			      " $xy_comment\n");
@@ -283,6 +288,7 @@ foreach $mppfile (@mppfiles) {
 	    if ($verbose || !$ok) {
 		print STDERR ("**********************************************\n");
 		print STDERR ("$mppfile inverse:\n");
+		print STDERR @mpp_lines;
 		print STDERR ("  x,y in:           $x_in $y_in\n");
 		print STDERR ("  lat,lon expected: $lat_expected $lon_expected".
 			      " $latlon_comment\n");
