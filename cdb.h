@@ -1,14 +1,16 @@
-/*===========================================================================
+/*========================================================================
  * cdb.h - coastline database
  *
- *	 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- *===========================================================================*/
+ * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * $Log: not supported by cvs2svn $
+ *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.2 1993-01-30 21:10:52 knowles Exp $";
 
 #include <define.h>
 
-/*---------------------------------------------------------------------------
+/*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  * cdb file structure
  *
  * Each coastline database (.cdb) file consists of a fixed length header,
@@ -20,8 +22,7 @@
  * values. Each data pair is an offset from the previous point, starting at 
  * lat0,lon0. All lat,lon values are signed 2^-10 degrees. Latitude is 
  * positive north [-90,90]. Longitude is positive east [-180,180].
- *
- *---------------------------------------------------------------------------*/
+ *::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
 /*
  *	symbolic constants
@@ -96,9 +97,9 @@ typedef struct
 } cdb_seg_data;
 
 
-/*---------------------------------------------------------------------------
+/*
  * class definition
- *---------------------------------------------------------------------------*/
+ */
 
 typedef struct
 {
@@ -119,56 +120,55 @@ typedef struct
   void (*draw_pd)(float,float);	/* draw pen down function */
 } cdb_class;
 
-/*---------------------------------------------------------------------------
- * methods
- *---------------------------------------------------------------------------*/
-
 /*
  *	macro definitions
  */
 
-/*
+/*------------------------------------------------------------------------
  * current_seg_cdb - current segment pointer
  *
  *	cdb_index_entry *current_seg_cdb(cdb_class *this)
- */
+ *------------------------------------------------------------------------*/
 #define current_seg_cdb(this) ((this)->segment)
 
-/*
+/*------------------------------------------------------------------------
  * set_current_seg_cdb - set current segment pointer
  *
  *	cdb_index_entry *set_current_seg_cdb(cdb_class *this, cdb_index_entry *here)
- */
+ *------------------------------------------------------------------------*/
 #define set_current_seg_cdb(this,here) ((this)->segment = (here))
 
-/*
+/*------------------------------------------------------------------------
  * next_segment_cdb - increment current segment pointer
  *
  *	cdb_index_entry *next_segment_cdb(cdb_class *this)
- */
+ *------------------------------------------------------------------------*/
 #define next_segment_cdb(this) ((this)->segment++)
 
-/*
+/*------------------------------------------------------------------------
  * reset_current_seg_cdb - reset current segment pointer
  *
  *	cdb_index_entry *reset_current_seg_cdb(cdb_class *this)
- */
+ *------------------------------------------------------------------------*/
 #define reset_current_seg_cdb(this) ((this)->segment = (this)->index)
 
-/*
+/*------------------------------------------------------------------------
  * num_segments_cdb - total number of segment index entries
  *
  *	int num_segments_cdb(cdb_class *this)
- */
+ *------------------------------------------------------------------------*/
 #define num_segments_cdb(this) ((this)->seg_count)
 
-/*
+/*------------------------------------------------------------------------
  * normalize_lon_cdb - normalize longitude to [-180.00,180.00]
  *
  *	void normalize_lon_cdb(float lon)
- */
-#define normalize_lon_cdb(lon) {while ((lon) < -180) lon += 360;\
-				while ((lon) >  180) lon -= 360;}
+ *------------------------------------------------------------------------*/
+#define normalize_lon_cdb(lon) \
+  do \
+  { while ((lon) < -180) lon += 360;\
+    while ((lon) >  180) lon -= 360;\
+  } while(0)
 
 
 /*
