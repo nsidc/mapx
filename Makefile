@@ -56,8 +56,8 @@ gpmon : grids.c grids.h mapx.c mapx.h
 	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c -lm -lmalloc
 
 # accuracy tests
-macct : mapx.c mapx.h
-	$(CC) -O -DMACCT -o macct mapx.c $(CLIBS)
+macct : maps.c maps.h mapx.c mapx.h
+	$(CC) -O -DMACCT -o macct maps.c mapx.c $(CLIBS)
 
 cdb.o:		$(LOCAL_INCLUDE)/cdb.h
 mapx.o:		$(LOCAL_INCLUDE)/mapx.h
