@@ -1,15 +1,15 @@
 /*========================================================================
  * maps - map utility functions
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.4 1993-10-22 09:48:45 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.5 1993-11-08 16:42:15 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <define.h>
-#include <maps.h>
+#include "define.h"
+#include "maps.h"
 
 /*------------------------------------------------------------------------
  * draw_graticule - draw and (optionally) label grid of lat,lon lines
@@ -20,9 +20,9 @@ static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.4 19
  *		label - print label function or NULL
  *
  *------------------------------------------------------------------------*/
-void draw_graticule(mapx_class *mapx, void (*move_pu)(float lat, float lon),
-		    void (*draw_pd)(float lat, float lon),
-		    void (*label)(char *string, float lat, float lon))
+void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
+		    int (*draw_pd)(float lat, float lon),
+		    int (*label)(char *string, float lat, float lon))
 { float lat, lon, east, llon;
   char label_string[5];
   

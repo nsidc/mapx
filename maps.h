@@ -7,7 +7,7 @@
 #define maps_h_
 
 #include <math.h>
-#include <mapx.h>
+#include "mapx.h"
 
 #define LAT_DESIGNATORS "NSns"
 #define LON_DESIGNATORS "EWew"
@@ -29,9 +29,9 @@
 /*
  *	function prototypes
  */
-void draw_graticule(mapx_class *mapx, void (*move_pu)(float lat, float lon),
-		    void (*draw_pd)(float lat, float lon),
-		    void (*label)(char *string, float lat, float lon));
+void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
+		    int (*draw_pd)(float lat, float lon),
+		    int (*label)(char *string, float lat, float lon));
 float arc_length_km (float lat1, float lon1, float lat2, float lon2);
 float west_azimuth(float lat1, float lon1, float lat2, float lon2);
 void bisect(float lat1, float lon1, float lat2, float lon2, 
