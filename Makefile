@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.23 1994-05-09 14:18:38 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.24 1994-05-09 14:22:08 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -54,7 +54,7 @@ SYSLIBS = -lm
 #------------------------------------------------------------------------
 
 CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
-LIBS = -L$(LIBDIR) -lmaps -lmodels $(SYSLIBS)
+LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
 
 SRCS = mapx.c grids.c cdb.c maps.c
 HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
@@ -74,8 +74,8 @@ clean :
 	- $(RM) libmaps.a $(OBJS)
 
 tar :
-	- $(CO) Makefile ppgc.ps $(SRCS) $(HDRS)
-	$(TAR) cvf $(TARFILE) Makefile ppgc.ps $(SRCS) $(HDRS)
+	- $(CO) Makefile ppgc.ps regrid.c $(SRCS) $(HDRS)
+	$(TAR) cvf $(TARFILE) Makefile ppgc.ps regrid.c $(SRCS) $(HDRS)
 	$(COMPRESS) $(TARFILE)
 
 depend :
@@ -86,7 +86,7 @@ depend :
 # applications
 #
 regrid: regrid.o $(LIBDIR)/libmaps.a
-	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS)
+	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS) -lmodels
 	$(INSTALL) regrid $(BINDIR)
 #
 #------------------------------------------------------------------------
