@@ -7,14 +7,14 @@
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
+static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.3 2003-06-24 23:07:39 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "define.h"
 #include "matrix.h"
 #include "svd.h"
-
-static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.2 1994-04-07 16:29:01 knowles Exp $";
 
 /*
  *	set default value for maximum number of iterations
@@ -41,6 +41,11 @@ static double gmean_c_;
 #define AMAX1(a,b) ((a) > (b) ? (a) : (b))
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+
+char *id_svd(void)
+{
+  return((char *)svd_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * svdecomp - singular value decomposition
