@@ -3,8 +3,9 @@
 #
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
+# Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.53 2003-06-26 20:46:14 haran Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.54 2004-01-13 19:40:28 knowlesk Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -29,8 +30,9 @@ RANLIB = touch
 #RANLIB = ranlib
 CO = co
 MAKEDEPEND = makedepend
-INSTALL = cp -f
-CP = cp
+INSTALL = cp -f -p
+MKDIR = mkdir -p
+CP = cp -f -p
 RM = rm -f
 TAR = tar
 COMPRESS = gzip
@@ -110,6 +112,7 @@ libmaps.a : $(OBJS)
 	$(RANLIB) libmaps.a
 
 install : libmaps.a $(HDRS)
+	$(MKDIR) $(LIBDIR) $(INCDIR) $(BINDIR)
 	$(INSTALL) libmaps.a $(LIBDIR)
 	$(INSTALL) $(HDRS) $(INCDIR)
 
