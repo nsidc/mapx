@@ -9,6 +9,15 @@ Map Polar Radius:               6356583.8
 Map Reference Latitude:         0.0
 Map Reference Longitude:        75.0
 Map Center Scale:               0.9996
+#
+# Leave error checking disabled, but
+# set map bounds so that macct will only use points that should have small
+# errors.
+#
+Map Southern Bound:             -50.0
+Map Northern Bound:             -30.0
+Map Western Bound:              60.0
+Map Eastern Bound:              90.0
 Grid Width:                     300
 Grid Height:                    300
 Grid Map Units per Cell:        1000
@@ -17,10 +26,10 @@ Grid Map Origin Row:            -4199.5
 #
 # macct
 #   102400 points,  0 bad points
-#   average error = 4.3851e+03 km
-#   std dev error = 4.5931e+03 km
-#   maximum error = 1.9672e+04 km
-#   max error was at 78.71S 147.27E
+#   average error = 3.7125e-03 km
+#   std dev error = 6.6443e-03 km
+#   maximum error = 3.2348e-02 km
+#   max error was at 50.00S 60.00E
 #
 # gacct
 #   90000 points,  0 bad points

@@ -9,6 +9,15 @@ Map Polar Radius:               6356583.8
 Map Reference Latitude:         0.0
 Map Reference Longitude:        75.0
 Map Center Scale:               0.9996
+#
+# Leave error checking disabled, but
+# set map bounds so that macct will only use points that should have small
+# errors.
+#
+Map Southern Bound:             -50.0
+Map Northern Bound:             -30.0
+Map Western Bound:              60.0
+Map Eastern Bound:              90.0
 Grid Width:                     300
 Grid Height:                    300
 Grid Map Units per Cell:        1000
