@@ -1,14 +1,15 @@
 /*========================================================================
  * cdb.h - coastline database
  *
- * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.7 1993-10-25 14:54:11 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.8 1993-11-08 17:22:02 knowles Exp $";
 
 #include <define.h>
 
+ 
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  * cdb file structure
  *
@@ -21,6 +22,9 @@ static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.7 1993
  * values. Each data pair is an offset from the previous point, starting at 
  * lat0,lon0. All lat,lon values are signed 2^-10 degrees. Latitude is 
  * positive north [-90,90]. Longitude is positive east [-180,180].
+ * All disk data is stored with most significant byte first (big-endian).
+ * For machines which require least significant byte first (little-endian,
+ * Intel, VAX) compile cdb.c with -DLSB1ST
  *::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 
 /*
@@ -31,6 +35,7 @@ static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.7 1993
 #define CDB_FILE_HEADER_SIZE 80L
 #define CDB_LAT_SCALE (1./1024)
 #define CDB_LON_SCALE (1./1024)
+#define CDB_MAX_BUFFER_SIZE (25*1024*1024)
 
 typedef enum
 { CDB_INDEX_NO_ORDER=0,
