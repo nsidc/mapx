@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.39 2000-05-22 15:36:50 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.40 2000-08-22 17:16:58 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -12,7 +12,7 @@ RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.39 2000-05-22 15:36:50 knowles
 #	installation directories
 #
 TOPDIR = /usr/local
-LIBDIR = $(TOPDIR)/lib-o32
+LIBDIR = $(TOPDIR)/lib
 MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
 BINDIR = $(TOPDIR)/bin
@@ -43,7 +43,7 @@ TARFILE = maps.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
 #CONFIG_CFLAGS = -O
-CONFIG_CFLAGS = -DDEBUG -g -o32
+CONFIG_CFLAGS = -DDEBUG -g
 
 #
 #	system libraries
