@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.11 1993-09-24 11:15:35 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.12 1993-10-27 08:16:46 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,7 +125,7 @@ mapx_class *init_mapx (char *map_filename)
 /*
  *	allocate storage for projection parameters
  */
-  this = (mapx_class *) malloc(sizeof(mapx_class));
+  this = (mapx_class *) calloc(1, sizeof(mapx_class));
   if (this == NULL)
   { perror("init_mapx");
     return NULL;
