@@ -4,66 +4,93 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.15 1994-04-08 10:49:17 knowles Exp $
+
+#------------------------------------------------------------------------
+# configuration section
+#
+#	installation directories
+#
+LIBDIR = /usr/local/lib
+INCDIR = /usr/local/include
+
+#
+#	commands
+#
 SHELL = /bin/sh
-TOP = /usr/local
-LOCAL_LIB = $(TOP)/lib
-LOCAL_INCLUDE = $(TOP)/include
-CC = /usr/bin/cc
-AR = /usr/bin/ar
-RANLIB = /bin/touch
-CO = /usr/sbin/co
-INSTALL = /bin/cp
-RM = /bin/rm -f
-TAR = /bin/tar
-COMPRESS = /usr/bsd/compress
+CC = cc
+AR = ar
+RANLIB = touch
+CO = co
+MAKEDEPEND = makedepend
+INSTALL = cp
+RM = rm -f
+TAR = tar
+COMPRESS = compress
+
+#
+#	archive file name
+#
 TARFILE = maps.tar
-DEBUG_FLAGS = -O
-CLIBS = -lm
-CFLAGS = -I$(LOCAL_INCLUDE) $(DEBUG_FLAGS)
-SOURCES = mapx.c grids.c cdb.c maps.c
-HEADERS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
-OBJECTS = mapx.o grids.o cdb.o maps.o
+
+#
+#	debug or optimization settings
+#
+DEBUG_CFLAGS = -O
+#DEBUG_CFLAGS = -DDEBUG -g
+
+#
+#	system libraries
+#
+SYSLIBS = -lm
+
+#
+# end configuration section
+#------------------------------------------------------------------------
+
+CFLAGS = -I$(INCDIR) $(DEBUG_CFLAGS)
+LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
+
+SRCS = mapx.c grids.c cdb.c maps.c
+HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
+OBJS = mapx.o grids.o cdb.o maps.o
 
 all : libmaps.a install
 
-libmaps.a : $(HEADERS) $(OBJECTS)
-	$(AR) ruv libmaps.a $(OBJECTS)
+libmaps.a : $(OBJS)
+	$(AR) ruv libmaps.a $(OBJS)
 	$(RANLIB) libmaps.a
 
-install : libmaps.a $(HEADERS)
-	$(INSTALL) libmaps.a $(LOCAL_LIB)
-	$(INSTALL) $(HEADERS) $(LOCAL_INCLUDE)
+install : libmaps.a $(HDRS)
+	$(INSTALL) libmaps.a $(LIBDIR)
+	$(INSTALL) $(HDRS) $(INCDIR)
 
 clean :
-	- $(RM) libmaps.a $(OBJECTS) $(SOURCES) $(HEADERS)
+	- $(RM) libmaps.a $(OBJS)
 
-tar:
-	$(CO) Makefile $(SOURCES) $(HEADERS)
-	$(TAR) cvf $(TARFILE) Makefile $(SOURCES) $(HEADERS)
+tar :
+	$(CO) Makefile $(SRCS) $(HDRS)
+	$(TAR) cvf $(TARFILE) Makefile $(SRCS) $(HDRS)
 	$(COMPRESS) $(TARFILE)
 
 # interactive tests
 mtest : mapx.c mapx.h maps.c maps.h
-	$(CC) $(DEBUG_FLAGS) -DMTEST -o mtest mapx.c maps.c $(CLIBS)
+	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c $(LIBS)
 
 gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h
-	$(CC) $(DEBUG_FLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(CLIBS)
+	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(LIBS)
 
 # performance tests
 mpmon : mapx.c mapx.h maps.c maps.h
-	$(CC) -O -p -DMPMON -o mpmon mapx.c $(CLIBS)
+	$(CC) -O -p -DMPMON -o mpmon mapx.c $(LIBS)
 
 gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h
-	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c $(CLIBS)
+	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c $(LIBS)
 
 # accuracy tests
 macct : maps.c maps.h mapx.c mapx.h
-	$(CC) -O -DMACCT -o macct maps.c mapx.c $(CLIBS)
+	$(CC) -O -DMACCT -o macct maps.c mapx.c $(LIBS)
 
-cdb.o:		cdb.h cdb_byteswap.h
-mapx.o:		mapx.h
-grids.o:	grids.h mapx.h
-maps.o:		mapx.h grids.h cdb.h maps.h
 
 .SUFFIXES : .c,v .h,v
 
@@ -77,3 +104,24 @@ maps.o:		mapx.h grids.h cdb.h maps.h
 
 .h,v.h :
 	$(CO) $<
+
+depend :
+	$(CO) $(SRCS) $(HDRS)
+	$(MAKEDEPEND) -I$(INCDIR) -- $(CFLAGS) -- $(SRCS)
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+mapx.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
+mapx.o: /usr/include/errno.h /usr/include/sys/errno.h /usr/include/ctype.h
+mapx.o: /usr/include/math.h /usr/include/svr4_math.h
+mapx.o: /usr/local/include/define.h maps.h mapx.h
+grids.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
+grids.o: /usr/local/include/define.h maps.h /usr/include/math.h
+grids.o: /usr/include/svr4_math.h mapx.h grids.h
+cdb.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
+cdb.o: /usr/include/math.h /usr/include/svr4_math.h
+cdb.o: /usr/local/include/define.h maps.h mapx.h cdb.h cdb_byteswap.h
+cdb.o: /usr/local/include/byteswap.h
+maps.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
+maps.o: /usr/include/ctype.h /usr/include/math.h /usr/include/svr4_math.h
+maps.o: /usr/local/include/define.h maps.h mapx.h
