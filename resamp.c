@@ -4,14 +4,14 @@
  * 19-Mar-1998 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.2 1999-04-15 17:44:45 knowles Exp $";
+static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.3 2000-05-22 15:34:16 knowles Exp $";
 
 #include "define.h"
 #include "grids.h"
 #include "grid_io.h"
 
 #define usage								\
-"usage: resamp [-vubsl -i fill -m mask -r factor -c method] \n"		\
+"usage: resamp [-vubslf -i fill -m mask -r factor -c method] \n"	\
 "              from.gpd to.gpd from_data to_data\n"			\
 "\n"									\
 " input : from.gpd  - original grid parameters definition file\n"	\
@@ -25,6 +25,7 @@ static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.
 "         b - 1 byte data (default)\n"					\
 "         s - short (2 bytes per sample)\n"				\
 "         l - long (4 bytes)\n"						\
+"         f - single precision floating point (4 bytes)\n"              \
 "         i fill - ignore fill value\n"					\
 "         m mask - ignore everything but mask value\n"			\
 "                  cell value is percent of cell covered by mask\n"	\
@@ -81,6 +82,7 @@ main (int argc, char *argv[])
 { int mfactor, status, nitems, npts;
   size_t datum_size;
   bool signed_data;
+  bool real_data;
   grid_class *from_grid=NULL, *to_grid=NULL;
   grid_io_class *from_data=NULL, *to_data=NULL;
   char *option=NULL, *position=NULL;
@@ -97,6 +99,7 @@ main (int argc, char *argv[])
   verbose = 0;
   datum_size = 1;
   signed_data = TRUE;
+  real_data = FALSE;
   method = '\0';
   resample = NULL;
 
@@ -142,6 +145,10 @@ main (int argc, char *argv[])
 	  break;
 	case 'l':
 	  datum_size = 4;
+	  break;
+        case 'f':
+	  datum_size = 4;
+	  real_data = TRUE;
 	  break;
 	case 'u':
 	  signed_data = FALSE;
@@ -200,7 +207,7 @@ main (int argc, char *argv[])
   }
 
   from_data = init_grid_io(from_grid->cols, from_grid->rows,
-			   datum_size, signed_data, 
+			   datum_size, signed_data, real_data,
 			   grid_io_READ_ONLY, *argv);
   if (!from_data) goto cleanup;
   if (verbose) fprintf(stderr,"> from data file %s, %dx%d\n", 
@@ -210,7 +217,8 @@ main (int argc, char *argv[])
   
   to_data = init_grid_io(to_grid->cols, to_grid->rows,
 			 mask_only ? 1 : datum_size, 
-			 mask_only ? TRUE : signed_data, 
+			 mask_only ? TRUE : signed_data,
+			 mask_only ? FALSE : real_data,
 			 grid_io_WRITE, *argv);
   if (!to_data) goto cleanup;
   if (verbose) fprintf(stderr,"> to data file %s, %dx%d\n", 
@@ -327,14 +335,15 @@ static int distribution(grid_class *from_grid, grid_class *to_grid,
   if (!count) { perror("distribution: count"); goto cleanup; }
   for (bin = 0; bin < nbins; bin++)
   { count[bin] = init_grid_io(to_grid->cols, to_grid->rows, 
-			     2, FALSE, grid_io_TEMPORARY, "counttmpfile");
+			      2, FALSE, FALSE, grid_io_TEMPORARY,
+			      "counttmpfile");
     if (!count[bin]) { goto cleanup; }
 
     fill_grid_io(count[bin], 0);
   }
 
   total = init_grid_io(to_grid->cols, to_grid->rows, 
-		     2, TRUE, grid_io_TEMPORARY, "totaltmpfile");
+		     2, TRUE, FALSE, grid_io_TEMPORARY, "totaltmpfile");
   if (!total) { goto cleanup; }
 
   fill_grid_io(total, -1);
@@ -414,6 +423,7 @@ static int distribution(grid_class *from_grid, grid_class *to_grid,
 	    basename, bin+mask, extension);
     to_data = init_grid_io(original->width, original->height,
 			   original->datum_size, original->signed_data,
+			   original->real_data,
 			   grid_io_WRITE, filename);
     if (!to_data) { goto cleanup; }
 
@@ -481,7 +491,7 @@ static int drop_in_the_bucket(grid_class *from_grid, grid_class *to_grid,
  *	number of points in the bucket (pitb)
  */
   pitb = init_grid_io(to_grid->cols, to_grid->rows, 
-		     2, FALSE, grid_io_TEMPORARY, "pitbtmpfile");
+		     2, FALSE, FALSE, grid_io_TEMPORARY, "pitbtmpfile");
   if (!pitb) 
   { fprintf(stderr,"drop_in_the_bucket: can't get tmp storage\n");
     goto cleanup;
@@ -495,7 +505,7 @@ static int drop_in_the_bucket(grid_class *from_grid, grid_class *to_grid,
   if (mask_only)
   { restore = to_data;
     to_data = init_grid_io(to_grid->cols, to_grid->rows, 
-			   2, TRUE, grid_io_TEMPORARY, "avgtmpfile");
+			   2, TRUE, FALSE, grid_io_TEMPORARY, "avgtmpfile");
     if (!to_data) 
     { fprintf(stderr,"drop_in_the_bucket: can't get tmp storage\n");
       goto cleanup;
