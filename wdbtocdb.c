@@ -16,7 +16,7 @@
 #include "cdb.h"
 #include "cdb_byteswap.h"
 
-static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.2 1993-11-11 17:00:40 knowles Exp $";
+static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.3 2002-01-08 21:38:29 knowles Exp $";
 
 /*------------------------------------------------------------------------
  * globals
@@ -74,7 +74,7 @@ int write_segment_data(int);
  *	output: "cdb" formatted file
  *
  *------------------------------------------------------------------------*/
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   register int i, ios, extent;
   char *option;
@@ -237,6 +237,8 @@ main(int argc, char *argv[])
 
 
   fclose(cdb_file);
+
+  exit(EXIT_SUCCESS);
 }
 
 /*------------------------------------------------------------------------

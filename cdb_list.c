@@ -7,7 +7,7 @@
 #include <cdb.h>
 
 #define usage "usage: cdb_list [-v] file.cdb ... \n"
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   register int i;
   register char *option;
@@ -41,6 +41,8 @@ main(int argc, char *argv[])
     list_cdb(this, verbose);
     free_cdb(this);
   }
+
+  exit(EXIT_SUCCESS);
 }
 
 

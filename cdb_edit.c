@@ -299,6 +299,8 @@ main(int argc, char *argv[])
     sprintf(command, "rm %s", cc_filename);
   
   system(command);********/ 
+
+  exit(EXIT_SUCCESS);
 }
 
 

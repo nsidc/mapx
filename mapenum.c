@@ -4,7 +4,7 @@
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.6 1994-11-02 17:43:42 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.7 2002-01-08 21:39:47 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,6 +102,8 @@ int main(int argc, char *argv[])
   { pen_style = grat_style;
     draw_graticule(grid->mapx, move_pu, draw_pd, NULL);
   }
+
+  exit(EXIT_SUCCESS);
 }
 
 static float pen_x1, pen_y1, pen_x2, pen_y2;
