@@ -10,6 +10,8 @@
 #ifndef SWAP_H_
 #define SWAP_H_
 
+static const char byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/byteswap.h,v 1.2 2003-06-23 15:41:41 haran Exp $";
+
 #ifndef NO_SWAP
 
 static char swap_1b_v_;
