@@ -1,0 +1,23 @@
+# file: other_S3B.gpd
+# Unit Test
+# Polar Stereographic Southern Hemisphere SSM/I 25 km
+#
+other/other_Sps.mpp map projection parameters   # SSM/I Brightness Temp Grids
+316 332         columns rows                    # South Polar Region
+4               grid cells per map unit         # 25km
+157.5 173.5     map origin column, row          #
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 190.1782791 230.1004397
+#   lat,lon = dummy dummy

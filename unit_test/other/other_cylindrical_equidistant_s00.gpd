@@ -1,0 +1,43 @@
+# file: other_cylindrical_equidistant_s00.gpd
+# Unit Test
+# Cylindrical Equidistant
+#
+Map Projection:                 Cylindrical Equidistant
+Map Equatorial Radius:          57.2957795130823
+Map Reference Latitude:         0.0
+Map Reference Longitude:        0.0
+Grid Width:                     360
+Grid Height:                    180
+Grid Map Units per Cell:        1.0
+Grid Map Origin Column:         179.5
+Grid Map Origin Row:            89.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -50.0 -75.0
+#   x,y = -75.0000000 -50.0000000
+#
+# xytest inverse
+#   x,y = -75.0 -50.0
+#   lat,lon = -50.0000000 -75.0000000
+#
+# crtest forward
+#   lat,lon = -50.0 -75.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 104.5000000 139.5000000
+#   lat,lon = dummy dummy

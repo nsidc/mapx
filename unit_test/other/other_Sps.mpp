@@ -1,0 +1,31 @@
+# file: other_Sps.mpp
+# Unit Test
+# Polar Stereographic Southern Hemisphere
+#
+Polar Stereographic ellipsoid
+-90.0 0.0 -70.0 lat0 lon0 lat1
+0.0             rotation
+100.0           scale (km/map unit)
+-90.00  0.00    center lat lon
+-90.00  -20.00  lat min max
+-180.00 180.00  lon min max
+ 10.00 15.00    grid
+0.00    0.00    label lat lon
+1 0 0           cil bdy riv
+6378.273        Earth equatorial radius (km)
+0.081816153     eccentricity
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -75.0 150.0
+#   x,y = dummy dummy
+#
+# xytest inverse
+#   x,y = 8.1695698 -14.1501099
+#   lat,lon = dummy dummy
