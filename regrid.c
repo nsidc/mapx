@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.6 1996-07-31 18:13:58 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.7 1998-04-07 21:58:35 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -12,33 +12,36 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "grids.h"
 #include "maps.h"
 
-#define usage \
-"usage: regrid [-fwubslv -i value -k kernel -p power] from.gpd to.gpd from_data to_data\n"\
-"\n"\
-" input : from.gpd  - original grid parameters definition file\n"\
-"         to.gpd    - new grid parameters definition file\n"\
-"         from_data - original gridded data file (flat file by rows)\n"\
-"\n"\
-" output: to_data - new gridded data file (flat file by rows)\n"\
-"\n"\
-" option: f - forward resampling\n"\
-"         w - weighted average\n"\
-"         u - unsigned data\n"\
-"         b - byte data (default)\n"\
-"         s - short (2 bytes per sample)\n"\
-"         l - long (4 bytes)\n"\
-"         v - verbose (can be repeated)\n"\
-"         i value - ignore fill value\n"\
-"         p power - 0=smooth, 6=sharp, 2=default (used with -fw only)\n"\
-"         k kernel - force kernel size (rowsxcols) (used with -fw only)\n"\
-"\n"\
-" note: -f and -w options select interpolation method as follows:\n"\
-"       default = nearest-neighbor\n"\
-"       -w      = bilinear interpolation\n"\
-"       -ww     = cubic convolution\n"\
-"       -f      = drop-in-the-bucket averaging\n"\
-"       -fw     = inverse distance weighted sum\n"\
-"                 -k and -p options only effect this method\n"\
+#define usage								   \
+"usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
+"              from.gpd to.gpd from_data to_data\n"			   \
+"\n"									   \
+" input : from.gpd  - original grid parameters definition file\n"	   \
+"         to.gpd    - new grid parameters definition file\n"		   \
+"         from_data - original gridded data file (flat file by rows)\n"	   \
+"         [to_data] - if -z option then use as initial values\n"	   \
+"\n"									   \
+" output: to_data - new gridded data file (flat file by rows)\n"	   \
+"\n"									   \
+" option: f - forward resampling\n"					   \
+"         w - weighted average\n"					   \
+"         u - unsigned data\n"						   \
+"         b - byte data (default)\n"					   \
+"         s - short (2 bytes per sample)\n"				   \
+"         l - long (4 bytes)\n"						   \
+"         v - verbose (can be repeated)\n"				   \
+"         i value - ignore fill value\n"				   \
+"         p power - 0=smooth, 6=sharp, 2=default (used with -fw only)\n"   \
+"         k kernel - force kernel size (rowsxcols) (used with -fw only)\n" \
+"         z beta_file - save/restore intermediate results\n"		   \
+"\n"									   \
+" note: -f and -w options select interpolation method as follows:\n"	   \
+"       default = nearest-neighbor\n"					   \
+"       -w      = bilinear interpolation\n"				   \
+"       -ww     = cubic convolution\n"					   \
+"       -f      = drop-in-the-bucket averaging\n"			   \
+"       -fw     = inverse distance weighted sum\n"			   \
+"                 -k and -p options only effect this method\n"		   \
 "\n"
 
 /*------------------------------------------------------------------------
@@ -61,6 +64,12 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
  * distance method you can use the kernel and power parameters to fine
  * tune the smoothing effect.
  * 
+ * The -z beta_file option allows for multiple input grids to be
+ * combined into a single output grid. The program is run once for 
+ * each input grid always specifying the same beta and output files.
+ * The input files need not be in the same grid, but the interpolation 
+ * method must be the same each time the same beta file is used.
+ *
  *------------------------------------------------------------------------*/
 
 #define VV_INTERVAL 30
@@ -75,14 +84,111 @@ int bilinear(grid_class *, float **, grid_class *, float **, float **);
 int nearestn(grid_class *, float **, grid_class *, float **, float **);
 int cubiccon(grid_class *, float **, grid_class *, float **, float **);
 
+/*------------------------------------------------------------------------
+ * read_grid_data - read file data into float matrix
+ *
+ *	input : cols, rows - grid width and height
+ *		data_bytes - number of bytes per datum
+ *		signed_data - TRUE = signed, FALSE = unsigned
+ *		fp - file pointer
+ *
+ *	output: data - matrix
+ *
+ *	result: TRUE iff success
+ *
+ *------------------------------------------------------------------------*/
+bool read_grid_data(int cols, int rows, int data_bytes, bool signed_data,
+		    float **data, FILE *fp)
+{ int i, j, row_bytes, status, total_bytes;
+  byte1 *bufp, *iobuf;
+
+  fseek(fp, 0, SEEK_SET);
+
+  row_bytes = cols*data_bytes;
+  iobuf = (byte1 *)malloc(row_bytes);
+  if (!iobuf) { perror("read_grid_data"); return FALSE; }
+
+  total_bytes = 0;
+
+  for (i = 0; i < rows; i++)
+  { status = fread(iobuf, 1, row_bytes, fp);
+    if (status != row_bytes) { free(iobuf); return FALSE; }
+    total_bytes += status;
+    for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
+    { switch (data_bytes * (signed_data ? -1 : 1))
+      { case -1: data[i][j] = (float) *((int1 *)bufp); break;
+        case -2: data[i][j] = (float) *((int2 *)bufp); break;
+        case -4: data[i][j] = (float) *((int4 *)bufp); break;
+        case  1: data[i][j] = (float) *((byte1 *)bufp); break;
+	case  2: data[i][j] = (float) *((byte2 *)bufp); break;
+	case  4: data[i][j] = (float) *((byte4 *)bufp); break;
+        default: assert(NEVER); /* should never execute */
+      }
+    }
+  }
+
+  free(iobuf);
+  return TRUE;
+}
+
+/*------------------------------------------------------------------------
+ * write_grid_data - write float matrix into grid data file
+ *
+ *	input : cols, rows - grid width and height
+ *		data_bytes - number of bytes per datum
+ *		signed_data - TRUE = signed, FALSE = unsigned
+ *		data - matrix
+ *		fp - file pointer
+ *
+ *	result: TRUE iff success
+ *
+ *------------------------------------------------------------------------*/
+bool write_grid_data(int cols, int rows, int data_bytes, bool signed_data,
+		     float **data, FILE *fp)
+{ int i, j, row_bytes, status, total_bytes;
+  byte1 *bufp, *iobuf;
+
+  fseek(fp, 0, SEEK_SET);
+
+  row_bytes = cols*data_bytes;
+  iobuf = (byte1 *)malloc(row_bytes);
+  if (!iobuf) { perror("read_grid_data"); return FALSE; }
+
+  total_bytes = 0;
+
+  for (i = 0; i < rows; i++)
+  { for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
+    { switch (data_bytes * (signed_data ? -1 : 1))
+      { case -1: *((int1 *)bufp) = nint(data[i][j]); break;
+	case -2: *((int2 *)bufp) = nint(data[i][j]); break;
+	case -4: *((int4 *)bufp) = nint(data[i][j]); break;
+        case  1: *((byte1 *)bufp) = nint(data[i][j]); break;
+	case  2: *((byte2 *)bufp) = nint(data[i][j]); break;
+	case  4: *((byte4 *)bufp) = nint(data[i][j]); break;
+        default: assert(NEVER); /* should never execute */
+      }
+    }
+    status = fwrite(iobuf, 1, row_bytes, fp);
+    if (status != row_bytes) 
+    { perror("write_grid_data"); free(iobuf); return FALSE; }
+    total_bytes += status;
+  }
+
+  free(iobuf);
+  return TRUE;
+}
+
 main (int argc, char *argv[])
 { register int i, j;
   int data_bytes, nparams, row_bytes, status, total_bytes;
-  bool forward_resample, weighted_sum, signed_data, wide_weighted;
+  bool preload_data, forward_resample, weighted_sum;
+  bool signed_data, wide_weighted;
   byte1 *iobuf, *bufp;
   float **from_data, **to_data, **to_beta;
-  char *option, from_filename[FILENAME_MAX], to_filename[FILENAME_MAX];
-  FILE *from_file, *to_file;
+  char *option, *read_filename;
+  char from_filename[FILENAME_MAX], to_filename[FILENAME_MAX];
+  char beta_filename[FILENAME_MAX];
+  FILE *from_file, *to_file, *beta_file;
   grid_class *from_grid, *to_grid;
 
 /*
@@ -95,6 +201,8 @@ main (int argc, char *argv[])
   signed_data = TRUE;
   k_rows = k_cols = 0;
   power = 2;
+  beta_file = NULL;
+  preload_data = FALSE;
   ignore_fill = FALSE;
   fill = 0;
   verbose = FALSE;
@@ -123,6 +231,17 @@ main (int argc, char *argv[])
 	case 'p':
 	  ++argv; --argc;
 	  if (sscanf(*argv, "%lf", &power) != 1) error_exit(usage);
+	  break;
+	case 'z':
+	  ++argv; --argc;
+	  strcpy(beta_filename, *argv);
+	  preload_data = TRUE;
+	  beta_file = fopen(beta_filename, "r+");
+	  if (!beta_file)
+	  { preload_data = FALSE;
+	    beta_file = fopen(beta_filename, "w");
+	    if (!beta_file) { perror(beta_filename); error_exit(usage); }
+	  }
 	  break;
 	case 'u':
 	  signed_data = FALSE;
@@ -158,26 +277,26 @@ main (int argc, char *argv[])
   if (argc != 4) error_exit(usage);
   
   from_grid = init_grid(*argv);
-  if (NULL == from_grid) exit(ABORT);
+  if (!from_grid) exit(ABORT);
   if (verbose) fprintf(stderr,"> from .gpd file %s\n", 
 		       from_grid->gpd_filename);
   ++argv; --argc;
   
   to_grid = init_grid(*argv);
-  if (NULL == to_grid) exit(ABORT);
+  if (!to_grid) exit(ABORT);
   if (verbose) fprintf(stderr,"> to .gpd file %s\n",
 		       to_grid->gpd_filename);
   ++argv; --argc;
   
   strcpy(from_filename, *argv);
-  from_file = search_path_fopen(from_filename, mapx_PATH, "r");
-  if (NULL == from_file) { perror(from_filename); exit(ABORT); }
+  from_file = fopen(from_filename, "r");
+  if (!from_file) { perror(from_filename); exit(ABORT); }
   if (verbose) fprintf(stderr,"> from data file %s\n", from_filename);
   ++argv; --argc;
   
   strcpy(to_filename, *argv);
-  to_file = fopen(to_filename, "w");
-  if (NULL == to_file) { perror(to_filename); exit(ABORT); }
+  to_file = fopen(to_filename, preload_data ? "r+" : "w");
+  if (!to_file) { perror(to_filename); exit(ABORT); }
   if (verbose) fprintf(stderr,"> to data file %s\n", to_filename);
   ++argv; --argc;
   
@@ -198,18 +317,18 @@ main (int argc, char *argv[])
  */
   from_data = (float **)matrix(from_grid->rows, from_grid->cols,
 				sizeof(float), TRUE);
-  if (NULL == from_data) { exit(ABORT); }
+  if (!from_data) { exit(ABORT); }
 
   to_data = (float **)matrix(to_grid->rows, to_grid->cols,
 			      sizeof(float), TRUE);
-  if (NULL == to_data) { exit(ABORT); }
+  if (!to_data) { exit(ABORT); }
 
   to_beta = (float **)matrix(to_grid->rows, to_grid->cols,
 			      sizeof(float), TRUE);
-  if (NULL == to_beta) { exit(ABORT); }
+  if (!to_beta) { exit(ABORT); }
 
 /*
- *	read original data
+ *	read input grid data
  */
   if (verbose) fprintf(stderr,"> %s %s data\n",
 		       (signed_data ? "signed" : "unsigned"),
@@ -218,28 +337,49 @@ main (int argc, char *argv[])
 			4 == data_bytes ? "long" : 
 			"unknown"));
 
-  total_bytes = 0;
-  row_bytes = data_bytes * from_grid->cols;
+  status = read_grid_data(from_grid->cols, from_grid->rows, data_bytes, 
+			  signed_data, from_data, from_file);
+  if (!status) { error_exit(from_filename); }
 
-  iobuf = calloc(from_grid->cols, data_bytes);
-  if (NULL == iobuf) { perror("calloc"); exit(ABORT); }
-  for (i = 0; i < from_grid->rows; i++)
-  { status = fread(iobuf, 1, row_bytes, from_file);
-    if (status != row_bytes) { perror (from_filename); exit(ABORT); }
-    total_bytes += status;
-    for (j = 0, bufp = iobuf; j < from_grid->cols; j++, bufp += data_bytes)
-    { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: from_data[i][j] = (float) *((int1 *)bufp); break;
-        case -2: from_data[i][j] = (float) *((int2 *)bufp); break;
-        case -4: from_data[i][j] = (float) *((int4 *)bufp); break;
-        case  1: from_data[i][j] = (float) *((byte1 *)bufp); break;
-	case  2: from_data[i][j] = (float) *((byte2 *)bufp); break;
-	case  4: from_data[i][j] = (float) *((byte4 *)bufp); break;
-        default: assert(NEVER); /* should never execute */
+/*
+ *	initialize output grid
+ */
+  if (preload_data)
+  {
+    status = read_grid_data(to_grid->cols, to_grid->rows, data_bytes, 
+			    signed_data, to_data, to_file);
+    if (verbose && status)
+    { fprintf(stderr,"> reading initial data from %s\n", to_filename); }
+
+    if (beta_file)
+    { status = fread(to_beta[0], sizeof(float), 
+		     to_grid->cols*to_grid->rows, beta_file);
+      if (to_grid->cols*to_grid->rows != status)
+      { perror(beta_filename); exit(ABORT); }
+      if (verbose)
+      { fprintf(stderr,"> reading preload weights from %s\n", beta_filename); }
+
+/*
+ *	re-weight preloaded data
+ */
+      if (forward_resample || weighted_sum) /* i.e. not nearest-neighbor */
+      { for (i = 0; i < to_grid->rows; i++)
+	{ for (j = 0; j < to_grid->cols; j++)
+	  { to_data[i][j] *= to_beta[i][j];
+	  }
+	}
       }
     }
   }
-  if (verbose) fprintf(stderr,"> read %d bytes total\n", total_bytes);
+  else
+  { for (i = 0; i < to_grid->rows; i++)
+    { for (j = 0; j < to_grid->cols; j++)
+      { to_data[i][j] = fill;
+      }
+    }
+  }
+
+
 
 /*
  *	resample data from input grid into output grid
@@ -269,39 +409,28 @@ main (int argc, char *argv[])
 /*
  *	normalize result
  */
-  for (i = 0; i < to_grid->rows; i++)
-  { for (j = 0; j < to_grid->cols; j++)
-    { 
-      if (to_beta[i][j] != 0) 
-	to_data[i][j] /= to_beta[i][j];
-      else
-	to_data[i][j] = fill;
+  if (forward_resample || weighted_sum) /* i.e. not nearest-neighbor */
+  { for (i = 0; i < to_grid->rows; i++)
+    { for (j = 0; j < to_grid->cols; j++)
+      { 
+	if (to_beta[i][j] != 0) 
+	{ to_data[i][j] /= to_beta[i][j];
+	}
+      }
     }
   }
 
 /*
  *	write out result
  */
-  total_bytes = 0;
-  row_bytes = data_bytes * to_grid->cols;
+  status = write_grid_data(to_grid->cols, to_grid->rows, data_bytes,
+			   signed_data, to_data, to_file);
+  if (!status) { perror(to_filename); exit(ABORT); }
 
-  for (i = 0; i < to_grid->rows; i++)
-  { for (j = 0, bufp = iobuf; j < to_grid->cols; j++, bufp += data_bytes)
-    { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: *((int1 *)bufp) = nint(to_data[i][j]); break;
-	case -2: *((int2 *)bufp) = nint(to_data[i][j]); break;
-	case -4: *((int4 *)bufp) = nint(to_data[i][j]); break;
-        case  1: *((byte1 *)bufp) = nint(to_data[i][j]); break;
-	case  2: *((byte2 *)bufp) = nint(to_data[i][j]); break;
-	case  4: *((byte4 *)bufp) = nint(to_data[i][j]); break;
-        default: assert(NEVER); /* should never execute */
-      }
-    }
-    status = fwrite(iobuf, 1, row_bytes, to_file);
-    if (status != row_bytes) { perror (from_filename); exit(ABORT); }
-    total_bytes += status;
+  if (beta_file)
+  { fseek(beta_file, 0, SEEK_SET);
+    fwrite(to_beta[0], sizeof(float), to_grid->cols*to_grid->rows, beta_file);
   }
-  if (verbose) fprintf(stderr,"> wrote %d bytes\n", total_bytes);
 
 }
 
@@ -514,6 +643,7 @@ int nearestn(grid_class *from_grid, float **from_data,
 	     grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
   float lat, lon, r, s;
+  float dd, dr, ds;
   int npts=0, status;
 
   if (verbose) fprintf(stderr,"> nearest-neighbor resampling\n");
@@ -530,6 +660,10 @@ int nearestn(grid_class *from_grid, float **from_data,
       status = forward_grid(from_grid, lat, lon, &r, &s);
       if (!status) continue;
 
+      dr = nint(r) - r;
+      ds = nint(s) - s; 
+      dd = sqrt(dr*dr + ds*ds);
+
       if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
@@ -539,8 +673,21 @@ int nearestn(grid_class *from_grid, float **from_data,
       if (row >= 0 && row < from_grid->rows
 	  && col >= 0 && col < from_grid->cols
 	  && !(ignore_fill && fill == from_data[row][col]))
-      { to_data[i][j] = from_data[row][col];
-	to_beta[i][j] = 1;
+      {
+/*
+ *	When processing multiple files, if the input grids are
+ *	the same then the distance to the nearest neighbor
+ *	will always be the same. In this test then, the <= as
+ *	opposed to strictly < will replace the preloaded data
+ *	with the most recent data.
+ */
+	if (!preload
+	    || dd <= to_beta[i][j]
+	    || (0 == to_beta[i][j] && fill == to_data[i][j]))
+	{
+	  to_data[i][j] = from_data[row][col];
+	  to_beta[i][j] = dd;
+	}
       }
 
       ++npts;
