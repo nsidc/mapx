@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.34 1999-11-29 23:02:48 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.35 2002-02-18 20:36:26 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -894,9 +894,6 @@ static char *standard_name(char *original_name)
       streq(new_name, "ALBERSCONICELLIPSOID") || 
       streq(new_name, "ALBERSEQUALAREAELLIPSOID"))
   { strcpy(new_name,"ALBERSCONICEQUALAREAELLIPSOID");
-  }
-  else
-  { return original_name;
   }
   
   return new_name;
