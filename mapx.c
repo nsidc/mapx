@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.35 2002-02-18 20:36:26 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.36 2002-12-17 18:35:34 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +101,9 @@ int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
 int init_albers_conic_equal_area_ellipsoid(void *);
 int albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
 int inverse_albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
+int init_integerized_sinusoidal(void *);
+int integerized_sinusoidal(void *, float, float, float *, float *);
+int inverse_integerized_sinusoidal(void *, float, float, float *, float *);
 
 /*----------------------------------------------------------------------
  * init_mapx - initialize map projection from file
@@ -115,6 +118,7 @@ int inverse_albers_conic_equal_area_ellipsoid(void *, float, float, float *, flo
  *			 Map Second Reference Longitude: lon1
  *			 Map Rotation: counter-clockwise
  *			 Map Scale: scale (radius units per map unit)
+ *			 Map ISin Justify: justify flag for ISin map
  *			 Map Origin Latitude: center_lat
  *			 Map Origin Longitude: center_lon
  *			 Map Southern Bound: southernmost lat
@@ -162,6 +166,7 @@ int inverse_albers_conic_equal_area_ellipsoid(void *, float, float, float *, flo
  *			 Interupted_Homolosine_Equal_Area
  *                       Albers_Conic_Equal_Area
  *                       Albers_Conic_Equal_Area_Ellipsoid
+ *			 Integerized_Sinusoidal
  *			or anything reasonably similar
  *
  *	The parameter lat1 is currently used for the Polar_Stereographic
@@ -338,6 +343,11 @@ mapx_class *new_mapx (char *label)
     this->geo_to_map = albers_conic_equal_area_ellipsoid;
     this->map_to_geo = inverse_albers_conic_equal_area_ellipsoid;
   }
+  else if (strcmp (this->projection_name, "INTEGERIZEDSINUSOIDAL") == 0)     
+  { this->initialize = init_integerized_sinusoidal; 
+    this->geo_to_map = integerized_sinusoidal;
+    this->map_to_geo = inverse_integerized_sinusoidal;
+  }
   else
   { fprintf (stderr, "mapx: unknown projection %s\n", this->projection_name);
     fprintf (stderr, "valid types are:\n");
@@ -348,6 +358,7 @@ mapx_class *new_mapx (char *label)
     fprintf (stderr, " Cylindrical Equal-Area\n");
     fprintf (stderr, " Cylindrical Equal-Area Ellipsoid\n");
     fprintf (stderr, " Cylindrical Equidistant\n");
+    fprintf (stderr, " Integerized Sinusoidal\n");
     fprintf (stderr, " Interupted Homolosine Equal-Area\n");
     fprintf (stderr, " Lambert Conic Conformal Ellipsoid\n");
     fprintf (stderr, " Mercator\n");
@@ -425,6 +436,8 @@ static bool decode_mpp(mapx_class *this, char *label)
   get_value_keyval(label, "Map Rotation", "%f", &(this->rotation), "0.0");
   get_value_keyval(label, "Map Scale", "%f", &(this->scale), "1.0");
 
+  get_value_keyval(label, "Map ISin Justify", "%d", &(this->isin_justify), "2");
+
   get_value_keyval(label, "Map Origin Latitude", "%lat", &(this->center_lat), "999");
   if (999 == this->center_lat) {
     if (mapx_verbose) fprintf(stderr,"> assuming map origin lat is same as ref. lat %f\n", this->lat0);
@@ -435,6 +448,9 @@ static bool decode_mpp(mapx_class *this, char *label)
     if (mapx_verbose) fprintf(stderr,"> assuming map origin lon is same as ref. lon %f\n", this->lon0);
     this->center_lon = this->lon0;
   }
+
+  get_value_keyval(label, "Map False Easting", "%f", &(this->u0), "0.0");
+  get_value_keyval(label, "Map False Northing", "%f", &(this->v0), "0.0");
 
   get_value_keyval(label, "Map Southern Bound", "%lat", &(this->south), "90S");
   get_value_keyval(label, "Map Northern Bound", "%lat", &(this->north), "90N");
@@ -639,6 +655,7 @@ void close_mapx (mapx_class *this)
   if (this->projection_name != NULL) free(this->projection_name);
   if (this->mpp_file != NULL) fclose(this->mpp_file);
   if (this->mpp_filename != NULL) free(this->mpp_filename);
+  if (this->isin_data != NULL) Isin_for_free(this->isin_data);
   free (this);
 }
 
@@ -724,10 +741,9 @@ int reinit_mapx (mapx_class *this)
    *	get the offset from the projection origin (lat0,lon0)
    *	to this map's origin (center_lat, center_lon)
    */
-  this->u0 = this->v0 = 0.0;
   forward_mapx (this, this->center_lat, this->center_lon, &u, &v);
-  this->u0 = u;
-  this->v0 = v;
+  this->u0 += u;
+  this->v0 += v;
   
   return 0;
 }
@@ -894,6 +910,11 @@ static char *standard_name(char *original_name)
       streq(new_name, "ALBERSCONICELLIPSOID") || 
       streq(new_name, "ALBERSEQUALAREAELLIPSOID"))
   { strcpy(new_name,"ALBERSCONICEQUALAREAELLIPSOID");
+  }
+  else if (streq(new_name, "INTEGERIZEDSINUSOIDAL") || 
+      streq(new_name, "ISIN") || 
+      streq(new_name, "ISINUS"))
+  { strcpy(new_name,"INTEGERIZEDSINUSOIDAL");
   }
   
   return new_name;
