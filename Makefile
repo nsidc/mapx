@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.37 1999-07-28 22:24:27 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.38 1999-11-19 16:58:51 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -68,9 +68,9 @@ mercator.o mollweide.o cylindrical_equidistant.o sinusoidal.o \
 lambert_conic_conformal.o interupted_homolosine_equal_area.o \
 albers_conic_equal_area.o azimuthal_equal_area.o 
 
-SRCS = mapx.c grids.c cdb.c maps.c $(PROJECTION_SRCS)
-HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h define.h
-OBJS = mapx.o grids.o cdb.o maps.o $(PROJECTION_OBJS)
+SRCS = mapx.c grids.c cdb.c maps.c keyval.c $(PROJECTION_SRCS)
+HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h define.h keyval.h
+OBJS = mapx.o grids.o cdb.o maps.o keyval.o $(PROJECTION_OBJS)
 
 
 all : libmaps.a install
@@ -87,13 +87,15 @@ clean :
 	- $(RM) libmaps.a $(OBJS)
 
 tar :
-	- $(CO) Makefile ppgc.ps regrid.c cdb_edit.mpp cdb_edit.c \
-		cdb_list.c wdbtocdb.c wdbpltc.c mapenum.c gridloc.c \
+	- $(CO) Makefile ppgc.ps regrid.c resamp.c grid_io.c \
+		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
+		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
 	- $(CP) $(INCDIR)/define.h $(INCDIR)/byteswap.h .
 	$(TAR) cvf $(TARFILE) define.h byteswap.h \
-		Makefile ppgc.ps regrid.c cdb_edit.mpp cdb_edit.c \
-                cdb_list.c wdbtocdb.c wdbpltc.c mapenum.c gridloc.c \
+		Makefile ppgc.ps regrid.c resamp.c grid_io.c \
+		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
+		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
 	$(COMPRESS) $(TARFILE)
 
@@ -110,6 +112,9 @@ gridloc: gridloc.o $(DEPEND_LIBS)
 regrid: regrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS)
 	$(INSTALL) regrid $(BINDIR)
+resamp: resamp.o grid_io.o $(DEPEND_LIBS)
+	$(CC) $(CFLAGS) -o resamp resamp.o grid_io.o $(LIBS)
+	$(INSTALL) resamp $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
@@ -127,26 +132,26 @@ mapenum: mapenum.o $(DEPEND_LIBS)
 #------------------------------------------------------------------------
 # interactive tests
 #
-mtest : mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
-	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
+mtest : mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
+	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
 
 gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h  $(PROJECTION_OBJS)
-	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
+	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 # performance tests
 #
-mpmon : mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
-	$(CC) -O -p -DMPMON -o mpmon mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
+mpmon : mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
+	$(CC) -O -p -DMPMON -o mpmon mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
 
-gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
-	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
+gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
+	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 # accuracy tests
 #
-macct : maps.c maps.h mapx.c mapx.h $(PROJECTION_OBJS)
-	$(CC) -O -DMACCT -o macct maps.c mapx.c $(PROJECTION_OBJS) $(SYSLIBS)
+macct : maps.c maps.h mapx.c mapx.h keyval.o $(PROJECTION_OBJS)
+	$(CC) -O -DMACCT -o macct maps.c mapx.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 
