@@ -1,11 +1,19 @@
 /*------------------------------------------------------------------------
  * universal_transverse_mercator
  *------------------------------------------------------------------------*/
-static const char universal_transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/universal_transverse_mercator.c,v 1.1 2003-06-25 22:48:15 haran Exp $";
+static const char universal_transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/universal_transverse_mercator.c,v 1.2 2004-01-05 22:48:12 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"
 #include "keyval.h"
+
+/*************************************************************************
+ * CAVEAT - at this time UTM will return invalid results for points wildly
+ * outside the zone. Sometimes the returned coordinates will even be
+ * inside the zone. So, you should do your own gross bounds checking
+ * before sending points to forward_mapx. Calling within_mapx won't help
+ * this problem.
+ *************************************************************************/
 
 int init_transverse_mercator_ellipsoid(mapx_class *current);
 
