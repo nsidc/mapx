@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.9 1993-11-08 17:21:28 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.10 1993-11-11 16:43:17 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,16 +13,10 @@ static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.9 1993-11-08
 #include "define.h"
 #include "maps.h"
 #include "cdb.h"
-#ifndef LSB1ST
-#define NO_SWAP
-#endif
-#include "swap.h"
+#include "cdb_byteswap.h"
 
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
 static cdb_seg_data *cdb_read_memory(cdb_class *this);
-static void cdb_byteswap_header(cdb_class *this);
-static void cdb_byteswap_index(cdb_class *this);
-static void cdb_byteswap_data_buffer(cdb_class *this, int npts);
 
 /*----------------------------------------------------------------------
  * new_cdb - create new cdb_class instance
@@ -102,7 +96,7 @@ cdb_class *init_cdb(const char *cdb_filename)
       != CDB_FILE_HEADER_SIZE)
   { perror(cdb_filename); free_cdb(this); return (cdb_class *)NULL; }
 
-  cdb_byteswap_header(this);
+  cdb_byteswap_header(this->header);
 
   if (this->header->code_number != CDB_MAGIC_NUMBER)
   { fprintf(stderr,"<%s> is not a cdb file, code number 0x%08x != 0x%08x\n",
@@ -160,7 +154,7 @@ cdb_class *init_cdb(const char *cdb_filename)
     return (cdb_class *) NULL;
   }
 
-  cdb_byteswap_index(this);
+  cdb_byteswap_index(this->index, this->seg_count);
 
   return this;
 }
@@ -316,7 +310,8 @@ void load_all_seg_data_cdb(cdb_class *this)
     return;
   }
 
-  cdb_byteswap_data_buffer(this, this->data_buffer_size/sizeof(cdb_seg_data));
+  cdb_byteswap_data_buffer(this->data_buffer,
+			   this->data_buffer_size/sizeof(cdb_seg_data));
 
 /*
  *	load succeeded
@@ -368,7 +363,8 @@ static cdb_seg_data *cdb_read_disk(cdb_class *this)
     return NULL;
   }
 
-  cdb_byteswap_data_buffer(this, this->segment->size/sizeof(cdb_seg_data));
+  cdb_byteswap_data_buffer(this->data_buffer,
+			   this->segment->size/sizeof(cdb_seg_data));
 
   return this->data_buffer;
 }
@@ -927,73 +923,4 @@ int draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
   }
 
   return 0;
-}
-
-/*------------------------------------------------------------------------
- * cdb_byteswap_... - in situ byteswap routines
- *
- *	ensure correct byte order for all data in memory
- *	disk data is stored with least significant byte first
- *	for machines which require most significant byte first
- *	compile with -DBYTEORDER=LSB1ST
- *
- *------------------------------------------------------------------------*/
-/*
- *	byteswap cdb file header if necessary
- */
-static void cdb_byteswap_header(cdb_class *this)
-{
-#if BYTEORDER == LSB1ST
-  SWAP4_IS(&(this->header->code_number));
-  SWAP4_IS(&(this->header->indev_addr));
-  SWAP4_IS(&(this->header->index_size));
-  SWAP4_IS(&(this->header->max_seg_size));
-  SWAP4_IS(&(this->header->segment_rank));
-  SWAP4_IS(&(this->header->index_order));
-  SWAP4_IS(&(this->header->ilat_max));
-  SWAP4_IS(&(this->header->ilon_max));
-  SWAP4_IS(&(this->header->ilat_min));
-  SWAP4_IS(&(this->header->ilon_min));
-  SWAP4_IS(&(this->header->ilat_extent));
-  SWAP4_IS(&(this->header->ilon_extent));
-#endif
-}
-
-/*
- *	byte swap cdb file index if necessary
- */
-static void cdb_byteswap_index(cdb_class *this)
-{
-#if BYTEORDER == LSB1ST
-  register int iseg;
-  cdb_index_entry *entry;
-
-  for(iseg = 0, entry = this->index;
-      iseg < num_segments_cdb(this); 
-      iseg++, entry++)
-  { SWAP4_IS(&(entry->ID));
-    SWAP4_IS(&(entry->ilat0));
-    SWAP4_IS(&(entry->ilon0));
-    SWAP4_IS(&(entry->ilat_max));
-    SWAP4_IS(&(entry->ilon_max));
-    SWAP4_IS(&(entry->ilat_min));
-    SWAP4_IS(&(entry->ilon_min));
-    SWAP4_IS(&(entry->addr));
-    SWAP4_IS(&(entry->size));
-  }
-#endif
-}
-/*
- *	byte swap cdb segment data buffer if necessary
- */
-static void cdb_byteswap_data_buffer(cdb_class *this, int npts)
-{
-#if BYTEORDER == LSB1ST
-  register int ipt;
-
-  for (ipt=0; ipt < npts; ipt++)
-  { SWAP2_IS(&(this->data_buffer[ipt].dlat));
-    SWAP2_IS(&(this->data_buffer[ipt].dlon));
-  }
-#endif
 }
