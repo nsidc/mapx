@@ -74,17 +74,38 @@ static void decimate_map_dec(char *cdb_filename,
  *		l meridians_min - sort index by lon_min (cancels -p, -q, -m)
  *		m meridians_max - sort index by lon_max (cancels -p, -q, -l)
  *                  (default is meridians_min)
- *		c coastlines, islands, and lakes (default)
- *		b boundaries
- *		r rivers      (c, b, and r are NOT mutually exclusive)
- *              v verbose diagnostic messages
- *	        vv very verbose
- *		vvv very very verbose
+ *		c - coastlines, islands, and lakes (default)
+ *		b - boundaries
+ *		r - rivers      (c, b, and r are NOT mutually exclusive)
+ *              v - verbose diagnostic messages
+ *	        vv - very verbose
+ *		vvv - very very verbose
  *
  *
  *----------------------------------------------------------------------*/
 
-#define usage "usage: decimate[-tdnsewpqlmcbrv] new_cdb_filename\n"
+#define usage \
+ "usage: cdb_edit [-tdnsewpqlmcbrv] new_cdb_filename\n"\
+ " option: t thin - thin strokes to a maximum error of t kilometers.\n"\
+ "                (default = 0.01 kilometer = no thinning)\n"\
+ "         d detail - only use segments with rank <= detail\n"\
+ "                 (least detail = 1,  most detail = 5, default = 1)\n"\
+ "         n north - northern bound (default 90)\n"\
+ "         s south - southern bound (default -90)\n"\
+ "         e east - eastern bound (default 180)\n"\
+ "         w west - western bound (default -180)\n"\
+ "         p parallels_min - sort index by lat_min (cancels -m, -q, -l)\n"\
+ "         q parallels_max - sort index by lat_max (cancels -m, -l, -p)\n"\
+ "         l meridians_min - sort index by lon_min (cancels -p, -q, -m)\n"\
+ "         m meridians_max - sort index by lon_max (cancels -p, -q, -l)\n"\
+ "                 (default is meridians_min)\n"\
+ "         c - coastlines, islands, and lakes (default)\n"\
+ "         b - boundaries\n"\
+ "         r - rivers      (c, b, and r are NOT mutually exclusive)\n"\
+ "         v - verbose diagnostic messages\n"\
+ "         vv - very verbose\n"\
+ "         vvv - very very verbose\n"
+
 
 main(int argc, char *argv[])
 { 
@@ -177,12 +198,12 @@ main(int argc, char *argv[])
  */
   if (argc != 1) error_exit(usage);
   cdb_filename = *argv;
-  if (verbose && thin < 0.09) fprintf(stderr,
-				     ">filename: %s\n>thin: none\n>detail: %d\n",
-				     cdb_filename, detail);
-  else if (verbose) fprintf(stderr,
-			    ">filename: %s\n>thin: %f Kilometer(s)\n>detail: %d\n",
-			    cdb_filename, thin, detail);
+  if (verbose && thin < 0.09) 
+    fprintf(stderr, ">filename: %s\n>thin: none\n>detail: %d\n",
+	    cdb_filename, detail);
+  else if (verbose) 
+    fprintf(stderr,">filename: %s\n>thin: %f Kilometer(s)\n>detail: %d\n",
+	    cdb_filename, thin, detail);
 
 /*
  *	open output file and reserve space for header
@@ -192,7 +213,7 @@ main(int argc, char *argv[])
   ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, cdb_file);
   if (very_verbose) fprintf(stderr,">>wrote %d bytes for header.\n",ios);
   if (ios != CDB_FILE_HEADER_SIZE)
-  { fprintf(stderr,"cdbx: error writing header.\n");
+  { fprintf(stderr,"cdb_edit: error writing header.\n");
     perror(cdb_filename);
     exit(ABORT);
   }
@@ -201,6 +222,12 @@ main(int argc, char *argv[])
  *      initialize .mpp file
  */
   map = init_mapx(MPP_FILENAME);
+  if (NULL == map) 
+  { fprintf(stderr,"cdb_edit: get a copy of %s, or set the environment\n"\
+	    "          variable PATHMPP to the appropriate directory\n",
+	    MPP_FILENAME);
+    exit(ABORT);
+  }
   map->scale = thin/3;
   reinit_mapx(map);
   if(very_verbose) 
@@ -286,7 +313,7 @@ main(int argc, char *argv[])
   ios = fwrite(seg_index, sizeof(cdb_index_entry), seg_count, cdb_file);
   if (verbose) fprintf(stderr,">wrote %d index entries.\n",ios);
   if (ios != seg_count)
-  { fprintf(stderr,"cdbx: error writing index.\n");
+  { fprintf(stderr,"cdb_edit: error writing index.\n");
     perror(cdb_filename);
     exit(ABORT);
   }
@@ -298,7 +325,7 @@ main(int argc, char *argv[])
   ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, cdb_file);
   if (verbose) fprintf(stderr,">wrote %d bytes of header.\n",ios);
   if (ios != CDB_FILE_HEADER_SIZE)
-  { fprintf(stderr,"cdbx: error writing header.\n");
+  { fprintf(stderr,"cdb_edit: error writing header.\n");
     perror(cdb_filename);
     exit(ABORT);
   }
@@ -462,7 +489,7 @@ static void write_segment_data_dec(int seg)
   if (very_verbose) fprintf(stderr,">>wrote %d points of segment %d.\n",
 	 ios+1, seg_index[seg].ID);
   if (ios != npoints)
-  { fprintf(stderr,"cdbx: error writing data segment %d.\n",
+  { fprintf(stderr,"cdb_edit: error writing data segment %d.\n",
      seg_index[seg].ID);
     perror(cdb_filename);
     exit(ABORT);
@@ -562,7 +589,7 @@ static void decimate_map_dec(char *cdb_filename,
      */
     
   this = init_cdb(cdb_filename);
-  if(this == NULL){ perror(cdb_filename); error_exit(usage); }
+  if(this == NULL) { perror(cdb_filename); error_exit(usage); }
     
 /*
  *	step thru segment dictionary entries
