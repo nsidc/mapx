@@ -3,15 +3,15 @@
  *
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.2 1993-11-08 17:20:47 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.3 1994-03-18 13:39:57 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <define.h>
-#include <maps.h>
-#include <grids.h>
-#include <cdb.h>
+#include "define.h"
+#include "maps.h"
+#include "grids.h"
+#include "cdb.h"
 
 #define usage "\n"\
   "usage: mapenum [-d cdb_file -s map_style -g grat_style] gpd_file\n"\
@@ -43,11 +43,6 @@ static int draw_pd(float,float);
  *
  *	output: stdout - list of map feature vectors of the form:
  *			 style x1 y1 x2 y2
- *
- *	option: d cdb_file - specify alternative coastline database
- *				 default is global.cdb
- *		s map_style - specify style (default 0)
- *		g grat_style - specify graticule style (default 1)
  *
  *------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
