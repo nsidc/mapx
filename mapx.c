@@ -3,26 +3,8 @@
  *
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
- * 16-Dec-1991 K.Knowles - put all global parameters into mapx_struct
- * 2-July-1992 K.Knowles - init returns pointer to struct
- * 10-Dec-1992 R.Swick - added error checking and flexible names
- * 15-Dec-1992 R.Swick - added ellipsoid projections. 
- * 30-Dec-1992 K.Knowles - added interactive and performance tests
- * 01-Feb-1993 R.Swick - added Lambert conic conformal projection
- * 12-Feb-1993 R.Swick - added reinit functions
- * $Log: not supported by cvs2svn $
- * Revision 1.8  93/02/18  15:58:37  knowles
- * changed Re to Re_km, changed default radius to Re_km
- * 
- * Revision 1.7  93/02/18  15:15:55  knowles
- * added projection init routines and reinit_mapx
- * 
- * Revision 1.6  93/02/11  10:25:49  knowles
- * fixed eccentricity == 0
- * cleaned up projection name tests
- *  
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.9 1993-02-18 16:14:24 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.10 1993-02-24 10:17:53 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,7 +117,6 @@ mapx_class *init_mapx (char *map_filename)
   double theta;
   float f1, f2, f3, f4;
   int i1, i2, i3, ios;
-  char *pathmpp, *basename, filename[256];
   char projection[80], readln[80], original_name[80];
   mapx_class *this;
 
@@ -151,24 +132,20 @@ mapx_class *init_mapx (char *map_filename)
 /*
  *	open .mpp file
  */
-  this->mpp_file = fopen(map_filename, "r");
-  if (this->mpp_file == NULL)
-  { pathmpp = getenv("PATHMPP");
-    if (pathmpp != NULL)
-    { basename = strrchr(map_filename,'/');
-      basename = (basename != NULL) ? basename+1 : map_filename;
-      strcat(strcat(strcpy(filename, pathmpp), "/"), basename);
-      this->mpp_file = fopen(filename, "r");
-    }
+  this->mpp_filename = (char *) malloc((size_t)MAX_STRING);
+  if (this->mpp_filename == NULL)
+  { perror("init_mapx");
+    close_mapx(this);
+    return NULL;
   }
+  strncpy(this->mpp_filename, map_filename, MAX_STRING);
+  this->mpp_file = search_path(this->mpp_filename, "PATHMPP", "r");
   if (this->mpp_file == NULL)
   { fprintf (stderr,"init_mapx: error opening parameters file.\n");
     perror(map_filename);
     close_mapx(this);
     return NULL;
   }
-  this->mpp_filename = (char *) malloc(strlen(map_filename)+1);
-  if (this->mpp_filename != NULL) strcpy(this->mpp_filename, map_filename);
 
 /*
  *	read in projection parameters
@@ -176,8 +153,7 @@ mapx_class *init_mapx (char *map_filename)
   fgets (readln, sizeof(readln), this->mpp_file);
   strcpy(original_name, readln);
   strcpy(projection, standard_name(original_name));
-  this->projection_name = (char *) malloc(strlen(projection+1));
-  if (this->projection_name != NULL) strcpy(this->projection_name, projection);
+  this->projection_name = strdup(projection);
 
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f %f %f", &f1, &f2, &f3, &f4);
@@ -526,7 +502,133 @@ int inverse_mapx (mapx_class *this, float u, float v, float *lat, float *lon)
   else
     return status;
 }
+
+/*--------------------------------------------------------------------------
+ * standard_name - standardize projection name
+ *
+ *	input : s - original projection name string
+ *
+ *	result: a valid projection name or ""
+ *
+ *-------------------------------------------------------------------------*/
+static char *standard_name(char *s)
+{
+  static char new_name[80];
+  char *p = new_name;
 
+  for(; *s != '\n' && *s != '\0'; ++s)
+  {
+    if ((*s == '_') || (*s == ' ') || (*s == '-') 
+	|| (*s == '(') || (*s == ')'))
+      ;
+    else 
+      *p++ = toupper(*s);
+  }
+
+  *p = '\0';
+         
+  if ((streq(new_name, "AZIMUTHALEQUALAREA") != NULL) || 
+      (streq(new_name, "AZIMUTHALEQUALAREASPHERE") != NULL) || 
+      (streq(new_name, "EQUALAREAAZIMUTHALSPHERE") != NULL) || 
+      (streq(new_name, "SPHEREAZIMUTHALEQUALAREA") != NULL) || 
+      (streq(new_name, "SPHEREEQUALAREAAZIMUTHAL") != NULL) || 
+      (streq(new_name, "EQUALAREAAZIMUTHAL") != NULL) )
+  { strcpy(new_name,"AZIMUTHALEQUALAREA");
+  }
+  else if ((streq(new_name, "EQUALAREACYLINDRICAL") != NULL) || 
+	   (streq(new_name, "CYLINDRICALEQUALAREA") != NULL) ) 
+  { strcpy(new_name,"CYLINDRICALEQUALAREA");
+  }
+  else if ((streq(new_name, "CYLINDRICALEQUIDISTANT") != NULL) || 
+	   (streq(new_name, "EQUIDISTANTCYLINDRICAL") != NULL) )
+  { strcpy(new_name, "CYLINDRICALEQUIDISTANT");
+  }
+  else if ((streq(new_name, "POLARSTEREOGRAPHIC") != NULL)|| 
+	   (streq(new_name, "STEREOGRAPHICPOLAR") != NULL))
+  { strcpy(new_name, "POLARSTEREOGRAPHIC");
+  }
+  else if ((streq(new_name, "AZIMUTHALEQUALAREAELLIPSOID") != NULL) || 
+	   (streq(new_name, "ELLIPSOIDAZIMUTHALEQUALAREA") != NULL) || 
+	   (streq(new_name, "EQUALAREAAZIMUTHALELLIPSOID") != NULL) || 
+	   (streq(new_name, "ELLIPSOIDEQUALAREAAZIMUTHAL") != NULL) )
+  { strcpy(new_name, "AZIMUTHALEQUALAREAELLIPSOID");
+  }
+  else if ((streq(new_name, "CYLINDRICALEQUALAREAELLIPSOID") != NULL) || 
+	   (streq(new_name, "ELLIPSOIDCYLINDRICALEQUALAREA") != NULL) || 
+	   (streq(new_name, "EQUALAREACYLINDRICALELLIPSOID") != NULL) || 
+	   (streq(new_name, "ELLIPSOIDEQUALAREACYLINDRICAL") != NULL) )
+  { strcpy(new_name,  "CYLINDRICALEQUALAREAELLIPSOID");
+  }
+  else if ((streq(new_name, "LAMBERTCONICCONFORMALELLIPSOID") != NULL) ||
+	   (streq(new_name, "LAMBERTCONFORMALCONICELLIPSOID") != NULL) ||
+	   (streq(new_name, "ELLIPSOIDLAMBERTCONICCONFORMAL") != NULL) ||
+	   (streq(new_name, "ELLIPSOIDLAMBERTCONFORMALCONIC") != NULL) )
+  { strcpy(new_name, "LAMBERTCONICCONFORMALELLIPSOID");
+  }
+
+  return new_name;
+}
+
+/*------------------------------------------------------------------------
+ * search_path - search for file in colon separated list of directories
+ *
+ *	input : filename - name of file to try first
+ *		pathvar - environment variable containing path
+ *		mode - same as fopen modes ("r", "w", etc.)
+ *
+ *	output: filename - name of file successfully openned
+ *
+ *	result: file pointer of openned file or NULL on failure
+ *
+ *	note  : directories are searched in order
+ *		if first attempt to open file fails then the directory
+ *		information preceeding the filename is stripped before
+ *		searching the directory path
+ *
+ *------------------------------------------------------------------------*/
+FILE *search_path(char *filename, const char *pathvar, const char *mode)
+{ const char *envpointer;
+  char *basename = NULL, *directory, *pathvalue = NULL;
+  FILE *fp = NULL;
+
+/*
+ *	try to open original name
+ */
+  fp = fopen(filename, mode);
+
+/* 
+ *	failing that, get path information
+ */
+  if (fp == NULL)
+  { envpointer = getenv(pathvar);
+
+/*
+ *	strip off directory name
+ */
+    if (envpointer != NULL)
+    { pathvalue = strdup(envpointer);
+      basename = strrchr(filename,'/');
+      basename = (basename != NULL) ? strdup(basename+1) : strdup(filename);
+      if (basename == NULL) return NULL;
+
+/*
+ *	try each directory in turn
+ */
+      directory = strtok(pathvalue, ": ");
+      while (directory != NULL)
+      {	strcat(strcat(strcpy(filename, directory), "/"), basename);
+	fp = fopen(filename, mode);
+	if (fp != NULL) break;
+	directory = strtok(NULL, ": ");
+      }
+    }
+  }
+  if (basename != NULL) free(basename);
+  if (pathvalue != NULL) free(pathvalue);
+
+  return fp;
+}
+
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  * projections 
  *
@@ -1388,75 +1490,7 @@ static int inverse_lambert_conic_conformal_ellipsoid (float u, float v, float *l
   
   return(0);
 }
-
-
-
-/*--------------------------------------------------------------------------
- * standard_name - standardize projection name
- *
- *	input : s - original projection name string
- *
- *	result: a valid projection name or ""
- *
- *-------------------------------------------------------------------------*/
-static char *standard_name(char *s)
-{
-  static char new_name[80];
-  char *p = new_name;
-
-  for(; *s != '\012'; ++s)
-  {
-    if ((*s == '_') || (*s == ' ') || (*s == '-') 
-	|| (*s == '(') || (*s == ')'))
-      ;
-    else 
-      *p++ = toupper(*s);
-  }
-
-  *p = '\0';
-         
-  if ((streq(new_name, "AZIMUTHALEQUALAREA") != NULL) || 
-      (streq(new_name, "AZIMUTHALEQUALAREASPHERE") != NULL) || 
-      (streq(new_name, "EQUALAREAAZIMUTHALSPHERE") != NULL) || 
-      (streq(new_name, "SPHEREAZIMUTHALEQUALAREA") != NULL) || 
-      (streq(new_name, "SPHEREEQUALAREAAZIMUTHAL") != NULL) || 
-      (streq(new_name, "EQUALAREAAZIMUTHAL") != NULL) )
-  { strcpy(new_name,"AZIMUTHALEQUALAREA");
-  }
-  else if ((streq(new_name, "EQUALAREACYLINDRICAL") != NULL) || 
-	   (streq(new_name, "CYLINDRICALEQUALAREA") != NULL) ) 
-  { strcpy(new_name,"CYLINDRICALEQUALAREA");
-  }
-  else if ((streq(new_name, "CYLINDRICALEQUIDISTANT") != NULL) || 
-	   (streq(new_name, "EQUIDISTANTCYLINDRICAL") != NULL) )
-  { strcpy(new_name, "CYLINDRICALEQUIDISTANT");
-  }
-  else if ((streq(new_name, "POLARSTEREOGRAPHIC") != NULL)|| 
-	   (streq(new_name, "STEREOGRAPHICPOLAR") != NULL))
-  { strcpy(new_name, "POLARSTEREOGRAPHIC");
-  }
-  else if ((streq(new_name, "AZIMUTHALEQUALAREAELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDAZIMUTHALEQUALAREA") != NULL) || 
-	   (streq(new_name, "EQUALAREAAZIMUTHALELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDEQUALAREAAZIMUTHAL") != NULL) )
-  { strcpy(new_name, "AZIMUTHALEQUALAREAELLIPSOID");
-  }
-  else if ((streq(new_name, "CYLINDRICALEQUALAREAELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDCYLINDRICALEQUALAREA") != NULL) || 
-	   (streq(new_name, "EQUALAREACYLINDRICALELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDEQUALAREACYLINDRICAL") != NULL) )
-  { strcpy(new_name,  "CYLINDRICALEQUALAREAELLIPSOID");
-  }
-  else if ((streq(new_name, "LAMBERTCONICCONFORMALELLIPSOID") != NULL) ||
-	   (streq(new_name, "LAMBERTCONFORMALCONICELLIPSOID") != NULL) ||
-	   (streq(new_name, "ELLIPSOIDLAMBERTCONICCONFORMAL") != NULL) ||
-	   (streq(new_name, "ELLIPSOIDLAMBERTCONFORMALCONIC") != NULL) )
-  { strcpy(new_name, "LAMBERTCONICCONFORMALELLIPSOID");
-  }
-
-  return new_name;
-}
-
+
 #ifdef MTEST
 /*------------------------------------------------------------------------
  * mtest - interactive test for mapx routines

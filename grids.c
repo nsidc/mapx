@@ -6,8 +6,11 @@
  *			   updated references to mapx
  * 30-Dec-1992 K.Knowles - added interactive and performance tests
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  93/02/19  12:37:22  knowles
+ * added search path for .gpd files
+ * 
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.3 1993-02-19 12:37:22 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.4 1993-02-24 10:18:43 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +18,6 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.3 
 #include <define.h>
 #include <mapx.h>
 #include <grids.h>
-
-static FILE *search_path(char *, const char *, const char *);
 
 /*----------------------------------------------------------------------
  * init_grid - initialize grid coordinate system
@@ -68,6 +69,11 @@ grid_class *init_grid(const char *grid_filename)
  *	open .gpd file
  */
   this->gpd_filename = (char *)realloc(this->gpd_filename, (size_t)MAX_STRING);
+  if (this->gpd_filename == NULL)
+  { perror("init_grid");
+    close_grid(this);
+    return NULL;
+  }
   strncpy(this->gpd_filename, grid_filename, MAX_STRING);
   this->gpd_file = search_path(this->gpd_filename, "PATHGPD", "r");
   if (this->gpd_file == NULL)
@@ -245,65 +251,6 @@ int inverse_grid (grid_class *this, float r, float s, float *lat, float *lon)
   status = inverse_mapx(this->mapx, u, v, lat, lon);
   if (status != 0) return FALSE;
   return within_mapx(this->mapx, *lat, *lon);
-}
-
-/*------------------------------------------------------------------------
- * search_path - search for file in colon separated list of directories
- *
- *	input : filename - name of file to try first
- *		pathvar - environment variable containing path
- *		mode - same as fopen modes ("r", "w", etc.)
- *
- *	output: filename - name of file successfully openned
- *
- *	result: file pointer of openned file or NULL on failure
- *
- *	note  : directories are searched in order
- *		if first attempt to open file fails then the directory
- *		information preceeding the filename is stripped before
- *		searching the directory path
- *
- *------------------------------------------------------------------------*/
-static FILE *search_path(char *filename, const char *pathvar, const char *mode)
-{ const char *envpointer;
-  char *basename, *directory, *pathvalue = NULL;
-  FILE *fp = NULL;
-
-/*
- *	try to open original name
- */
-  fp = fopen(filename, mode);
-
-/* 
- *	failing that, get path information
- */
-  if (fp == NULL)
-  { envpointer = getenv(pathvar);
-
-/*
- *	strip off directory name
- */
-    if (envpointer != NULL)
-    { pathvalue = strdup(envpointer);
-      basename = strrchr(filename,'/');
-      basename = (basename != NULL) ? strdup(basename+1) : strdup(filename);
-
-/*
- *	try each directory in turn
- */
-      directory = strtok(pathvalue, ": ");
-      while (directory != NULL)
-      {	strcat(strcat(strcpy(filename, directory), "/"), basename);
-	fp = fopen(filename, mode);
-	if (fp != NULL) break;
-	directory = strtok(NULL, ": ");
-      }
-    }
-  }
-
-  if (pathvalue != NULL) free(pathvalue);
-
-  return fp;
 }
 
 #ifdef GTEST
