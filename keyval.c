@@ -4,7 +4,7 @@
  * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.4 1996-10-25 22:00:39 knowles Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.5 1999-11-19 16:55:50 knowles Exp $";
 
 #include <ctype.h>
 #include "define.h"
@@ -164,9 +164,11 @@ bool get_value_keyval(const char *label, const char *keyword,
  */
   if (streq("%lat", format))
   { status = lat_lon_keyval(field_ptr, keyval_LATITUDE, value);
+    if (!status) status = sscanf(field_ptr, "%f", value);
   }
   else if (streq("%lon", format))
   { status = lat_lon_keyval(field_ptr, keyval_LONGITUDE, value);
+    if (!status) status = sscanf(field_ptr, "%f", value);
   }
   else if (streq("%bool", format))
   { status = boolean_keyval(field_ptr, value);

@@ -7,10 +7,11 @@
 #ifndef keyval_h_
 #define keyval_h_
 
-static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.3 1996-10-25 21:46:57 knowles Exp $";
+static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.4 1999-11-19 16:55:50 knowles Exp $";
 
 #include "define.h"
 
+static const char *keyval_FALL_THRU_STRING = "-+-keyval_FALL_THRU_STRING-+-";
 static const char *keyval_LATITUDE = "NSns";
 static const char *keyval_LONGITUDE = "EWew";
 
