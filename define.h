@@ -35,6 +35,13 @@
 
 #define streq(s1,s2) (strcmp(s1,s2) == 0)
 
+#ifdef NEED_STRDUP
+static char *t_sd_p;
+#define strdup(string) \
+  t_sd_p = (char *)malloc(strlen(string)+1); \
+  if (t_sd_p) strcpy(t_sd_p, string); 
+#endif
+
 #define NUMBER(a) ((int)(sizeof(a)/sizeof(a[0])))
 
 #define ABORT EXIT_FAILURE
