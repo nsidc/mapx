@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.2 1993-10-26 11:27:57 knowles Exp $";
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.3 1993-11-03 16:42:37 knowles Exp $";
 
 /*------------------------------------------------------------------------
  * matrix - allocate 2-D matrix
@@ -20,6 +20,7 @@ static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.
  *	result: pointer to column of pointers to rows
  *
  *	note: assumes all pointers are the same size, sizeof(void *)
+ *		currently ignores zero flag (i.e. always clears block)
  *
  *----------------------------------------------------------------------*/
 void **matrix(int rows, int cols, int bytes, int zero)
@@ -31,16 +32,14 @@ void **matrix(int rows, int cols, int bytes, int zero)
 
   row_size = cols*bytes;
   row_ptr_size = rows * sizeof(void *);
-  block = malloc(row_ptr_size + rows*row_size);
-  if (block == NULL) {perror("matrix"); return(NULL);}
+  block = (char *)calloc(row_ptr_size + rows*row_size, sizeof(char));
+  if (block == NULL) { perror("matrix"); return(NULL); }
   matrix_ptr = (void **) block;
   row_ptr = matrix_ptr;
   free_byte = row_ptr_size;
-  for (irow=0; irow < rows; irow++)
-  {
-    *row_ptr = &(block[free_byte]);
+  for (irow = 0; irow < rows; irow++)
+  { *row_ptr = &(block[free_byte]);
     free_byte += row_size;
-    if (zero) memset(*row_ptr,0,row_size);
     ++row_ptr;
   }
   return(matrix_ptr);
