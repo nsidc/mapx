@@ -4,8 +4,12 @@
 #ifndef define_h_
 #define define_h_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <limits.h>
+#include <math.h>
 
 #ifdef DEBUG_MALLOC
 #include "dbmalloc.h"
@@ -25,11 +29,15 @@
 #define radians(t) ( (t) * PI / 180.0)
 #define degrees(t) ( (t) * 180.0 / PI)
 
-#define nint(x) ((int)((x)>=0 ? (x)+.5 : (x)-.5))
+#define nint(x) ((int)((x)+.5))
+
+#define sign(x) ((x) < 0 ? -1 : 1)
 
 #define streq(s1,s2) (strcmp(s1,s2) == 0)
 
-#define ABORT -1
+#define NUMBER(a) ((int)(sizeof(a)/sizeof(a[0])))
+
+#define ABORT EXIT_FAILURE
 
 #define error_exit(msg) {fprintf(stderr,"%s\n",msg); exit(ABORT);}
 
@@ -37,6 +45,8 @@
 #define until(condition) while(!(condition))
 
 #define MAX_STRING 256
+
+typedef int bool;
 
 typedef unsigned char byte1;
 typedef unsigned short int byte2;
