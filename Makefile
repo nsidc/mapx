@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.51 2003-06-23 15:36:17 haran Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.52 2003-06-25 23:34:57 haran Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -46,8 +46,8 @@ TARFILE = maps.tar
 #	on least significant byte first machines (Intel, Vax)
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
-#CONFIG_CFLAGS = -O
 CONFIG_CFLAGS = -O -DLSB1ST
+#CONFIG_CFLAGS = -O
 #CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
 #CONFIG_CFLAGS = -DDEBUG -g
 
@@ -129,16 +129,24 @@ tar :
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
-		$(UTESTDIR)/other $(UTESTDIR)/snyder $(UTESTDIR)/tilecalc \
-		$(UTESTDIR)/sgi $(UTESTDIR)/linux $(UTESTDIR)/linuxhp
+		$(UTESTDIR)/other/other* \
+		$(UTESTDIR)/snyder/snyder* \
+		$(UTESTDIR)/tilecalc/tilecalc* \
+		$(UTESTDIR)/sgi/sgi* \
+		$(UTESTDIR)/linux/linux* \
+	 	$(UTESTDIR)/linuxhp/linuxhp*
 	$(TAR) cvf $(TARFILE) \
 		Makefile ppgc.html mprojex.gif coordef.gif \
 		regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
-		$(UTESTDIR)/other $(UTESTDIR)/snyder $(UTESTDIR)/tilecalc \
-		$(UTESTDIR)/sgi $(UTESTDIR)/linux $(UTESTDIR)/linuxhp
+		$(UTESTDIR)/other/other* \
+		$(UTESTDIR)/snyder/snyder* \
+		$(UTESTDIR)/tilecalc/tilecalc* \
+		$(UTESTDIR)/sgi/sgi* \
+		$(UTESTDIR)/linux/linux* \
+	 	$(UTESTDIR)/linuxhp/linuxhp*
 	$(COMPRESS) $(TARFILE)
 
 depend :
