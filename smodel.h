@@ -2,11 +2,12 @@
  * smodel - cubic spline model
  *
  * 13-Jan-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
 #ifndef smodel_h_
 #define smodel_h_
 
-static const char smodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.h,v 1.1 1993-08-02 10:24:16 knowles Exp $";
+static const char smodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.h,v 1.2 1994-04-07 16:29:00 knowles Exp $";
 
 typedef struct {
   double *X, *Y, *B, *C, *D;

@@ -7,6 +7,7 @@
  *	and solve for b by back substitution
  *
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,7 @@
 #include "define.h"
 #include "lud.h"
 
-static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.2 1993-11-03 16:48:03 knowles Exp $";
+static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.3 1994-04-07 16:29:50 knowles Exp $";
 
 /*----------------------------------------------------------------------
  * design - calculate xT*x and xT*y

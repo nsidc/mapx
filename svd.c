@@ -5,6 +5,7 @@
  *		Forsythe, Malcolm, and Moler, 1977.
  *
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,7 @@
 #include "matrix.h"
 #include "svd.h"
 
-static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.1 1993-11-03 15:49:55 knowles Exp $";
+static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.2 1994-04-07 16:29:01 knowles Exp $";
 
 /*
  *	set default value for maximum number of iterations

@@ -10,6 +10,7 @@
  *	solve P([rdata],[sdata])*[b] = [tdata] for [b] by least squares
  *	  
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@
 #include "svd.h"
 #include "pmodel.h"
 
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.4 1993-11-03 15:22:32 knowles Exp $";
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.5 1994-04-07 16:27:05 knowles Exp $";
 
 /*----------------------------------------------------------------------
  * eval_pmodel - evaluate polynomial

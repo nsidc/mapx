@@ -2,11 +2,12 @@
  * pmodel - polynomial model
  *
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #ifndef pmodel_h_
 #define pmodel_h_
 
-static const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.3 1993-11-03 15:27:30 knowles Exp $";
+static const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.4 1994-04-07 16:27:07 knowles Exp $";
 
 #define ipow(x,i) \
 ((i) == 0 ? 1.0 : (i) == 1 ? (x) : (x) == 0.0 ? 0.0 : pow((x), (double) (i)))
