@@ -4,7 +4,7 @@
  * 27-Apr-1999 Derek van Westrum vanwestr@ingrid.colorado.edu 303-492-1846
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.2 2001-08-20 21:58:23 knowles Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.3 2002-01-08 21:32:54 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.2 $\n"                                                      \
+"$Revision: 1.3 $\n"                                                      \
 "usage: irregrid [-wcnv -i value -k kernel"                                \
 " -p value -r value -z beta_file -o outputfile] \n"                        \
 "              from_data to.gpd \n"			                   \
@@ -307,7 +307,7 @@ main(int argc, char *argv[]) {
   }
   fclose(to_file);
   
-  exit(TRUE);
+  exit(EXIT_SUCCESS);
 }  /*  end of main */
 
 /*------------------------------------------------------------------------
