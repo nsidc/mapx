@@ -14,7 +14,7 @@
 #include "grids.h"
 
 #define usage \
-"usage: regrid [-nbslv -f fill -k kernel] from.gpd to.gpd from_data to_data\n"\
+"usage: regrid [-n -p power -bsl -v -f fill -k kernel] from.gpd to.gpd from_data to_data\n"\
 "\n"\
 " input : from.gpd  - original grid parameters definition file\n"\
 "         to.gpd    - new grid parameters definition file\n"\
@@ -23,12 +23,13 @@
 " output: to_data - new gridded data file (flat file by rows)\n"\
 "\n"\
 " option: n - do nearest neighbor resampling\n"\
+"         p power - 0=smooth, 6=sharp, 2=default\n"\
 "         b - unsigned byte data (default)\n"\
 "         s - unsigned short (2 bytes per sample)\n"\
 "         l - unsigned long (4 bytes)\n"\
 "         v - verbose (can be repeated)\n"\
 "         f fill - set fill value for empty cells (default 0) \n"\
-"         k kernel - force kernel size\n"\
+"         k kernel - force kernel size (rowsxcols)\n"\
 "\n"
 
 #define VV_INTERVAL 30
@@ -36,10 +37,11 @@
 main (int argc, char *argv[])
 {
   register int i, j, k, row, col;
-  int fill, k_cols, k_rows, kernel;
+  int fill, k_cols, k_rows, nparams;
   int data_bytes, row_bytes, status, total_bytes;
   int do_nearest_neighbor, verbose, very_verbose;
-  float d1, d2, dr, ds, km_per_col, km_per_row, lat, lon, r, s;
+  float km_per_col, km_per_row, lat, lon, r, s;
+  double weight, power, d2, dw, dr, ds;
   byte1 *iobuf, *bufp;
   float **from_data, **to_data, **to_beta;
   char *option;
@@ -52,7 +54,8 @@ main (int argc, char *argv[])
  */
   do_nearest_neighbor = FALSE;
   data_bytes = 1;
-  kernel = 0;
+  k_rows = k_cols = 0;
+  power = 2;
   fill = 0;
   verbose = FALSE;
   very_verbose = FALSE;
@@ -68,7 +71,15 @@ main (int argc, char *argv[])
 	  break;
 	case 'k':
 	  ++argv; --argc;
-	  if (sscanf(*argv, "%d", &kernel) != 1) error_exit(usage);
+	  if (argc <= 0) error_exit(usage);
+	  nparams = sscanf(*argv, "%dx%d", &k_rows, &k_cols);
+	  if (0 == nparams) error_exit(usage);
+	  if (1 == nparams) k_cols = k_rows;
+	  break;
+	case 'p':
+	  ++argv; --argc;
+	  if (sscanf(*argv, "%f", &r) != 1) error_exit(usage);
+	  power = r;
 	  break;
 	case 'b':
 	  data_bytes = 1;
@@ -88,7 +99,7 @@ main (int argc, char *argv[])
 	  verbose = TRUE;
 	  break;
 	default:
-	  fprintf (stderr,"invalid option %c\n", *option);
+	  fprintf(stderr,"invalid option %c\n", *option);
 	  error_exit(usage);
       }
     }
@@ -186,7 +197,7 @@ main (int argc, char *argv[])
 	if (!status) continue;
 
 	if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	  fprintf(stderr,"> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	  fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		  j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
 	row = (int)(s + 0.5);
@@ -202,22 +213,20 @@ main (int argc, char *argv[])
 /*
  *	determine extent of kernel
  */
-    if (!kernel)
-    { km_per_col = to_grid->mapx->scale/to_grid->cols_per_map_unit;
-      k_cols = nint(from_grid->mapx->scale/from_grid->cols_per_map_unit
+    km_per_col = to_grid->mapx->scale/to_grid->cols_per_map_unit;
+    km_per_row = to_grid->mapx->scale/to_grid->rows_per_map_unit;
+
+    if (!k_rows || !k_cols)
+    { k_cols = nint(from_grid->mapx->scale/from_grid->cols_per_map_unit
 		    / km_per_col);
       if (k_cols < 1) k_cols = 1;
-      km_per_row = to_grid->mapx->scale/to_grid->rows_per_map_unit;
       k_rows = nint(from_grid->mapx->scale/from_grid->rows_per_map_unit
 		    / km_per_row);
       if (k_rows < 1) k_rows = 1;
     }
-    else
-    { k_rows = k_cols = kernel-1;
-    }
 
     if (verbose) fprintf(stderr,"> forward resampling %dx%d kernel...\n", 
-			 k_rows + 1, k_cols + 1);
+			 k_rows, k_cols);
 
     for (i = 0; i < from_grid->rows; i++) 
     { for (j = 0; j < from_grid->cols; j++)
@@ -229,19 +238,20 @@ main (int argc, char *argv[])
 	if (!status) continue;
 
 	if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	  fprintf(stderr,"> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	  fprintf(stderr,">> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
 		  j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
-	for (row=(int)(s-k_rows/2+0.5); row <= (int)(s+k_rows/2+0.5); row++)
+	for (row=(int)(s-k_rows/2+.5); row <= (int)(s+k_rows/2+.5); row++)
 	{ if (row < 0 || row >= to_grid->rows) continue;
 	  ds = (s - row) * km_per_row;
-	  for (col=(int)(r-k_cols/2+0.5); col <= (int)(r+k_cols/2+0.5); col++)
+	  for (col=(int)(r-k_cols/2+.5); col <= (int)(r+k_cols/2+.5); col++)
 	  { if (col < 0 || col >= to_grid->cols) continue;
 	    dr = (r - col) * km_per_col;
 	    d2 = dr*dr + ds*ds;
-	    d1 = d2 > 0 ? 1/d2 : 9e9;
-	    to_data[row][col] += from_data[i][j]*d1;
-	    to_beta[row][col] += d1;
+	    dw = pow(d2, power/2);
+	    weight = dw > 0 ? 1/dw : 9e9;
+	    to_data[row][col] += from_data[i][j]*weight;
+	    to_beta[row][col] += weight;
 	  }
 	}
       }
