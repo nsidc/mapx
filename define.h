@@ -7,9 +7,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <limits.h>
 #include <math.h>
+
+#ifndef DEBUG
+#define NDEBUG
+#endif
+#include <assert.h>
 
 #ifdef DEBUG_MALLOC
 #include "dbmalloc.h"
