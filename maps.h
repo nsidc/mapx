@@ -1,13 +1,14 @@
 /*========================================================================
  * maps - map utility functions
  *
- * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 18-Aug-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *========================================================================*/
 #ifndef maps_h_
 #define maps_h_
 
-static const char maps_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.h,v 1.9 2003-06-24 22:43:52 haran Exp $";
+static const char maps_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.h,v 1.10 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "mapx.h"

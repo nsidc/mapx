@@ -5,12 +5,14 @@
  *	SWAP4 and SWAP2 evaluate their arguments exactly once
  *	so, for example, val = SWAP4(atoi(*argv++)) should work
  *
- *	27-July-1992 K.Knowles
+ * 27-Jul-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *========================================================================*/
 #ifndef SWAP_H_
 #define SWAP_H_
 
-static const char byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/byteswap.h,v 1.2 2003-06-23 15:41:41 haran Exp $";
+static const char byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/byteswap.h,v 1.3 2004-01-19 00:57:22 knowlesk Exp $";
 
 #ifndef NO_SWAP
 

@@ -1,10 +1,11 @@
 /*======================================================================
  * keyval - "keyword: value" decoder
  *
- * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 23-Oct-1996 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1996 University of Colorado
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.7 2003-06-24 22:34:27 haran Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <ctype.h>
 #include "define.h"

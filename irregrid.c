@@ -2,9 +2,11 @@
  * irregrid - interpolate irregularly spaced lat/lon data to a grid.
  *
  * 27-Apr-1999 Derek van Westrum vanwestr@ingrid.colorado.edu 303-492-1846
+ * 18-Jan-2004 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1999-2004 University of Colorado
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.6 2003-06-24 22:17:44 haran Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.7 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +15,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.6 $\n"                                                      \
+"$Revision: 1.7 $\n"                                                      \
 "usage: irregrid [-wcnv -i value -k kernel"                                \
 " -p value -r value -z beta_file -o outputfile] \n"                        \
 "              from_data to.gpd \n"			                   \
@@ -77,11 +79,6 @@ static int init_near_neighbor(grid_class *,float **,float **);
 static int near_neighbor(double,double,double,double,float,int *,
 			 grid_class *,float **,float **,int **);
 static int normalize_near_neighbor(grid_class *,float **, float **, int **);
-
-char *id_irregrid(void)
-{
-  return((char *)irregrid_c_rcsid);
-}
 
 main(int argc, char *argv[]) { 
   int i, status;
@@ -180,6 +177,9 @@ main(int argc, char *argv[]) {
 	  break;
 	case 'v':
 	  ++verbose;
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", irregrid_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);

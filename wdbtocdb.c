@@ -5,8 +5,11 @@
  *		least significant byte first machines compile
  *		with -DLSB1ST
  *
+ * 8-Jul-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *========================================================================*/
-static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.4 2003-06-24 23:09:21 haran Exp $";
+static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,11 +68,6 @@ void write_segment_data(int);
 "         h label - file header text (max 31 chars)\n"\
 "         v - verbose diagnostic messages (may be repeated)\n"\
 "\n"
-
-char *id_wdbtocdb(void)
-{
-  return((char *)wdbtocdb_c_rcsid);
-}
 
 /*------------------------------------------------------------------------
  * wdbtocdb - create coastline database from binary WDB2 and/or WVS files
@@ -131,6 +129,9 @@ int main(int argc, char *argv[])
 	  if (very_verbose) very_very_verbose = TRUE;
 	  if (verbose) very_verbose = TRUE;
 	  verbose = TRUE;
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", wdbtocdb_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr, "invalid option %c\n", *option);

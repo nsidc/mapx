@@ -1,7 +1,7 @@
 /*======================================================================
  * grid_io - grid input/output
  * 
- * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 3/18/98 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #ifndef grid_io_h_
@@ -9,7 +9,7 @@
 
 #include "define.h"
 
-static const char grid_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.4 2003-06-23 16:00:57 haran Exp $";
+static const char grid_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
 
 typedef enum 
 { grid_io_READ_ONLY, 

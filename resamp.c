@@ -1,10 +1,11 @@
 /*========================================================================
  * resamp - resample one grid to another 
  *
- * 19-Mar-1998 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 19-Mar-1998 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1998 University of Colorado
  *========================================================================*/
-static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.5 2003-06-24 23:04:00 haran Exp $";
+static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.6 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "grids.h"
@@ -77,11 +78,6 @@ static int fill, mask, mask2, temp, verbose;
 static int report_interval = 100; /* rows */
 
 #define INTERCHANGE(x, y) (temp = x, x = y, y = temp)
-
-char *id_resamp(void)
-{
-  return((char *)resamp_c_rcsid);
-}
 
 main (int argc, char *argv[])
 { int mfactor, status, nitems, npts;
@@ -160,6 +156,9 @@ main (int argc, char *argv[])
 	  break;
 	case 'v':
 	  ++verbose;
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", resamp_c_rcsid);
 	  break;
 	case 'c':
 	  ++argv; --argc;

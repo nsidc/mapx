@@ -1,10 +1,11 @@
 /*========================================================================
  * mapenum - enumerate map feature vectors
  *
- * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 4-Mar-1993 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.8 2003-06-24 22:40:41 haran Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.9 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,11 +37,6 @@ static cdb_class *cdb;
 static int pen_style = MAP_STYLE_DEFAULT;
 static int move_pu(double,double);
 static int draw_pd(double,double);
-
-char *id_mapenum(void)
-{
-  return((char *)mapenum_c_rcsid);
-}
 
 int main(int argc, char *argv[])
 { int map_style, grat_style, do_grat;
@@ -78,6 +74,9 @@ int main(int argc, char *argv[])
 	  { grat_style = GRAT_STYLE_DEFAULT;
 	    --argv; ++argc;
 	  }
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", mapenum_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr, "invalid option %c\n", *option);

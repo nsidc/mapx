@@ -6,13 +6,14 @@
  *	for machines which require least significant byte first
  *	(Intel, VAX) compile with -DLSB1ST
  *
- * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 8-Jul-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *------------------------------------------------------------------------*/
 #ifndef cdb_byteswap_h_
 #define cdb_byteswap_h_
 
-static const char cdb_byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_byteswap.h,v 1.4 2003-06-23 15:46:51 haran Exp $";
+static const char cdb_byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_byteswap.h,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
 
 #ifndef LSB1ST
 #define NO_SWAP

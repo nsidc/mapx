@@ -11,10 +11,11 @@
  *  a delta from the end of the previous stroke (starting at x0, y0) all
  *  x values are seconds of longitude, y values are seconds of latitude.
  * 
- *  7-Apr-1993 R.Swick swick@chukchi.colorado.edu  303-492-6069  
+ *  7-Apr-1993 R.Swick swick@kryos.colorado.edu  303-492-6069  
  *  National Snow & Ice Data Center, University of Colorado, Boulder
+ *  Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char cdb_edit_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_edit.c,v 1.6 2003-06-23 15:48:35 haran Exp $";
+static const char cdb_edit_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_edit.c,v 1.7 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,11 +116,6 @@ void finish_new_file();
  "         v - verbose diagnostic messages (may be repeated)\n"\
  "\n"
 
-char *id_cdb_edit(void)
-{
-  return((char *)cdb_edit_c_rcsid);
-}
-
 
 main(int argc, char *argv[])
 { 
@@ -159,6 +155,9 @@ main(int argc, char *argv[])
 	if (very_verbose) very_very_verbose = TRUE;
 	if (verbose) very_verbose = TRUE;
 	verbose = TRUE;
+	break;
+      case 'V':
+	fprintf(stderr,"%s\n", cdb_edit_c_rcsid);
 	break;
       case 'p':
 	do_sort = TRUE;

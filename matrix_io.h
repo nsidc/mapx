@@ -2,13 +2,14 @@
  * matrix_io.h - header file for matrix_io.c:
  *   programs to read and write matrix data
  * 
- * 03/7/1997 brodzik brodzik@zamboni.colorado.edu 303-492-8263
+ * 03-Jul-1997 brodzik brodzik@kryos.colorado.edu 303-492-8263
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1997 University of Colorado
  *======================================================================*/
 #ifndef matrix_io_h_
 #define matrix_io_h_
 
-static const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.7 2003-06-24 22:50:31 haran Exp $";
+static const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "grids.h"

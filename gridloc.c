@@ -1,10 +1,11 @@
 /*========================================================================
  * gridloc - create grids of lat, lon locations
  *
- * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 20-Sep-1995 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1995 University of Colorado
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.7 2003-06-23 16:32:02 haran Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -36,11 +37,6 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 "\n"
 
 #define UNDEFINED -999
-
-char *id_gridloc(void)
-{
-  return((char *)gridloc_c_rcsid);
-}
 
 int main(int argc, char *argv[])
 {
@@ -103,6 +99,9 @@ int main(int argc, char *argv[])
 	  if (argc <= 0) error_exit(usage);
 	  if (1 != sscanf(*argv, "%lf", &delta_row)) error_exit(usage);
 	  if (verbose) fprintf(stderr,"%lf dx %lf dy\n", delta_col, delta_row);
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", gridloc_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);

@@ -9,10 +9,11 @@
  *
  *	solve P([rdata],[sdata])*[b] = [tdata] for [b] by least squares
  *	  
- * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 2-Aug-1990 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1990 University of Colorado
  *======================================================================*/
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.7 2003-06-24 22:59:49 haran Exp $";
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,10 +1,11 @@
 /*========================================================================
  * matrix - allocate 2-D matrix
  *
- * 13-Jan-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 13-Jan-1993 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.8 2003-06-24 22:48:11 haran Exp $";
+static const char matrix_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.c,v 1.9 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,14 +1,15 @@
 /*======================================================================
  * mapx.h - definitions for map projection routines
  *
- * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * 15-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
+ * 2-July-1991 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
+ * 15-Dec-1992 R.Swick swick@kryos.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1991 University of Colorado
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
 
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.24 2003-06-24 22:47:11 haran Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.25 2004-01-19 00:57:22 knowlesk Exp $";
 
 /*
  * global verbose flag

@@ -6,10 +6,11 @@
  *	then, factor xT*x into triangular form
  *	and solve for b by back substitution
  *
- * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 2-Aug-1990 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1990 University of Colorado
  *======================================================================*/
-static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.4 2003-06-24 22:38:33 haran Exp $";
+static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

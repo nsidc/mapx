@@ -1,7 +1,11 @@
 /*========================================================================
  * cdb_list - list segment index of cdb file
+ *
+ *  7-Apr-1993 R.Swick swick@kryos.colorado.edu  303-492-6069  
+ *  National Snow & Ice Data Center, University of Colorado, Boulder
+ *  Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char cdb_list_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_list.c,v 1.3 2003-06-23 15:50:05 haran Exp $";
+static const char cdb_list_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_list.c,v 1.4 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -9,11 +13,6 @@ static const char cdb_list_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_list.c,
 #include <cdb.h>
 
 #define usage "usage: cdb_list [-v] file.cdb ... \n"
-
-char *id_cdb_list(void)
-{
-  return((char *)cdb_list_c_rcsid);
-}
 
 int main(int argc, char *argv[])
 {
@@ -29,6 +28,9 @@ int main(int argc, char *argv[])
     { switch (*option)
       { case 'v':
 	  verbose = TRUE;
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", cdb_list_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr, "invalid option %c\n", *option);

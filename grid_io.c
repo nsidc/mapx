@@ -1,10 +1,11 @@
 /*======================================================================
  * grid_io - grid input/output
  * 
- * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 18-Mar-1998 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1998 University of Colorado
  *======================================================================*/
-static const char grid_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.8 2003-06-23 15:58:40 haran Exp $";
+static const char grid_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.9 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"

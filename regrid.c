@@ -1,10 +1,11 @@
 /*========================================================================
  * regrid - resample one grid to another 
  *
- * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 27-Apr-1994 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1994 University of Colorado
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.16 2003-06-24 23:02:49 haran Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.17 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +14,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.16 $\n"                                                             \
+"$Revision: 1.17 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -88,11 +89,6 @@ int cubiccon(grid_class *, float **, grid_class *, float **, float **);
 
 #define ROUND(x) ((x) < 0 ? (int)((x)-.5) : (int)((x)+.5))
 #define FLOAT(x) ((float)(x))
-
-char *id_regrid(void)
-{
-  return((char *)regrid_c_rcsid);
-}
 
 /*------------------------------------------------------------------------
  * read_grid_data - read file data into float matrix
@@ -275,6 +271,9 @@ int main(int argc, char *argv[])
 	  break;
 	case 'v':
 	  ++verbose;
+	  break;
+	case 'V':
+	  fprintf(stderr,"%s\n", regrid_c_rcsid);
 	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);

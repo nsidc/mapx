@@ -1,11 +1,12 @@
 /*========================================================================
  * map projections - convert geographic to map coordinates
  *
- * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
+ * 2-July-1991 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
+ * 10-Dec-1992 R.Swick swick@kryos.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1991 University of Colorado
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.38 2003-07-11 21:05:46 haran Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.39 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

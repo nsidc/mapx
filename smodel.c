@@ -4,10 +4,11 @@
  *	reference: Forsythe, Malcolm, and Moler, Computer Methods for
  *		     Mathematical Computations, Prentice-Hall, 1977.
  *
- * 31-July-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 31-July-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *========================================================================*/
-static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.4 2003-06-24 23:06:47 haran Exp $";
+static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include <stdio.h>
 #include <float.h>

@@ -1,12 +1,13 @@
 /*========================================================================
  * cdb.h - coastline database
  *
- * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 8-Jul-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.12 2003-06-23 15:45:17 haran Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.13 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 

@@ -1,13 +1,14 @@
 /*======================================================================
  * keyval - "keyword: value" decoder
  *
- * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 23-Oct-1996 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1996 University of Colorado
  *======================================================================*/
 #ifndef keyval_h_
 #define keyval_h_
 
-static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.5 2003-06-24 22:35:21 haran Exp $";
+static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.6 2004-01-19 00:57:22 knowlesk Exp $";
 
 #include "define.h"
 
@@ -23,6 +24,7 @@ static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.
 static const char *keyval_FALL_THRU_STRING = "-+-keyval_FALL_THRU_STRING-+-";
 static const char *keyval_LATITUDE = "NSns";
 static const char *keyval_LONGITUDE = "EWew";
+
 
 char *get_label_keyval(const char *filename, FILE *fp, int label_length);
 

@@ -3,10 +3,11 @@
  *
  * See cdb.h for a complete description of the cdb file structure.
  *
- * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * 8-Jul-1992 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
+ * Copyright (C) 1992 University of Colorado
  *===========================================================================*/
-static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.14 2003-06-23 15:43:59 haran Exp $";
+static const char cdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.15 2004-01-19 00:57:22 knowlesk Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
