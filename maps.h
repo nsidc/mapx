@@ -7,6 +7,8 @@
 #ifndef maps_h_
 #define maps_h_
 
+static const char maps_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.h,v 1.9 2003-06-24 22:43:52 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
 
@@ -18,44 +20,45 @@
  *	for example printf("%5.2f%c", PF_LAT_NS(lat));
  */
 
-#define PF_LAT_NS(lat) fabs((float)lat), ((lat) >= 0 ? 'N' : 'S')
+#define PF_LAT_NS(lat) fabs((double)lat), ((lat) >= 0 ? 'N' : 'S')
 
 /*
  *	printf longitude east west, use %6.2f%c format
  *	for example printf("%6.2f%c", PF_LON_EW(lon));
  */
 
-#define PF_LON_EW(lon) fabs((float)lon), ((lon) >= 0 ? 'E' : 'W')
+#define PF_LON_EW(lon) fabs((double)lon), ((lon) >= 0 ? 'E' : 'W')
 
 /*
  *	function prototypes
  */
-void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
-		    int (*draw_pd)(float lat, float lon),
-		    int (*label)(char *string, float lat, float lon));
+void draw_graticule(mapx_class *mapx, int (*move_pu)(double lat, double lon),
+		    int (*draw_pd)(double lat, double lon),
+		    int (*label)(char *string, double lat, double lon));
 
-float arc_length(float lat1, float lon1, float lat2, float lon2, float Re);
+double arc_length(double lat1, double lon1, double lat2, double lon2,
+		  double Re);
 
-float arc_length_km(float lat1, float lon1, float lat2, float lon2);
+double arc_length_km(double lat1, double lon1, double lat2, double lon2);
 
-float west_azimuth(float lat1, float lon1, float lat2, float lon2);
+double west_azimuth(double lat1, double lon1, double lat2, double lon2);
 
-bool bisect(float lat1, float lon1, float lat2, float lon2, 
-	    float *lat, float *lon);
+bool bisect(double lat1, double lon1, double lat2, double lon2, 
+	    double *lat, double *lon);
 
-int sscanf_lat_lon(char *readln, float *lat, float *lon);
+int sscanf_lat_lon(char *readln, double *lat, double *lon);
 
-int lat_lon_decode(const char *readln, const char *designators, float *value);
+int lat_lon_decode(const char *readln, const char *designators, double *value);
 
 FILE *search_path_fopen(char *filename, const char *pathvar, const char *mode);
 
 double ellipsoid_radius(double sin_phig, double cos_phig, 
 			double Ae2, double Be2);
 
-void geo_to_rectangular(double r[3], float lat, float lon, 
+void geo_to_rectangular(double r[3], double lat, double lon, 
 			double Ae2, double Be2);
 
-bool point_within_box(float lat_pt, float lon_pt, 
-		      float lat_box[4], float lon_box[4]);
+bool point_within_box(double lat_pt, double lon_pt, 
+		      double lat_box[4], double lon_box[4]);
 
 #endif
