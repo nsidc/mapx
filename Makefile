@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.36 1998-03-16 16:47:12 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.37 1999-07-28 22:24:27 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -42,7 +42,7 @@ TARFILE = maps.tar
 #	on least significant byte first machines (Intel, Vax)
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
-CONFIG_CFLAGS = -O
+#CONFIG_CFLAGS = -O
 CONFIG_CFLAGS = -DDEBUG -g
 
 #
@@ -58,9 +58,20 @@ CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
 LIBS = -L$(LIBDIR) -lmaps -lmodels $(SYSLIBS)
 DEPEND_LIBS = $(LIBDIR)/libmaps.a $(LIBDIR)/libmodels.a
 
-SRCS = mapx.c grids.c cdb.c maps.c 
+PROJECTION_SRCS = polar_stereographic.c orthographic.c cylindrical_equal_area.c \
+mercator.c mollweide.c cylindrical_equidistant.c sinusoidal.c \
+lambert_conic_conformal.c interupted_homolosine_equal_area.c \
+albers_conic_equal_area.c azimuthal_equal_area.c 
+
+PROJECTION_OBJS = polar_stereographic.o orthographic.o cylindrical_equal_area.o \
+mercator.o mollweide.o cylindrical_equidistant.o sinusoidal.o \
+lambert_conic_conformal.o interupted_homolosine_equal_area.o \
+albers_conic_equal_area.o azimuthal_equal_area.o 
+
+SRCS = mapx.c grids.c cdb.c maps.c $(PROJECTION_SRCS)
 HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h define.h
-OBJS = mapx.o grids.o cdb.o maps.o 
+OBJS = mapx.o grids.o cdb.o maps.o $(PROJECTION_OBJS)
+
 
 all : libmaps.a install
 
@@ -116,26 +127,26 @@ mapenum: mapenum.o $(DEPEND_LIBS)
 #------------------------------------------------------------------------
 # interactive tests
 #
-mtest : mapx.c mapx.h maps.c maps.h
-	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c $(LIBS)
+mtest : mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
+	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
 
-gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h
-	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(LIBS)
+gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h  $(PROJECTION_OBJS)
+	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 # performance tests
 #
-mpmon : mapx.c mapx.h maps.c maps.h
-	$(CC) -O -p -DMPMON -o mpmon mapx.c $(LIBS)
+mpmon : mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
+	$(CC) -O -p -DMPMON -o mpmon mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
 
-gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h
-	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c $(LIBS)
+gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h $(PROJECTION_OBJS)
+	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c maps.c $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 # accuracy tests
 #
-macct : maps.c maps.h mapx.c mapx.h
-	$(CC) -O -DMACCT -o macct maps.c mapx.c $(LIBS)
+macct : maps.c maps.h mapx.c mapx.h $(PROJECTION_OBJS)
+	$(CC) -O -DMACCT -o macct maps.c mapx.c $(PROJECTION_OBJS) $(SYSLIBS)
 #
 #------------------------------------------------------------------------
 
