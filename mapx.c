@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.23 1996-03-20 20:41:40 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.24 1998-02-26 17:58:21 swick Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -711,6 +711,9 @@ static int inverse_azimuthal_equal_area (float u, float v,
 
 static int init_azimuthal_equal_area_ellipsoid(void)
 {
+  current->cos_phi1 = cos(RADIANS(current->lat0));
+  current->sin_phi1 = sin(RADIANS(current->lat0));
+  
   if(current->eccentricity == 0.0)
   {
     current->qp = 2.0;
@@ -718,16 +721,32 @@ static int init_azimuthal_equal_area_ellipsoid(void)
   }
   else
   {
+/*** Not sure what this all is - RSS ****************/
     current->qp = 1 - ( (1 - current->e2) / (2*current->eccentricity)
 		       * log( (1 - current->eccentricity)
 			     / (1 + current->eccentricity) ) );
     current->q1 = (1 - current->e2) 
       * ( current->sin_phi1 
 	 / (1 - current->e2 * current->sin_phi1*current->sin_phi1)
-	 - 1 / (2 * current->eccentricity) 
+	 - (1 / 2 * current->eccentricity )
 	 * log( (1 - current->eccentricity * current->sin_phi1) 
 	       / (1 + current->eccentricity * current->sin_phi1) ) );
-  }
+/*fprintf(stderr, "qp and q1 are: %f : %f\n", current->qp, current->q1); **/
+/**************************This is what it should be *******************/
+    current->qp = (1 - current->e2) 
+      * ( 1 / (1 - current->e2 * current->sin_phi1*current->sin_phi1)
+	 - ( (1 / (2 * current->eccentricity) )
+	    * log( (1 - current->eccentricity) 
+		  / (1 + current->eccentricity) ) ) );
+
+    current->q1 = (1 - current->e2) 
+      * ( current->sin_phi1 
+	 / (1 - current->e2 * current->sin_phi1*current->sin_phi1)
+	 - ( (1 / (2 * current->eccentricity) )
+	 * log( (1 - current->eccentricity * current->sin_phi1) 
+	       / (1 + current->eccentricity * current->sin_phi1) ) ));
+/* fprintf(stderr, "qp and q1 are: %f : %f\n", current->qp, current->q1);**/
+ }
   current->Rg = current->equatorial_radius / current->scale;
   current->Rq = current->Rg *(sqrt(current->qp/2));
   current->cos_phi1 = cos(RADIANS(current->lat0));
@@ -738,6 +757,7 @@ static int init_azimuthal_equal_area_ellipsoid(void)
   else
     current->beta1 = asin(current->q1/current->qp);
   current->sin_beta1 = sin(current->beta1); 
+  current->cos_beta1 = cos(current->beta1); 
   current->m1 = current->cos_phi1 / sqrt(1 - current->e2 
 					 * current->sin_phi1 
 					 * current->sin_phi1);
@@ -757,7 +777,7 @@ static int azimuthal_equal_area_ellipsoid (float lat, float lon,
   
   
   q = (1.0 - current->e2) * ((sin_phi/(1.0 - current->e2*sin_phi * sin_phi))-
-			     (1.0/2.0 * current->eccentricity) * 
+			     (1.0/(2.0 * current->eccentricity)) * 
 			     log((1 - current->eccentricity * sin_phi) /
 				 (1.0 + current->eccentricity * sin_phi)));
   
