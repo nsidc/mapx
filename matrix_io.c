@@ -2,37 +2,13 @@
  * matrix_io.c - programs to read and write matrix data objects
  *
  * 03/7/1997 brodzik brodzik@zamboni.colorado.edu 303-492-8263
- *
  * National Snow & Ice Data Center, University of Colorado, Boulder
- *
- *$Log: not supported by cvs2svn $
- * Revision 1.6  1997/09/26  17:36:41  brodzik
- * Added initialize_matrix function.
- * Ran new test driver test_initialize_matrix, and
- * re-ran old driver test_matrix_io.
- *
- * Revision 1.5  1997/03/22  22:53:48  brodzik
- * Walkthrough changes: added error condition checks,
- * changed some variable names.
- *
- * Revision 1.4  1997/03/07  19:42:42  brodzik
- * Took _data off names. Reran unit test.
- *
- * Revision 1.3  1997/03/07  19:32:44  brodzik
- * Added NSIDC standard file header.
- *
- * Revision 1.2  1997/02/27  21:57:38  brodzik
- * Unit tested.
- *
- * Revision 1.1  1997/02/27  21:54:29  brodzik
- * Initial revision
- *
  *======================================================================*/
-#include <define.h>
-#include <matrix.h>
-#include <matrix_io.h>
+#include "define.h"
+#include "matrix.h"
+#include "matrix_io.h"
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.7 1997-09-26 17:45:29 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.8 1997-10-03 20:47:03 root Exp $";
 
 #define ZERO_BYTES 0;
 
