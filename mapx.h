@@ -7,7 +7,8 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.23 2002-12-17 18:54:42 knowlesk Exp $";
+
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.24 2003-06-24 22:47:11 haran Exp $";
 
 /*
  * global verbose flag
@@ -49,6 +50,17 @@ GLOBAL int mapx_verbose;
 #define mapx_equatorial_radius_km 6378.2064
 #define mapx_eccentricity 0.082271673
 
+/*
+ *  define WGS-84 values for equatorial radius in meters and eccentricity
+ */
+#define mapx_equatorial_radius_wgs84_m  6378137.0
+#define mapx_eccentricity_wgs84         0.081819190843
+
+/*
+ *  define ISin value for equatorial radius in meters
+ */
+#define mapx_equatorial_radius_isin_m  6371007.181
+
 #define RADIANS(t) ((t) * PI/180)
 #define DEGREES(t) ((t) * 180/PI)
 
@@ -64,27 +76,32 @@ typedef struct {
 /*
  *	user specified constants
  */
-  float lat0, lon0, lat1, lon1;
-  float rotation, scale;
-  float south, north, west, east;
-  float center_lat, center_lon, label_lat, label_lon;
-  float lat_interval, lon_interval;
+  double lat0, lon0, lat1, lon1;
+  double rotation, scale;
+  double south, north, west, east;
+  double center_lat, center_lon, label_lat, label_lon;
+  double lat_interval, lon_interval;
   int cil_detail, bdy_detail, riv_detail;
-  double equatorial_radius, eccentricity;
+  double equatorial_radius, polar_radius, eccentricity, e2;
+  double x0, y0, false_easting, false_northing;
+  double center_scale;
+  int utm_zone;
+  int isin_nzone, isin_justify;
 /*
  *	private projection constants
  */
-  float T00, T01, T10, T11, u0, v0;
+  double T00, T01, T10, T11, u0, v0;
   int map_stradles_180;
-  double e2, e4, e6, e8, qp, Rq, q0, q1, q2, Rg;
+  double e4, e6, e8, qp, Rq, q0, q1, q2, Rg;
   double sin_phi0, sin_phi1, sin_phi2, sin_lam1;
   double cos_phi0, cos_phi1, cos_phi2, cos_lam1;
   double beta1, sin_beta1, cos_beta1, D, phis, kz;
-  double rho0, n, C, F, m0, m1, m2, t0, t1;
+  double rho0, n, C, F, m0, m1, m2, t0, t1, t2;
   void *isin_data;
-  int isin_justify;
-  int (*geo_to_map)(void *, float, float, float *, float *);
-  int (*map_to_geo)(void *, float, float, float *, float *);
+  double e0, e1p, e2p, e3p, ml0, esp;
+  double f1, f2, f3, f4;
+  int (*geo_to_map)(void *, double, double, double *, double *);
+  int (*map_to_geo)(void *, double, double, double *, double *);
   int (*initialize)(void *);
   char *projection_name;
   FILE *mpp_file;
@@ -95,11 +112,18 @@ typedef struct {
  * function prototypes
  */
 mapx_class *init_mapx(char *filename);
-mapx_class *new_mapx(char *label);
+mapx_class *new_mapx(char *label, bool quiet);
+char *next_line_from_buffer(char *bufptr, char *readln);
 void close_mapx(mapx_class *this);
 int reinit_mapx(mapx_class *this);
-int within_mapx(mapx_class *this, float lat, float lon);
-int forward_mapx(mapx_class *this, float lat, float lon, float *u, float *v);
-int inverse_mapx(mapx_class *this, float u, float v, float *lat, float *lon);
+int within_mapx(mapx_class *this, double lat, double lon);
+int forward_mapx(mapx_class *this,
+		 double lat, double lon, double *u, double *v);
+int inverse_mapx(mapx_class *this,
+		 double u, double v, double *lat, double *lon);
+int forward_xy_mapx(mapx_class *this,
+		    double lat, double lon, double *x, double *y);
+int inverse_xy_mapx(mapx_class *this,
+		    double x, double u, double *lat, double *lon);
 
 #endif
