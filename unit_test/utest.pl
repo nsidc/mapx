@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.5 2003-04-15 15:31:29 haran Exp $
+# $Id: utest.pl,v 1.6 2003-04-17 17:48:53 haran Exp $
 #
 
 #
@@ -28,13 +28,13 @@ USAGE: mapx_utest.pl [-v] mppfile1 [mppfile2...]
                  xytest to test a particular map projection.
                  Each test to be performed must consist of a group
                  of three lines in mppfile of the form:
-                   # forward
-                   # lat,lon = <lat_in> <lon_in>
-                   # x,y = <x_expected> <y_expected>
+                   ; forward
+                   ; lat,lon = <lat_in> <lon_in>
+                   ; x,y = <x_expected> <y_expected>
                  or
-                   # inverse
-                   # x,y = <x_in> <y_in>
-                   # lat,lon = <lat_expected> <lon_expected>
+                   ; inverse
+                   ; x,y = <x_in> <y_in>
+                   ; lat,lon = <lat_expected> <lon_expected>
 ";
         
 #
@@ -83,12 +83,12 @@ foreach $mppfile (@mppfiles) {
 	my $got_inverse = 0;
 	while($i < scalar(@mpp)) {
 	    my $line = $mpp[$i++];
-	    if (substr($line, 0, 1) ne "#") {
+	    if (substr($line, 0, 1) ne ";") {
 		push(@mpp_lines, $line);
 	    }
 	    chomp $line;
-	    $got_forward = ($line =~ /\#\s+forward/);
-	    $got_inverse = ($line =~ /\#\s+inverse/);
+	    $got_forward = ($line =~ /\;\s+forward/);
+	    $got_inverse = ($line =~ /\;\s+inverse/);
 	    if ($got_forward || $got_inverse) {
 		last;
 	    }
@@ -121,7 +121,7 @@ foreach $mppfile (@mppfiles) {
 		my $line = $mpp[$i++];
 		chomp $line;
 		($lat_in, $lon_in) =
-		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
+		    ($line =~ /\;\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
 		if (defined($lat_in) && defined($lon_in)) {
 		    $got_latlon_in = 1;
 		    last;
@@ -141,7 +141,7 @@ foreach $mppfile (@mppfiles) {
 		my $line = $mpp[$i++];
 		chomp $line;
 		($x_expected, $y_expected, $xy_comment) =
-		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
+		    ($line =~ /\;\s+x\,y\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
 		if (defined($x_expected) && defined($y_expected)) {
 		    $got_xy_expected = 1;
 		    if (!defined($xy_comment)) {
@@ -168,7 +168,7 @@ foreach $mppfile (@mppfiles) {
 		my $line = $mpp[$i++];
 		chomp $line;
 		($x_in, $y_in) =
-		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
+		    ($line =~ /\;\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
 		if (defined($x_in) && defined($y_in)) {
 		    $got_xy_in = 1;
 		    last;
@@ -188,7 +188,7 @@ foreach $mppfile (@mppfiles) {
 		my $line = $mpp[$i++];
 		chomp $line;
 		($lat_expected, $lon_expected, $latlon_comment) =
-		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
+		    ($line =~ /\;\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)\s*(.*)/);
 		if (defined($lat_expected) && defined($lon_expected)) {
 		    $got_latlon_expected = 1;
 		    if (!defined($latlon_comment)) {
