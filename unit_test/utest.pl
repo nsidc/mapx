@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.19 2003-05-09 16:45:19 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.20 2003-05-14 17:01:45 haran Exp $
 #
 
 #
@@ -77,8 +77,8 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] [-c] file1 [file2...filen]
 
        -i tagin - Specifies a tagin string. The default value of tagin is
                   the leading characters in the input file up to but not
-                  including the first underbar (_). If -o is not specified,
-                  then the tagin value is not used.
+                  including the first slash (/) or underbar (_).
+                  If -o is not specified, then the tagin value is not used.
 
        -o tagout - Specifies a tagout string that should be used in creating an
                    output filename. All occurrences of the tagin value in
@@ -165,11 +165,11 @@ foreach $file_in (@files_in) {
 
 	#
 	#  If no tagin value was specifed on the command line, then
-	#  use the leading characters up to the first underbar in the
+	#  use the leading characters up to the first slash or underbar in the
 	#  input filename for tagin.
 	#
 	if (!$got_tagin) {
-	    ($tagin) = ($file_in =~ /^([^_]*)_/);
+	    ($tagin) = ($file_in =~ /^([^\/^_]*)(\/|_)/);
 	}
 	if (!defined($tagin)) {
 	    $tagin = "";
@@ -181,6 +181,15 @@ foreach $file_in (@files_in) {
 	}
 	$file_out = $file_in;
 	$file_out =~ s/$tagin/$tagout/g;
+
+	#
+	#  If fileout contains a leading directory,
+	#  create the directory if it doesn't exist.
+	#
+	my ($dir_out) = ($file_out =~ /(.*)\/[^\/]*$/);
+	if (defined($dir_out) && $dir_out ne "" && (!(-e $dir_out))) {
+	    system("mkdir -p $dir_out");
+	}
 	if (!open(FILE_OUT, ">$file_out")) {
 	    print STDERR ("$script: ERROR: $file_in:\n" .
 			  "Can't open $file_out for writing\n");
