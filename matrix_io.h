@@ -3,31 +3,15 @@
  *   programs to read and write matrix data
  * 
  * 03/7/1997 brodzik brodzik@zamboni.colorado.edu 303-492-8263
- *
  * National Snow & Ice Data Center, University of Colorado, Boulder
- *
- *$Log: not supported by cvs2svn $
- * Revision 1.4  1997/09/26  17:37:10  brodzik
- * Added initialize_matrix function.
- *
- * Revision 1.3  1997/03/22  22:54:20  brodzik
- * Changed obsolete **at to **data.
- *
- * Revision 1.2  1997/03/07  19:42:09  brodzik
- * Took _data off names.  Reran unit test.
- *
- * Revision 1.1  1997/02/27  21:55:27  brodzik
- * Initial revision
- *
- *
  *======================================================================*/
 #ifndef matrix_io_h_
 #define matrix_io_h_
 
-#include <define.h>
+#include "define.h"
 #include "grids.h"
 
-static const char matrix_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.5 1997-09-26 17:46:00 brodzik Exp $";
+static const char matrix_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.6 1997-10-03 20:47:25 root Exp $";
 
 size_t read_matrix (void **data, const char *file_name, 
 		    int rows, int cols, size_t size);
