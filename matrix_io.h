@@ -9,7 +9,7 @@
 #ifndef matrix_io_h_
 #define matrix_io_h_
 
-static const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
+const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.9 2004-01-21 18:01:32 knowlesk Exp $";
 
 #include "define.h"
 #include "grids.h"

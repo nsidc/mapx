@@ -8,7 +8,7 @@
 #ifndef grids_h_
 #define grids_h_
 
-static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.9 2004-01-19 00:57:22 knowlesk Exp $";
+const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.10 2004-01-21 18:01:32 knowlesk Exp $";
 
 #include "mapx.h"
 

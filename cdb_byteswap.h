@@ -13,7 +13,7 @@
 #ifndef cdb_byteswap_h_
 #define cdb_byteswap_h_
 
-static const char cdb_byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_byteswap.h,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
+const char cdb_byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_byteswap.h,v 1.6 2004-01-21 18:01:32 knowlesk Exp $";
 
 #ifndef LSB1ST
 #define NO_SWAP

@@ -8,7 +8,7 @@
 #ifndef keyval_h_
 #define keyval_h_
 
-static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.6 2004-01-19 00:57:22 knowlesk Exp $";
+const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.7 2004-01-21 18:01:32 knowlesk Exp $";
 
 #include "define.h"
 

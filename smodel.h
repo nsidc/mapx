@@ -8,7 +8,7 @@
 #ifndef smodel_h_
 #define smodel_h_
 
-static const char smodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.h,v 1.3 2004-01-19 00:57:22 knowlesk Exp $";
+const char smodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.h,v 1.4 2004-01-21 18:01:32 knowlesk Exp $";
 
 typedef struct {
   double *X, *Y, *B, *C, *D;

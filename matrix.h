@@ -8,7 +8,7 @@
 #ifndef matrix_h_
 #define matrix_h_
 
-static const char matrix_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.h,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
+const char matrix_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.h,v 1.6 2004-01-21 18:01:32 knowlesk Exp $";
 
 #define matrix_ZERO 1
 

@@ -9,7 +9,7 @@
 #ifndef mapx_h_
 #define mapx_h_
 
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.25 2004-01-19 00:57:22 knowlesk Exp $";
+const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.26 2004-01-21 18:01:32 knowlesk Exp $";
 
 /*
  * global verbose flag

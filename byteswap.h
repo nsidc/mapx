@@ -12,7 +12,7 @@
 #ifndef SWAP_H_
 #define SWAP_H_
 
-static const char byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/byteswap.h,v 1.3 2004-01-19 00:57:22 knowlesk Exp $";
+const char byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/byteswap.h,v 1.4 2004-01-21 18:01:31 knowlesk Exp $";
 
 #ifndef NO_SWAP
 
