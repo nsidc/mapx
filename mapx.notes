@@ -1,0 +1,37 @@
+This is the Notes file for mapx.
+
+
+To make a release of mapx, you need to do these steps
+
+* make sure all changes have been checked into the repository
+
+* The first is to create a cvs tag the maps directory the standard is
+  MAPX_0_0 (where 0_0 is major version_minor version).
+
+
+*  Checkout mapx from cvs to a clean directory 
+
+~/tmp/production> cvs co mapx
+~/tmp/production> cd mapx
+~/tmp/production/mapx> make tar
+
+
+* move the tarball into a directory that corresponds to the curent release number.
+
+~/tmp/production/mapx> mkdir ../mapx-0.0
+~/tmp/production/mapx> mv mapx.tar.gz ../mapx-0.0
+
+
+*  Untar the tarball, and remove it.
+
+~/tmp/production/mapx-0.0> tar zxvf mapx.tar.gz
+~/tmp/production/mapx-0.0> rm mapx.tar.gz
+
+* go up a directory and create the new correctly named tarball.
+
+~/tmp/production/mapx-0.0> cd ..
+~/tmp/production> tar cvf mapx-0.0.tar mapx-0.0/
+
+Ship the tarball to whomever gets it.
+
+
