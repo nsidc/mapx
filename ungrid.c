@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.1 2004-02-26 16:44:39 knowlesk Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.2 2004-07-20 21:19:39 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -24,13 +24,15 @@ static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.
 "\n"										\
 " option: v - verbose\n"							\
 "         b - binary (float) stdin and stdout (default is ASCII) \n"		\
-"             note: the input grid is always binary (float)\n"			\
-"             if binary is set, the location is not echoed to the output\n"	\
+"             Note: the input grid is always binary (float).\n"			\
+"             If binary is set, the location is not echoed to\n"		\
+"             the output but the data values are written in the\n"		\
+"             same order as the input points.\n"				\
 "         i fill - fill value for missing data (default = 0)\n"			\
 "         n min_value - ignore data values less than min_value\n"		\
 "         x max_value - ignore data values greater than max_value\n"		\
 "         c method - choose interpolation method\n"				\
-"                    N = nearest neighbor\n"					\
+"                    N = nearest neighbor (default)\n"				\
 "                    D = drop-in-the-bucket\n"					\
 "                    B = bilinear\n"						\
 "                    C = cubic convolution\n"					\
@@ -49,7 +51,7 @@ struct interp_control {
   float max_value;
   float fill_value;
   float shell_radius;
-  float exponent;
+  float power;
 };
 
 static int cubic(float *value, float **from_data, double r, double s, 
@@ -78,10 +80,10 @@ static char *method_string[] = { "nearest-neighbor",
 				 "inverse distance" };
 
 
-main(int argc, char *argv[]) { 
+int main(int argc, char *argv[]) { 
   int io_err, status, method_number, line_num, row;
   bool do_binary;
-  double from_lat, from_lon;
+  double to_lat, to_lon;
   double from_r, from_s;
   float **from_data;
   float value;
@@ -100,6 +102,7 @@ main(int argc, char *argv[]) {
   control.max_set = FALSE;
   control.fill_value = 0;
   control.shell_radius = 0.5;
+  control.power = 2;
   do_binary = FALSE;
   verbose = 0;
   method = 'N';
@@ -112,6 +115,9 @@ main(int argc, char *argv[]) {
       switch (*option) {
 	case 'v':
 	  ++verbose;
+	  break;
+	case 'b':
+	  do_binary = TRUE;
 	  break;
 	case 'c':
 	  ++argv; --argc;
@@ -137,7 +143,7 @@ main(int argc, char *argv[]) {
 	  break;
 	case 'p':
 	  ++argv; --argc;
-	  if (sscanf(*argv, "%f", &(control.exponent)) != 1) error_exit(usage);
+	  if (sscanf(*argv, "%f", &(control.power)) != 1) error_exit(usage);
 	  break;
 	case 'V':
 	  fprintf(stderr,"%s\n", ungrid_c_rcsid);
@@ -179,14 +185,14 @@ main(int argc, char *argv[]) {
  * echo defaults and settings
  */
   if (verbose) {
-    fprintf(stderr,"> Data file:\t%s\n", from_filename);
     fprintf(stderr,"> Data grid:\t%s\n", control.grid->gpd_filename);
-    fprintf(stderr,"> Method:\t%c - %s\n", method, method_string[method_number]);
+    fprintf(stderr,"> Data file:\t%s\n", from_filename);
+    fprintf(stderr,"> Method:\t%c = %s\n", method, method_string[method_number]);
     fprintf(stderr,"> Fill value:\t%g\n", control.fill_value);
-    if (control.min_set) fprintf(stderr,"> Valid data min:\t%g\n", control.min_value);
-    if (control.max_set) fprintf(stderr,"> Valid data max:\t%g\n", control.max_value);
-    fprintf(stderr,"> Shell radius:\t%5.2f\n", control.shell_radius);
-    if (method == 'I') fprintf(stderr,"> Power:\t%5.2f\n", control.exponent);
+    if (control.min_set) fprintf(stderr,"> Valid min:\t%g\n", control.min_value);
+    if (control.max_set) fprintf(stderr,"> Valid max:\t%g\n", control.max_value);
+    fprintf(stderr,"> Shell radius:\t%g\n", control.shell_radius);
+    if (method == 'I') fprintf(stderr,"> Power:\t%g\n", control.power);
     fprintf(stderr,"> Format:\t%s\n", do_binary ? "binary" : "ascii");
   }
 
@@ -208,26 +214,23 @@ main(int argc, char *argv[]) {
 /*
  * loop through input points
  */
-  line_num = 0;
-  while(TRUE) {
-
-    ++line_num;
+  for (line_num = 1; !feof(stdin); line_num++) {
 
 /*
  * read a point
  */
     if (do_binary) {
-      fread(&from_lat, sizeof(from_lat), 1, from_file);
-      fread(&from_lon, sizeof(from_lon), 1, from_file);
+      fread(&to_lat, sizeof(to_lat), 1, from_file);
+      fread(&to_lon, sizeof(to_lon), 1, from_file);
       io_err = ferror(from_file);
     } else {
       fgets(readln, MAX_STRING, stdin);
-      io_err = (sscanf(readln, "%lf %lf", &from_lat, &from_lon) != 2);
+      io_err = (sscanf(readln, "%lf %lf", &to_lat, &to_lon) != 2);
     }
 
     if (io_err != 0) { 
-      perror(from_filename);
-      fprintf(stderr, "ungrid: reading lat/lon at line %i\n", line_num);
+      fprintf(stderr, "ungrid: error reading lat/lon at line %i\n", line_num);
+      if (do_binary) error_exit("ungrid: ABORTING");
       continue;
     }
 
@@ -236,18 +239,21 @@ main(int argc, char *argv[]) {
 /*
  * extract data from grid
  */
-    status = forward_grid(control.grid, from_lat, from_lon, &from_r, &from_s);
-    if (!status) {
-      if (verbose >= 2) fprintf(stderr,">> lat/lon %f %f at line %d is off the grid\n",
-				from_lat, from_lon, line_num);
-      continue;
-    }
+    value = control.fill_value;
 
-    status = interpolate(&value, from_data, from_r, from_s, &control);
+    status = forward_grid(control.grid, to_lat, to_lon, &from_r, &from_s);
     if (!status) {
-      if (verbose >= 2) fprintf(stderr,">> skipping lat/lon %f %f at line %d\n",
-				from_lat, from_lon, line_num);
-      continue;
+      if (verbose >= 2) 
+	fprintf(stderr,">> line %d lat/lon %f %f is off the grid\n",
+		line_num, to_lat, to_lon);
+
+    } else {
+
+      status = interpolate(&value, from_data, from_r, from_s, &control);
+      if (status < 0) {
+	if (verbose >= 2) fprintf(stderr,">> can't interpolate to %f %f at line %d\n",
+				  to_lat, to_lon, line_num);
+      }
     }
 
 /*
@@ -257,7 +263,7 @@ main(int argc, char *argv[]) {
       fwrite(&value, sizeof(value), 1, stdout);
       io_err = ferror(stdout);
     } else {
-      printf("%f %f %f\n", from_lat, from_lon, value);
+      printf("%f %f %f\n", to_lat, to_lon, value);
       io_err = ferror(stdout);
     }
 
@@ -267,7 +273,7 @@ main(int argc, char *argv[]) {
     }
   }
 
-  if (verbose) fprintf(stderr,"> %d points\n", line_num);
+  if (verbose) fprintf(stderr,"> %d points processed\n", line_num - 1);
 
   exit(EXIT_SUCCESS);
 }
@@ -291,7 +297,7 @@ static int cubic(float *value, float **from_data, double r, double s,
   double weight, value_sum, weight_sum;
  
 /*
- * get cubic spline coefficients
+ * get cubic coefficients
  */
   dr = r - (int)r;
   ds = s - (int)s;
@@ -334,8 +340,9 @@ static int cubic(float *value, float **from_data, double r, double s,
     }
   }
 
-  if (weight_sum > 0) {
-    *value = value_sum/weight_sum;
+  if (npts > 0) {
+    *value = value_sum;
+    if (weight_sum != 0) *value /= weight_sum;
   } else {
     *value = control->fill_value;
   }
@@ -358,22 +365,22 @@ static int cubic(float *value, float **from_data, double r, double s,
 static int average(float *value, float **from_data, double r, double s, 
 		   struct interp_control *control) {
   int col, row, half_width;
-  double dr, ds, r2, weight, value_sum, weight_sum;
+  double dr, ds, dr2, ds2, r2, value_sum;
   int npts;
 
   r2 = control->shell_radius*control->shell_radius;
 
   value_sum = 0;
-  weight_sum = 0;
   npts = 0;
 
-  half_width = (int)(control->shell_radius + 0.5);
+  half_width = ceil((double)control->shell_radius);
   if (half_width < 1) half_width = 1;
 
   for (row=(int)s - (half_width-1); row <= (int)s + half_width; row++) {
     if (row < 0 || row >= control->grid->rows) continue;
 
     ds = row - s;
+    ds2 = ds*ds;
 
     for (col=(int)r - (half_width-1); col <= (int)r + half_width; col++) {
       if (col < 0 || col >= control->grid->cols) continue;
@@ -381,17 +388,17 @@ static int average(float *value, float **from_data, double r, double s,
       if (control->min_set && control->min_value > from_data[row][col]) continue;
 
       dr = col - r;
+      dr2 = dr*dr;
 
-      weight = (dr*dr + ds*ds) <= r2 ? 1.0 : 0.0;
-
-      value_sum += weight*from_data[row][col];
-      weight_sum += weight;
-      ++npts;
+      if ((dr2 + ds2) <= r2) {
+	value_sum += from_data[row][col];
+	++npts;
+      }
     }
   }
 
-  if (weight_sum > 0.) {
-    *value = value_sum/weight_sum;
+  if (npts > 0) {
+    *value = value_sum/npts;
   } else {
     *value = control->fill_value;
   }
@@ -440,7 +447,7 @@ static int bilinear(float *value, float **from_data, double r, double s,
     }
   }
 
-  if (weight_sum > 0.) {
+  if (weight_sum > 0) {
     *value = value_sum/weight_sum;
   } else {
     *value = control->fill_value;
@@ -466,8 +473,8 @@ static int nearest(float *value, float **from_data, double r, double s,
   int col, row;
   int npts=0;
 
-  row = (int)s;
-  col = (int)r;
+  row = nint(s);
+  col = nint(r);
 
   if (row < 0 || row >= control->grid->rows
       || col < 0 || col >= control->grid->cols) {
@@ -495,20 +502,21 @@ static int nearest(float *value, float **from_data, double r, double s,
 static int distance(float *value, float **from_data, double r, double s, 
 		    struct interp_control *control) {
   int col, row, half_width;
-  double dr, ds, dd, weight, value_sum, weight_sum;
+  double dr, ds, dr2, ds2, dd, weight, value_sum, weight_sum;
   int npts;
 
   value_sum = 0;
   weight_sum = 0;
   npts = 0;
 
-  half_width = (int)(control->shell_radius + 0.5);
+  half_width = ceil((double)control->shell_radius);
   if (half_width < 1) half_width = 1;
 
   for (row=(int)s - (half_width-1); row <= (int)s + half_width; row++) {
     if (row < 0 || row >= control->grid->rows) continue;
 
     ds = row - s;
+    ds2 = ds*ds;
 
     for (col=(int)r - (half_width-1); col <= (int)r + half_width; col++) {
       if (col < 0 || col >= control->grid->cols) continue;
@@ -516,10 +524,11 @@ static int distance(float *value, float **from_data, double r, double s,
       if (control->min_set && control->min_value > from_data[row][col]) continue;
 
       dr = col - r;
+      dr2 = dr*dr;
 
-      dd = sqrt(dr*dr + ds*ds);
+      dd = sqrt(dr2 + ds2);
 
-      weight = dd <= control->shell_radius ? pow(dd,-control->exponent) : 0.0;
+      weight = dd <= control->shell_radius ? pow(dd,-control->power) : 0.0;
 
       value_sum += weight*from_data[row][col];
       weight_sum += weight;
@@ -527,8 +536,9 @@ static int distance(float *value, float **from_data, double r, double s,
     }
   }
 
-  if (weight_sum > 0.) {
-    *value = value_sum/weight_sum;
+  if (npts > 0) {
+    *value = value_sum;
+    if (weight_sum != 0) *value /= weight_sum;
   } else {
     *value = control->fill_value;
   }
