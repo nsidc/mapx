@@ -123,8 +123,8 @@ file: other/other_N200correct.mpp
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.3954e-06 km
-    std dev error = 2.3797e-05 km
+    average error = 6.3917e-06 km
+    std dev error = 2.3790e-05 km
     maximum error = 9.4939e-05 km
     max error was at 0.28N 180.00W
   Expected and actual results differ
@@ -158,10 +158,10 @@ file: other/other_N3B.gpd
     dummy
   gacct actual results:
     136192 points,  0 bad points
-    average error = 4.8712e-11 pixels
+    average error = 4.8711e-11 pixels
     std dev error = 4.4942e-11 pixels
-    maximum error = 1.5892e-10 pixels
-    max error was at col: 51  row: 17   lat: 38.379490  lon: 160.334799
+    maximum error = 1.5893e-10 pixels
+    max error was at col: 277  row: 28   lat: 38.338642  lon: 103.995259
   Expected and actual results differ
   **************************************************************
   crtest forward results:
@@ -193,8 +193,8 @@ file: other/other_Na25.gpd
     dummy
   gacct actual results:
     130321 points,  0 bad points
-    average error = 3.2626e-14 pixels
-    std dev error = 3.9362e-14 pixels
+    average error = 3.0090e-14 pixels
+    std dev error = 3.7782e-14 pixels
     maximum error = 1.7906e-12 pixels
     max error was at col: 178  row: 180   lat: 89.549140  lon: -90.000000
   Expected and actual results differ
@@ -236,8 +236,8 @@ file: other/other_Nps.mpp
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.1777e-06 km
-    std dev error = 1.9472e-05 km
+    average error = 4.7312e-06 km
+    std dev error = 2.0659e-05 km
     maximum error = 9.4939e-05 km
     max error was at 20.66N 180.00W
   Expected and actual results differ
@@ -277,8 +277,8 @@ file: other/other_S200correct.mpp
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.8070e-06 km
-    std dev error = 2.4493e-05 km
+    average error = 7.0926e-06 km
+    std dev error = 2.4961e-05 km
     maximum error = 9.4939e-05 km
     max error was at 59.81S 180.00W
   Expected and actual results differ
@@ -312,8 +312,8 @@ file: other/other_S3B.gpd
     dummy
   gacct actual results:
     104912 points,  0 bad points
-    average error = 2.9462e-11 pixels
-    std dev error = 2.1948e-11 pixels
+    average error = 2.9461e-11 pixels
+    std dev error = 2.1949e-11 pixels
     maximum error = 1.5688e-10 pixels
     max error was at col: 0  row: 0   lat: -39.364869  lon: -42.232570
   Expected and actual results differ
@@ -347,8 +347,8 @@ file: other/other_Sa25.gpd
     dummy
   gacct actual results:
     103041 points,  0 bad points
-    average error = 4.7786e-14 pixels
-    std dev error = 4.4922e-14 pixels
+    average error = 4.6003e-14 pixels
+    std dev error = 4.3657e-14 pixels
     maximum error = 1.8190e-12 pixels
     max error was at col: 158  row: 160   lat: -89.549140  lon: -90.000000
   Expected and actual results differ
@@ -390,10 +390,10 @@ file: other/other_Sps.mpp
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.1869e-06 km
-    std dev error = 1.9493e-05 km
+    average error = 4.7284e-06 km
+    std dev error = 2.0653e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 59.72S 180.00W
+    max error was at 61.25S 180.00W
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -499,10 +499,10 @@ file: other/other_polar_stereographic_s00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.2022e-06 km
-    std dev error = 2.1606e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 35.27S 180.00W
+    max error was at 38.65S 180.00W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -513,8 +513,8 @@ file: other/other_polar_stereographic_s00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 9.9470e-14 pixels
-    std dev error = 1.7191e-13 pixels
+    average error = 9.5582e-14 pixels
+    std dev error = 1.7096e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 149   lat: -89.916702  lon: -145.000000
   Expected and actual results differ
@@ -568,8 +568,8 @@ file: other/other_polar_stereographic_s01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.2022e-06 km
-    std dev error = 2.1606e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected and actual results differ
@@ -582,8 +582,8 @@ file: other/other_polar_stereographic_s01.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 9.9973e-14 pixels
-    std dev error = 1.7190e-13 pixels
+    average error = 9.5489e-14 pixels
+    std dev error = 1.7097e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 150   lat: 89.916702  lon: 55.000000
   Expected and actual results differ
@@ -639,10 +639,10 @@ file: snyder/snyder_albers_conic_equal_area_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.0918e-06 km
-    std dev error = 2.1389e-05 km
+    average error = 4.7293e-06 km
+    std dev error = 2.0655e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 26.52E
+    max error was at 40.34S 159.69W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -653,10 +653,10 @@ file: snyder/snyder_albers_conic_equal_area_e00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.6744e-12 pixels
-    std dev error = 1.2856e-11 pixels
-    maximum error = 7.5663e-11 pixels
-    max error was at col: 122  row: 166   lat: 20.634712  lon: -99.849987
+    average error = 4.6671e-12 pixels
+    std dev error = 1.2847e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -710,10 +710,10 @@ file: snyder/snyder_albers_conic_equal_area_e01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.7182e-06 km
-    std dev error = 2.0632e-05 km
+    average error = 5.0112e-06 km
+    std dev error = 2.1228e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 38.65S 178.87W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -724,10 +724,10 @@ file: snyder/snyder_albers_conic_equal_area_e01.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.6991e-12 pixels
-    std dev error = 1.2847e-11 pixels
-    maximum error = 7.5754e-11 pixels
-    max error was at col: 42  row: 141   lat: -20.633791  lon: 80.890740
+    average error = 4.6969e-12 pixels
+    std dev error = 1.2844e-11 pixels
+    maximum error = 7.5778e-11 pixels
+    max error was at col: 294  row: 148   lat: -20.635139  lon: 116.380350
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -779,11 +779,11 @@ file: snyder/snyder_albers_conic_equal_area_s00.gpd
     dummy
     dummy
   macct actual results:
-    102400 points,  4 bad points
-    average error = 6.5538e-06 km
-    std dev error = 2.4740e-05 km
-    maximum error = 2.6853e-04 km
-    max error was at 90.00S 165.33E
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00S 160.82E
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -794,10 +794,10 @@ file: snyder/snyder_albers_conic_equal_area_s00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.8354e-14 pixels
-    std dev error = 2.2995e-14 pixels
-    maximum error = 1.6968e-13 pixels
-    max error was at col: 139  row: 17   lat: 38.173223  lon: -97.545615
+    average error = 4.8459e-14 pixels
+    std dev error = 2.3059e-14 pixels
+    maximum error = 1.8313e-13 pixels
+    max error was at col: 271  row: 2   lat: 38.568967  lon: -77.909665
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -849,11 +849,11 @@ file: snyder/snyder_albers_conic_equal_area_s01.gpd
     dummy
     dummy
   macct actual results:
-    102400 points,  4 bad points
-    average error = 6.5538e-06 km
-    std dev error = 2.4740e-05 km
-    maximum error = 2.6853e-04 km
-    max error was at 90.00N 165.33W
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00N 160.82W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -864,10 +864,10 @@ file: snyder/snyder_albers_conic_equal_area_s01.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.8176e-14 pixels
-    std dev error = 2.3122e-14 pixels
-    maximum error = 1.8340e-13 pixels
-    max error was at col: 28  row: 297   lat: -38.568967  lon: 77.909665
+    average error = 4.8275e-14 pixels
+    std dev error = 2.3204e-14 pixels
+    maximum error = 1.7975e-13 pixels
+    max error was at col: 139  row: 282   lat: -38.173223  lon: 94.454385
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -919,8 +919,8 @@ file: snyder/snyder_azimuthal_equal_area_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.3041e-06 km
-    std dev error = 2.1805e-05 km
+    average error = 4.9129e-06 km
+    std dev error = 2.1031e-05 km
     maximum error = 9.4939e-05 km
     max error was at 48.81S 53.61E
   Expected and actual results differ
@@ -933,9 +933,9 @@ file: snyder/snyder_azimuthal_equal_area_e00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.5072e-12 pixels
+    average error = 2.5083e-12 pixels
     std dev error = 1.1667e-11 pixels
-    maximum error = 7.7387e-11 pixels
+    maximum error = 7.7331e-11 pixels
     max error was at col: 293  row: 277   lat: 20.636187  lon: -79.435870
   Expected and actual results differ
   **************************************************************
@@ -988,8 +988,8 @@ file: snyder/snyder_azimuthal_equal_area_e01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.3357e-06 km
-    std dev error = 2.1865e-05 km
+    average error = 4.7655e-06 km
+    std dev error = 2.0730e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected and actual results differ
@@ -1002,9 +1002,9 @@ file: snyder/snyder_azimuthal_equal_area_e01.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 5.2925e-11 pixels
-    std dev error = 3.2319e-10 pixels
-    maximum error = 2.4059e-08 pixels
+    average error = 5.2937e-11 pixels
+    std dev error = 3.2316e-10 pixels
+    maximum error = 2.4053e-08 pixels
     max error was at col: 148  row: 148   lat: 89.715131  lon: 125.000000
   Expected and actual results differ
   **************************************************************
@@ -1057,10 +1057,10 @@ file: snyder/snyder_azimuthal_equal_area_e02.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.3366e-06 km
-    std dev error = 2.1867e-05 km
+    average error = 5.0622e-06 km
+    std dev error = 2.1330e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 177.74W
+    max error was at 40.34S 138.24W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -1071,10 +1071,10 @@ file: snyder/snyder_azimuthal_equal_area_e02.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.5448e-12 pixels
+    average error = 2.5445e-12 pixels
     std dev error = 1.1659e-11 pixels
-    maximum error = 7.7179e-11 pixels
-    max error was at col: 6  row: 22   lat: -20.636187  lon: 79.435870
+    maximum error = 7.7348e-11 pixels
+    max error was at col: 38  row: 16   lat: -20.636055  lon: 84.083572
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1126,8 +1126,8 @@ file: snyder/snyder_azimuthal_equal_area_e03.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.1456e-06 km
-    std dev error = 2.1495e-05 km
+    average error = 5.3987e-06 km
+    std dev error = 2.1986e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 178.87W
   Expected and actual results differ
@@ -1140,9 +1140,9 @@ file: snyder/snyder_azimuthal_equal_area_e03.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 5.2988e-11 pixels
-    std dev error = 3.2313e-10 pixels
-    maximum error = 2.4061e-08 pixels
+    average error = 5.2997e-11 pixels
+    std dev error = 3.2298e-10 pixels
+    maximum error = 2.4006e-08 pixels
     max error was at col: 148  row: 148   lat: -89.715131  lon: 55.000000
   Expected and actual results differ
   **************************************************************
@@ -1194,8 +1194,8 @@ file: snyder/snyder_azimuthal_equal_area_s00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.7992e-06 km
-    std dev error = 2.2736e-05 km
+    average error = 5.6954e-06 km
+    std dev error = 2.2545e-05 km
     maximum error = 9.4939e-05 km
     max error was at 90.00S 180.00W
   Expected and actual results differ
@@ -1208,8 +1208,8 @@ file: snyder/snyder_azimuthal_equal_area_s00.gpd
     dummy
   gacct actual results:
     90000 points,  21 bad points
-    average error = 6.6838e-14 pixels
-    std dev error = 8.1188e-14 pixels
+    average error = 6.8187e-14 pixels
+    std dev error = 8.2407e-14 pixels
     maximum error = 1.4154e-11 pixels
     max error was at col: 299  row: 122   lat: 89.876363  lon: 169.907579
   Expected and actual results differ
@@ -1264,10 +1264,10 @@ file: snyder/snyder_cylindrical_equal_area_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.0436e-06 km
-    std dev error = 2.1293e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 45.99S 180.00W
+    max error was at 90.00S 180.00W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -1403,10 +1403,10 @@ file: snyder/snyder_lambert_conic_conformal_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.2185e-06 km
-    std dev error = 1.9563e-05 km
+    average error = 5.3765e-06 km
+    std dev error = 2.1944e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 44.29S 176.61W
+    max error was at 44.29S 178.87W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -1420,7 +1420,7 @@ file: snyder/snyder_lambert_conic_conformal_e00.gpd
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 294  row: 159   lat: 19.698182  lon: -76.137942
+    max error was at col: 211  row: 172   lat: 19.699572  lon: -87.601657
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1474,10 +1474,10 @@ file: snyder/snyder_lambert_conic_conformal_e01.gpd
     dummy
   macct actual results:
     102400 points,  640 bad points
-    average error = 4.7843e-06 km
-    std dev error = 2.0768e-05 km
+    average error = 5.1556e-06 km
+    std dev error = 2.1515e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 94.23W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -1491,7 +1491,7 @@ file: snyder/snyder_lambert_conic_conformal_e01.gpd
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 118  row: 125   lat: -19.712341  lon: 91.702291
+    max error was at col: 36  row: 134   lat: -19.713227  lon: 80.444361
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1556,10 +1556,10 @@ file: snyder/snyder_mercator_s00.gpd
     dummy
   gacct actual results:
     100000 points,  0 bad points
-    average error = 1.7374e-14 pixels
-    std dev error = 1.3334e-14 pixels
-    maximum error = 6.0396e-14 pixels
-    max error was at col: 65  row: 9   lat: 45.949211  lon: 74.289287
+    average error = 2.1297e-14 pixels
+    std dev error = 1.6304e-14 pixels
+    maximum error = 8.4615e-14 pixels
+    max error was at col: 11  row: 9   lat: 45.949211  lon: 43.349566
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1624,7 +1624,7 @@ file: snyder/snyder_mollweide_s00.gpd
     dummy
   gacct actual results:
     100000 points,  0 bad points
-    average error = 7.6541e-13 pixels
+    average error = 7.6542e-13 pixels
     std dev error = 3.2289e-12 pixels
     maximum error = 4.3038e-11 pixels
     max error was at col: 499  row: 189   lat: -47.294244  lon: 71.803435
@@ -1678,10 +1678,10 @@ file: snyder/snyder_orthographic_s00.gpd
     dummy
   macct actual results:
     102400 points,  51177 bad points
-    average error = 5.6530e-06 km
-    std dev error = 2.2466e-05 km
+    average error = 5.4695e-06 km
+    std dev error = 2.2122e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 45.99S 129.22W
+    max error was at 40.34S 143.89W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -1692,10 +1692,10 @@ file: snyder/snyder_orthographic_s00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 5.1682e-14 pixels
-    std dev error = 3.1155e-14 pixels
-    maximum error = 2.1194e-13 pixels
-    max error was at col: 48  row: 2   lat: 55.704615  lon: -121.117045
+    average error = 4.7546e-14 pixels
+    std dev error = 2.6983e-14 pixels
+    maximum error = 2.0691e-13 pixels
+    max error was at col: 253  row: 28   lat: 52.684293  lon: -80.033672
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1748,8 +1748,8 @@ file: snyder/snyder_polar_stereographic_e00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.6398e-06 km
-    std dev error = 2.2442e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   Expected and actual results differ
@@ -1762,10 +1762,10 @@ file: snyder/snyder_polar_stereographic_e00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.4566e-11 pixels
-    std dev error = 1.6001e-11 pixels
-    maximum error = 7.0696e-11 pixels
-    max error was at col: 0  row: 299   lat: -61.398354  lon: 125.000000
+    average error = 2.4564e-11 pixels
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: -61.398354  lon: -145.000000
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1818,8 +1818,8 @@ file: snyder/snyder_polar_stereographic_e01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.6435e-06 km
-    std dev error = 2.2449e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   Expected and actual results differ
@@ -1832,10 +1832,10 @@ file: snyder/snyder_polar_stereographic_e01.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.4566e-11 pixels
-    std dev error = 1.6001e-11 pixels
-    maximum error = 7.0700e-11 pixels
-    max error was at col: 299  row: 0   lat: 61.398354  lon: -125.000000
+    average error = 2.4564e-11 pixels
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: 61.398354  lon: -35.000000
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1900,10 +1900,10 @@ file: snyder/snyder_sinusoidal_s00.gpd
     dummy
   gacct actual results:
     125000 points,  0 bad points
-    average error = 1.0487e-14 pixels
-    std dev error = 1.4853e-14 pixels
+    average error = 8.8086e-15 pixels
+    std dev error = 1.3626e-14 pixels
     maximum error = 7.9837e-14 pixels
-    max error was at col: 17  row: 218   lat: -39.682632  lon: 141.781518
+    max error was at col: 6  row: 219   lat: -40.107046  lon: 134.881133
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -1968,10 +1968,10 @@ file: snyder/snyder_sinusoidal_s01.gpd
     dummy
   gacct actual results:
     125000 points,  0 bad points
-    average error = 1.0894e-14 pixels
-    std dev error = 1.7283e-14 pixels
-    maximum error = 1.1719e-13 pixels
-    max error was at col: 492  row: 248   lat: -52.415028  lon: -101.261032
+    average error = 9.1542e-15 pixels
+    std dev error = 1.6371e-14 pixels
+    maximum error = 7.6528e-14 pixels
+    max error was at col: 37  row: 243   lat: -50.292962  lon: -51.169385
   Expected and actual results differ
   **************************************************************
   xytest forward results:
@@ -2010,6 +2010,7 @@ file: snyder/snyder_transverse_mercator_e00.gpd
   Map Reference Latitude:         0.0
   Map Reference Longitude:        -75.0
   Map Center Scale:               0.9996
+  Map Maximum Error:              100.0
   Grid Width:                     300
   Grid Height:                    300
   Grid Map Units per Cell:        1000
@@ -2023,11 +2024,11 @@ file: snyder/snyder_transverse_mercator_e00.gpd
     dummy
     dummy
   macct actual results:
-    102400 points,  0 bad points
-    average error = 4.3851e+03 km
-    std dev error = 4.5931e+03 km
-    maximum error = 1.9672e+04 km
-    max error was at 78.71S 147.27W
+    102400 points,  90760 bad points
+    average error = 1.0886e-02 km
+    std dev error = 2.0299e-02 km
+    maximum error = 9.8196e-02 km
+    max error was at 78.15S 55.86W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -2080,6 +2081,10 @@ file: snyder/snyder_transverse_mercator_e01.gpd
   Map Reference Latitude:         0.0
   Map Reference Longitude:        75.0
   Map Center Scale:               0.9996
+  Map Southern Bound:             -50.0
+  Map Northern Bound:             -30.0
+  Map Western Bound:              60.0
+  Map Eastern Bound:              90.0
   Grid Width:                     300
   Grid Height:                    300
   Grid Map Units per Cell:        1000
@@ -2094,10 +2099,10 @@ file: snyder/snyder_transverse_mercator_e01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.3851e+03 km
-    std dev error = 4.5931e+03 km
-    maximum error = 1.9672e+04 km
-    max error was at 78.71S 147.27E
+    average error = 3.7125e-03 km
+    std dev error = 6.6443e-03 km
+    maximum error = 3.2348e-02 km
+    max error was at 50.00S 60.00E
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -2163,8 +2168,8 @@ file: snyder/snyder_transverse_mercator_s00.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.2049e-06 km
-    std dev error = 2.1612e-05 km
+    average error = 5.1808e-06 km
+    std dev error = 2.1564e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 178.87W
   Expected and actual results differ
@@ -2177,9 +2182,9 @@ file: snyder/snyder_transverse_mercator_s00.gpd
     dummy
   gacct actual results:
     90000 points,  0 bad points
-    average error = 6.4372e-14 pixels
-    std dev error = 3.3717e-13 pixels
-    maximum error = 2.2027e-11 pixels
+    average error = 6.5227e-14 pixels
+    std dev error = 3.4845e-13 pixels
+    maximum error = 2.2823e-11 pixels
     max error was at col: 299  row: 149   lat: 0.078503  lon: 5.536934
   Expected and actual results differ
   **************************************************************
@@ -2230,11 +2235,11 @@ file: snyder/snyder_universal_transverse_mercator_e00.gpd
     dummy
     dummy
   macct actual results:
-    102400 points,  0 bad points
-    average error = 4.3851e+03 km
-    std dev error = 4.5931e+03 km
-    maximum error = 1.9672e+04 km
-    max error was at 78.71S 147.27W
+    102400 points,  90760 bad points
+    average error = 1.0886e-02 km
+    std dev error = 2.0299e-02 km
+    maximum error = 9.8196e-02 km
+    max error was at 78.15S 55.86W
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -2286,6 +2291,11 @@ file: snyder/snyder_universal_transverse_mercator_e01.gpd
   Map Polar Radius:               6356583.8
   Map Reference Longitude:        75.0
   Map Reference Latitude:         -40.0
+  Map Maximum Error:              0.0
+  Map Southern Bound:             -50.0
+  Map Northern Bound:             -30.0
+  Map Western Bound:              60.0
+  Map Eastern Bound:              90.0
   Grid Width:                     300
   Grid Height:                    300
   Grid Map Units per Cell:        1000
@@ -2300,10 +2310,10 @@ file: snyder/snyder_universal_transverse_mercator_e01.gpd
     dummy
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.3851e+03 km
-    std dev error = 4.5931e+03 km
-    maximum error = 1.9672e+04 km
-    max error was at 78.71S 147.27E
+    average error = 3.7125e-03 km
+    std dev error = 6.6443e-03 km
+    maximum error = 3.2348e-02 km
+    max error was at 50.00S 60.00E
   Expected and actual results differ
   **************************************************************
   gacct expected results:
@@ -2367,9 +2377,9 @@ file: tilecalc/tilecalc_homolosine_s00.gpd
     dummy
     dummy
   macct actual results:
-    102400 points,  179 bad points
-    average error = 3.5664e-06 km
-    std dev error = 1.8052e-05 km
+    102400 points,  152 bad points
+    average error = 3.5655e-06 km
+    std dev error = 1.8050e-05 km
     maximum error = 9.4939e-05 km
     max error was at 31.88S 180.00W
   Expected and actual results differ
