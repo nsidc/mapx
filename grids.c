@@ -4,7 +4,7 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.10 1994-07-18 14:38:03 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.11 1996-02-29 16:44:03 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +40,7 @@ grid_class *init_grid(const char *grid_filename)
 {
   register int ios;
   float f1, f2;
-  char filename[256], readln[256];
+  char filename[FILENAME_MAX], readln[FILENAME_MAX];
   grid_class *this;
 
 /*
@@ -58,13 +58,11 @@ grid_class *init_grid(const char *grid_filename)
 /*
  *	open .gpd file
  */
-  this->gpd_filename = (char *)realloc(this->gpd_filename, (size_t)MAX_STRING);
+  this->gpd_filename = (char *)malloc(FILENAME_MAX);
   if (this->gpd_filename == NULL)
-  { perror("init_grid");
-    close_grid(this);
-    return NULL;
-  }
-  strncpy(this->gpd_filename, grid_filename, MAX_STRING);
+  { perror("init_grid"); close_grid(this); return NULL; }
+
+  strncpy(this->gpd_filename, grid_filename, FILENAME_MAX);
   this->gpd_file = search_path_fopen(this->gpd_filename, "PATHGPD", "r");
   if (this->gpd_file == NULL)
   { fprintf(stderr,"init_grid: error opening parameters file.\n");
