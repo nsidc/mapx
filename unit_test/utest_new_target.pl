@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest_new_target.pl,v 1.2 2003-05-14 17:02:35 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest_new_target.pl,v 1.3 2003-05-16 23:46:35 haran Exp $
 #
 
 #
@@ -57,13 +57,12 @@ my $exit_value = 0;
 my @tagsin = ("other", "snyder", "tilecalc");
 
 #
-#  Run utest.pl for each type of gpd file,
-#  specifying that a new gpd file should be created for each
+#  Run utest.pl for each tagin (subdirectory)
 #
 my $tagin;
 foreach $tagin (@tagsin) {
     my $command =
-	"./utest.pl $verbose_string -o $tagout -c $tagin/$tagin*.gpd";
+	"./utest.pl $verbose_string -o $tagout -c $tagin/$tagin*";
     my $this_exit_value = system($command);
     if ($this_exit_value) {
 	$exit_value = $this_exit_value;
