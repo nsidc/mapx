@@ -4,7 +4,7 @@
  * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.10 1996-05-22 00:24:53 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.11 1999-06-29 17:53:43 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,12 +83,14 @@ void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
 }
 
 /*----------------------------------------------------------------------
- * arc_length_km - returns arc length (km) from lat1,lon1 to lat2,lon2
+ * arc_length - returns arc length from lat1,lon1 to lat2,lon2
+ *		in same units as specified Earth radius
  *
  *	input : lat1,lon1, lat2,lon2 - in decimal degrees
+ *		Re - Earth radius
  *
  *----------------------------------------------------------------------*/
-float arc_length_km (float lat1, float lon1, float lat2, float lon2)
+float arc_length(float lat1, float lon1, float lat2, float lon2, float Re)
 { double phi1, lam1, phi2, lam2, beta;
 
   if (lat1 == lat2 && lon1 == lon2) return (float)0;
@@ -99,7 +101,17 @@ float arc_length_km (float lat1, float lon1, float lat2, float lon2)
   lam2 = radians(lon2);
   beta = acos( cos(phi1) * cos(phi2) * cos(lam1-lam2)
 	      + sin(phi1) * sin(phi2) );
-  return (float)(mapx_Re_km * beta);
+  return (float)(Re * beta);
+}
+/*----------------------------------------------------------------------
+ * arc_length_km - returns arc length (km) from lat1,lon1 to lat2,lon2
+ *
+ *	input : lat1,lon1, lat2,lon2 - in decimal degrees
+ *
+ *----------------------------------------------------------------------*/
+float arc_length_km (float lat1, float lon1, float lat2, float lon2)
+{ 
+  return arc_length(lat1, lon1, lat2, lon2, mapx_Re_km);
 }
 
 /*----------------------------------------------------------------------
