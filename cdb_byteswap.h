@@ -9,6 +9,11 @@
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *------------------------------------------------------------------------*/
+#ifndef cdb_byteswap_h_
+#define cdb_byteswap_h_
+
+static const char cdb_byteswap_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_byteswap.h,v 1.4 2003-06-23 15:46:51 haran Exp $";
+
 #ifndef LSB1ST
 #define NO_SWAP
 #endif
@@ -71,3 +76,5 @@ static void cdb_byteswap_data_buffer(cdb_seg_data *buffer, int npts)
   }
 #endif
 }
+
+#endif
