@@ -1,15 +1,16 @@
 Readme for mapx library UTM update
-Terry Haran 06/26/03
+Terry Haran 08 June 2004
 
 This document describes a set of changes to the mapx library implemented
-in the course of adding the Transverse Mercator and Universal Transverse
-Mercator projections and creating a set of unit tests. The latest round of
-changes also included changing all float variables and pointers to double
-in all the mapx interface routines and data structures, and in all
-applications distributed with mapx that use the mapx library. These
-changes have now been committed to the cvs repository. If you don't have
-an existing directory structure for mapx under your home directory, you'll
-have to first type:
+in the course of adding the Transverse Mercator (TM) and Universal
+Transverse Mercator (UTM) projections and creating a set of unit
+tests. Also included was the changing of all float variables and pointers
+to double in all the mapx interface routines and data structures, and in
+all applications distributed with mapx that use the mapx library. The
+latest round of changes also included adding error checking, particularly
+for the UTM projection. These changes have now been committed to the cvs
+repository. If you don't have an existing directory structure for mapx
+under your home directory, you'll have to first type:
 
 cd
 mkdir mapx
@@ -72,20 +73,23 @@ Universal Transverse Mercator, which is a special case of Transverse
 Mercator Ellipsoid: the equations used for these projections appear to
 have 1 meter accuracy only out to about +-9 degrees of longitude from the
 central meridian of the projection; beyond this limit the accuracy
-decreases rapidly.
+decreases rapidly. By default, error checking for the UTM projection is
+implemented so that areas having an error of greater than 100 meters
+effectively fall outside of the region for which the projection is
+defined. This corresponds to about +-17.5 degrees of longitude at a
+latitude of +-45 degrees.
 
       For example, for Universal Tranverse Mercator:
-      macct sgi_universal_transverse_mercator_e01.gpd:
-          Map Projection:                 Universal Transverse Mercator
-          Map Equatorial Radius:          6378206.4
-          Map Polar Radius:               6356583.8
-          Map Reference Longitude:        75.0
-          Map Reference Latitude:         -40.0
-               102400 points,  0 bad points
-               average error = 4.3851e+03 km
-               std dev error = 4.5931e+03 km
-               maximum error = 1.9672e+04 km
-               max error was at 78.71S 147.27E
+      macct linuxhp_universal_transverse_mercator_e00.gpd:
+        Map Projection:                 Universal Transverse Mercator
+        Map Equatorial Radius:          6378206.4
+        Map Eccentricity Squared:       0.00676866
+        Map UTM Zone:                   18
+	  102400 points,  90760 bad points
+          average error = 1.0886e-02 km
+          std dev error = 2.0299e-02 km
+          maximum error = 9.8196e-02 km
+          max error was at 78.15S 55.86W
 
 The following changes were made to all .c and .h files:
 
@@ -136,6 +140,7 @@ also made:
       i)  Moved Map Isin Justify to separate ISin table.
       ii) Added Map Isin NZone parameter.
    l) Added a separate table and explanation of map parameters for UTM.
+   m) Added keyword Map Maximum Error and an explanation of its use.
 
 6) Makefile:
    a) Changed INSTALL from cp to cp -f so that old files are overwritten.
@@ -385,10 +390,11 @@ also made:
 
 34) mapx.c:
     a) Changed float to double throughout.
-    b) Removed static declaration of next_line_from_buffer(). It is
+    b) added include isin.h
+    c) Removed static declaration of next_line_from_buffer(). It is
        now declared externally in mapx.h so that the modified version
        may be used by old_fixed_format_decode_gpd() in grids.c.
-    c) Added declarations of the following functions:
+    d) Added declarations of the following functions:
        i)   init_transverse_mercator()
        ii)  transverse_mercator()
        iii) inverse_transverse_mercator()
@@ -396,16 +402,20 @@ also made:
        v)   transverse_mercator_ellipsoid()
        vi)  inverse_transverse_mercator_ellipsoid()
        vii) init_universal_transverse_mercator()
+       viii)forward_xy_mapx_check()
+       ix)  inverse_xy_mapx_check()
+       x)   dist_latlon_map_units()
+       xi)  dist_xy_map_units()
        Note that no forward or inverse functions for UTM are declared,
        since UTM uses transverse mercator forward and inverse functions.
-    d) In init_mapx(), modified call to new_mapx() to include new "quiet"
+    e) In init_mapx(), modified call to new_mapx() to include new "quiet"
        parameter set to FALSE so that a message about an unknown
        projection won't be suppressed.
-    e) In new_mapx(), added new parameter "quiet" which, if set,
+    f) In new_mapx(), added new parameter "quiet" which, if set,
        suppresses displaying a message abount an unknown projection.
-    f) In new_mapx(), added initialization for Transverse Mercator and
+    g) In new_mapx(), added initialization for Transverse Mercator and
        Universal Transverse Mercator.
-    g) In decode_mpp():
+    h) In decode_mpp():
        i)   Added code to make Map Reference Latitude and Longitude
             optional keywords for UTM and ISin.
        ii)  Added code to process Map Origin X and Y keywords. These
@@ -421,19 +431,20 @@ also made:
             Northing keywords when they are not defined and the
             projection is UTM until UTM initialization.
        vi)  Added code to process Map Center Scale, Map UTM Zone,
-            Map ISin NZone, Map Eccentricity Squared, and Map Polar Radius
-            keywords.
+            Map ISin NZone, Map Eccentricity Squared, Map Polar Radius,
+            and Map Maximum Error keywords.
        vii) Added code to assign default WGS-84 values for equatorial
             radius and eccentricity if map projection is UTM.
        viii)Added code to assign default value for equatorial
             radius if map projection is ISin.
-       ix)  Added code to derive eccentricity from eccentricity squared
+       ix)  Added code to make eccentricity = 0 for spherical projections.
+       x)   Added code to derive eccentricity from eccentricity squared
             as needed.
-       x)   Added code to derive eccentricity from equatorial radius and
+       xi)  Added code to derive eccentricity from equatorial radius and
             polar radius as needed.
-       xi)  Added code to derive equatorial radius from polar radius and
+       xii) Added code to derive equatorial radius from polar radius and
             eccentricity as needed.
-    h) In old_fixed_format_decode_mpp():
+    i) In old_fixed_format_decode_mpp():
         i)  Added code to set the default equatorial radius and
             eccentricity based on the map projection.
         ii) Added code to initialize the following new mpp parameters that
@@ -448,34 +459,45 @@ also made:
 	      isin_justify
               e2 (eccentricity squared)
               polar_radius
-    i) In reinit_mapx():
+	      maximum_error
+    j) In reinit_mapx():
        i)   Added code to derive polar radius from equatorial radius and
             eccentricity squared (after eccentricity squared has been
             computed from eccentricity).
-       ii)  If Map Origin X and Y not provided, then forward transform
+       ii)  Added code to set the flattening (f).
+       iii) If Map Origin X and Y not provided, then forward transform
             Map Origin Latitude and Longitude (center_lat and center_lon
             in the mapx structure) into Map Origin X and Y (x0 and y0
             in the mapx structure).
-       iii) Changed the initialization of u0 and v0 in the mapx structure.
+       iv)  Changed the initialization of u0 and v0 in the mapx structure.
             The old definitions of u0 and v0 were false easting and false
             northing, respectively. The new definition is the u and v values
             resulting from the forward rotation (if any) of (x0,y0). Thus
             (x0,y0) serves as the center of the rotation.
-    j) In next_line_from_buffer(), added functionality such that lines
+    k) In next_line_from_buffer(), added functionality such that lines
        beginning with # or ; are ignored. This allows comments to be
        inserted anywhere in old style gpd and mpp files which is needed
        for making unit tests using old style format.
-    k) In forward_mapx():
+    l) In forward_mapx():
        i)   Changed call to (*(this->geo_to_map))() so that pointers to
             x and y are passed rather than u and v. (x,y) is then rotated
             and translated to (u,v).
-    l) In inverse_mapx():
+       ii)  Added call to forward_xy_mapx_check().
+    m) In inverse_mapx():
        i)   Translate and rotate (u,v) to (x,y). Changed call to
             (*(this->map_to_geo))() so that x and y are passed rather than
             u and v.
-    m) Added forward_xy_mapx() which converts (lat,lon) to (x,y).
-    n) Added inverse_xy_mapx() which converts (x,y) to (lat,lon).
-    o) In standard_name():
+       ii)  Added call to inverse_xy_mapx_check().
+    n) Added forward_xy_mapx() which converts (lat,lon) to (x,y) and
+       includes a call to forward_xy_mapx_check().
+    o) Added inverse_xy_mapx() which converts (x,y) to (lat,lon) and
+       includes a call to inverse_xy_mapx_check().
+    p) Added the following functions:
+       i)   forward_xy_mapx_check().
+       ii)  inverse_xy_mapx_check().
+       iii) dist_latlon_map_units().
+       iv)  dist_xy_map_units().
+    q) In standard_name():
        i)   Added support for correct spelling of "interrupted" for
             Goode Interrupted Homolosine Equal Area. Incorrect spelling
             is still supported.
@@ -484,10 +506,10 @@ also made:
        iv)  Added Universal Transverse Mercator.
             Note that Universal Transverse Mercator Ellipsoid is mapped
             to Universal Transverse Mercator.
-    p) Added main program xytest, an interactive test for mapx routines
+    r) Added main program xytest, an interactive test for mapx routines
        that is similar to mtest, but works with original map coordinates
        (x,y) rather than rotated and translated coordinates (u,v).
-    q) In mtest:
+    s) In mtest:
        i)   Changed declaration of readln[80] to readln[FILENAME_MAX].
        ii)  Added ability to specify the .mpp file name on the command
             line just as in gtest.
@@ -507,6 +529,7 @@ also made:
        vii) isin_nzone
        viii)isin_justify
        ix)  polar_radius
+       x)   maximum_error
     f) Added private projection constants to mapx structure:
        i)    t2
        ii)   e0
@@ -519,6 +542,7 @@ also made:
        ix)   f2
        x)    f3
        xi)   f4
+       xii)  f
     g) Modified function prototype:
        i) new_mapx() now includes new "quiet" parameter
     h) Added function prototypes:
@@ -533,20 +557,20 @@ also made:
     a) In mollweide(), changed "dlon" from float to double.
     b) In mollweide(), changed the value of epsilon from 0.0025 to 1e-6.
        This, together with the float to double changes mentioned above,
-       improved the average accuracy by about a factor of 86:
-       i)   macct sgi_mollweide_s00.gpd
+       improved the average accuracy by about a factor of 209:
+       i)   macct linuxhp_mollweide_s00.gpd
               Old:
 	        102400 points,  0 bad points
-		average error = 1.4197e-03 km
-		std dev error = 3.0140e-03 km
-		maximum error = 1.5307e-02 km
-		max error was at 89.44S 89.72E
+                average error = 1.4900e-03 km
+                std dev error = 3.0500e-03 km
+                maximum error = 1.5307e-02 km
+                max error was at 89.44S 89.72E
 	      New:
                 102400 points,  0 bad points
-                average error = 1.6339e-05 km
-                std dev error = 3.6969e-05 km
-                maximum error = 1.3426e-04 km
-                max error was at 55.58S 180.00W
+                average error = 7.1204e-06 km
+                std dev error = 2.5006e-05 km
+                maximum error = 9.4939e-05 km
+                max error was at 45.99S 180.00W
 
 38) orthographic.c:
     a) In orthographic(), changed the following temporary variables
