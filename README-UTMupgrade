@@ -1,16 +1,34 @@
 Readme for mapx library UTM update
-Terry Haran 05/19/03
+Terry Haran 06/20/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
 Mercator projections and creating a set of unit tests. The latest round of
 changes also included changing all float variables and pointers to double
 in all the mapx interface routines and data structures, and in all
-applications distributed with mapx that use the mapx library. To date,
-none of these changes have been added yet to the cvs repository.
+applications distributed with mapx that use the mapx library. These
+changes have now been committed to the cvs repository. If you don't have
+an existing directory structure for mapx under your home directory, you'll
+have to first type:
 
-The only applications that have been tested to date include gridloc and
-resamp. In particular, none of the modified cdb code has been tested.
+cd
+mkdir src
+mkdir src/maps
+mkdir bin
+mkdir include
+mkdir lib
+mkdir lib/maps
+
+Then to retrieve mapx from the cvs repository and compile it, type:
+
+cd src
+cvs checkout maps
+make allall
+
+If you don't install mapx into your home directory, you'll have to modify
+TOPDIR in Makefile. Also if you're not on a linux system and/or you want
+to turn on debugging, you'll have to use one of the alternate definitions
+of CONFIG_FLAGS in Makefile.
 
 IMPORTANT NOTE: All code that calls mapx routines forward_grid() and
 inverse_grid() will have to be modified. The (float) and (more importantly)
@@ -73,39 +91,6 @@ decreases rapidly.
                maximum error = 1.9672e+04 km
                max error was at 78.71S 147.27E
 
-In order to evaluate the changes, you should install the new version of
-the library into some directory, leaving the old version of the library
-intact. Assume that the new version of mapx is to be placed in a
-directory called mapsnew. Then execute the following commands:
-
-mkdir mapsnew
-cd mapsnew
-mkdir src
-mkdir src/maps
-mkdir bin
-mkdir include
-mkdir lib
-mkdir lib/maps
-cd src/maps
-ftp sidads.colorado.edu
-anonymous
-<your email address>
-cd pub/incoming/tharan/maps
-bin
-get mapsnew.tar.gz
-quit
-gunzip mapsnew.tar.gz
-tar Uxvf mapsnew.tar
-make allall
-
-If you don't have the latest released version of mapx installed, you can
-retrieve it from the same ftp directory as above in the file
-mapsold.tar.gz. Note that the Makefile in the released version will
-install the software into the src, lib, and include directories under your
-home directory. Note also that the "allall" target doesn't exist in the
-released Makefile. You'll have do "make all" to make the library, and then
-individual makes of the individual applications and test programs.
-
 The following changes were made to all .c and .h files:
 
 1) <module>_rcsid character strings were added where missing.
@@ -157,10 +142,10 @@ also made:
    l) Added a separate table and explanation of map parameters for UTM.
 
 6) Makefile:
-   a) Changed TOPDIR from HOME to ../.. (temporary changed to aid in
-      evaluation).
-   b) Changed INSTALL from cp to cp -f so that old files are overwritten.
-   c) Removed -DLSB1ST from CONFIG_FLAGS. Linux users should add it back.
+   a) Changed INSTALL from cp to cp -f so that old files are overwritten.
+   b) Changed RANLIB from touch to ranlib to get around a problem on MAC
+      OSX.
+   c) Changed CONFIG_FLAGS to -O -DLSB1ST.
    d) Added transverse_mercator and universal_transverse_mercator to
       PROJECTION_SRCS and PROJECTION_OBJS, removed isinusfor and
       insinusiv from PROJECTION_SRCS and PROJECTION_OBJS, and removed
@@ -284,6 +269,9 @@ also made:
        "extent".
     c) In finish_new_file(), removed declaration of unused variable
        "command".
+    d) In join_map(), append_candidate(), and cdb_index_entry(), added a
+       (byte4) typecast for NULL used in integer comparisons to suppress
+       compiler warnings.
 
 14) cdb_list.c:
     a) In main(), removed unused variable "i".
@@ -640,7 +628,11 @@ also made:
 
          utest.pl linux/*
 
-       No screen output should be produced on either system. To produce
+       on a hp system running linux, type:
+
+         utest.pl linuxhp/*
+
+       No screen output should be produced on any system. To produce
        screen output for each test regardless of the outcome, use the
        -v option.
 
@@ -661,9 +653,9 @@ also made:
        This will create a new set of unit tests in a new sun subdirectory.
        Once this is done, you can browse source2sun.log to verify that
        the only differences were very small. Note that all of the "snyder"
-       and :tilecalc" xytests will have expected results; many of the
+       and "tilecalc" xytests will have expected results; many of the
        "other" expected results in the source unit tests are specified as
-       "dummy". In either case, expected results are replaced with actual\
+       "dummy". In either case, expected results are replaced with actual
        results in creating the new expected results in the output files.
 
        Then to run the new unit tests, you would type:

@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.50 2003-05-02 20:08:26 haran Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.51 2003-06-23 15:36:17 haran Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -12,20 +12,23 @@ RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.50 2003-05-02 20:08:26 haran E
 #	installation directories
 #
 TOPDIR = $(HOME)
+#TOPDIR = ../..
 LIBDIR = $(TOPDIR)/lib
 MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
 BINDIR = $(TOPDIR)/bin
+UTESTDIR = unit_test
 #
 #	commands
 #
 SHELL = /bin/sh
 CC = cc
 AR = ar
-RANLIB = touch
+#RANLIB = touch
+RANLIB = ranlib
 CO = co
 MAKEDEPEND = makedepend
-INSTALL = cp
+INSTALL = cp -f
 CP = cp
 RM = rm -f
 TAR = tar
@@ -35,6 +38,7 @@ COMPRESS = gzip
 #	archive file name
 #
 TARFILE = maps.tar
+#TARFILE = mapsnew.tar
 
 #
 #	debug or optimization settings
@@ -43,7 +47,9 @@ TARFILE = maps.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
 #CONFIG_CFLAGS = -O
-CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
+CONFIG_CFLAGS = -O -DLSB1ST
+#CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
+#CONFIG_CFLAGS = -DDEBUG -g
 
 #
 #	system libraries
@@ -62,27 +68,41 @@ PROJECTION_SRCS = polar_stereographic.c orthographic.c cylindrical_equal_area.c 
 mercator.c mollweide.c cylindrical_equidistant.c sinusoidal.c \
 lambert_conic_conformal.c interupted_homolosine_equal_area.c \
 albers_conic_equal_area.c azimuthal_equal_area.c \
-integerized_sinusoidal.c isinusfor.c isinusinv.c
+integerized_sinusoidal.c \
+transverse_mercator.c universal_transverse_mercator.c
 
-PROJECTION_OBJS = polar_stereographic.o orthographic.o cylindrical_equal_area.o \
+PROJECTION_OBJS = polar_stereographic.o orthographic.o \
+cylindrical_equal_area.o \
 mercator.o mollweide.o cylindrical_equidistant.o sinusoidal.o \
 lambert_conic_conformal.o interupted_homolosine_equal_area.o \
 albers_conic_equal_area.o azimuthal_equal_area.o \
-integerized_sinusoidal.o isinusfor.o isinusinv.o
+integerized_sinusoidal.o \
+transverse_mercator.o universal_transverse_mercator.o
 
 MAPX_SRCS = mapx.c grids.c cdb.c maps.c keyval.c grid_io.c $(PROJECTION_SRCS)
-MAPX_HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h keyval.h grid_io.h isin.h
+MAPX_HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h keyval.h grid_io.h
 MAPX_OBJS = mapx.o grids.o cdb.o maps.o keyval.o grid_io.o $(PROJECTION_OBJS)
 
 MODELS_SRCS = smodel.c pmodel.c svd.c lud.c matrix.c matrix_io.c
 MODELS_OBJS = smodel.o pmodel.o svd.o lud.o matrix.o matrix_io.o
 MODELS_HDRS = smodel.h pmodel.h svd.h lud.h matrix.h matrix_io.h
 
-SRCS = $(MAPX_SRCS) $(MODELS_SRCS)
-HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS)
-OBJS = $(MAPX_OBJS) $(MODELS_OBJS)
+GCTP_SRCS = isinfor.c isininv.c report.c cproj.c
+GCTP_OBJS = isinfor.o isininv.o report.o cproj.o
+GCTP_HDRS = isin.h cproj.h proj.h
+
+SRCS = $(MAPX_SRCS) $(MODELS_SRCS) $(GCTP_SRCS)
+HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
+OBJS = $(MAPX_OBJS) $(MODELS_OBJS) $(GCTP_OBJS)
 
 all : libmaps.a install
+
+allall: cleanall all appall testall
+
+appall : gridloc regrid resamp irregrid \
+	 cdb_edit cdb_list wdbtocdb mapenum
+
+testall : xytest mtest gtest crtest macct gacct
 
 libmaps.a : $(OBJS)
 	$(AR) ruv libmaps.a $(OBJS)
@@ -92,20 +112,33 @@ install : libmaps.a $(HDRS)
 	$(INSTALL) libmaps.a $(LIBDIR)
 	$(INSTALL) $(HDRS) $(INCDIR)
 
+cleanall : clean cleanexes
+	$(RM) *.o
+	$(RM) $(TARFILE).gz 
+
 clean :
 	- $(RM) libmaps.a $(OBJS)
 
+cleanexes :
+	- $(RM) cdb_edit cdb_list gacct gpmon gridloc gtest crtest irregrid \
+		macct mapenum mpmon mtest regrid resamp wdbtocdb xytest
+
 tar :
+	$(RM) $(TARFILE).gz 
 	- $(CO) Makefile ppgc.html regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
-		$(SRCS) $(HDRS)
+		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
+		$(UTESTDIR)/other $(UTESTDIR)/snyder $(UTESTDIR)/tilecalc \
+		$(UTESTDIR)/sgi $(UTESTDIR)/linux $(UTESTDIR)/linuxhp
 	$(TAR) cvf $(TARFILE) \
 		Makefile ppgc.html mprojex.gif coordef.gif \
 		regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
-		$(SRCS) $(HDRS)
+		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
+		$(UTESTDIR)/other $(UTESTDIR)/snyder $(UTESTDIR)/tilecalc \
+		$(UTESTDIR)/sgi $(UTESTDIR)/linux $(UTESTDIR)/linuxhp
 	$(COMPRESS) $(TARFILE)
 
 depend :
@@ -130,7 +163,7 @@ irregrid: irregrid.o $(DEPEND_LIBS)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
-	$(CP) cdb_edit.mpp $(MAPDIR)
+	$(INSTALL) cdb_edit.mpp $(MAPDIR)
 cdb_list: cdb_list.o $(DEPEND_LIBS)
 	$(CC) -o cdb_list cdb_list.o $(LIBS)
 	$(INSTALL) cdb_list $(BINDIR)
@@ -144,26 +177,67 @@ mapenum: mapenum.o $(DEPEND_LIBS)
 #------------------------------------------------------------------------
 # interactive tests
 #
-mtest : mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
-	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
+xytest : mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DXYTEST -o xytest mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) mapx.o
+	$(INSTALL) xytest $(BINDIR)
 
-gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h  $(PROJECTION_OBJS)
-	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
+mtest : mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) mapx.o
+	$(INSTALL) mtest $(BINDIR)
+
+gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) grids.o
+	$(INSTALL) gtest $(BINDIR)
+
+crtest : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DCRTEST -o crtest grids.c mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) grids.o
+	$(INSTALL) crtest $(BINDIR)
 #
 #------------------------------------------------------------------------
 # performance tests
 #
-mpmon : mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
-	$(CC) -O -p -DMPMON -o mpmon mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
+mpmon : mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -p -DMPMON -o mpmon mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) mapx.o
+	$(INSTALL) mpmon $(BINDIR)
 
-gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o $(PROJECTION_OBJS)
-	$(CC) -O -p -DGPMON -o gpmon grids.c mapx.c maps.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
+gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -p -DGPMON -o gpmon grids.c mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) grids.o
+	$(INSTALL) gpmon $(BINDIR)
 #
 #------------------------------------------------------------------------
 # accuracy tests
 #
-macct : maps.c maps.h mapx.c mapx.h keyval.o $(PROJECTION_OBJS)
-	$(CC) -O -DMACCT -o macct maps.c mapx.c keyval.o $(PROJECTION_OBJS) $(SYSLIBS)
+macct : maps.c maps.h mapx.c mapx.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DMACCT -o macct mapx.c maps.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) mapx.o
+	$(INSTALL) macct $(BINDIR)
+
+gacct : grids.c maps.c maps.h mapx.c mapx.h keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS)
+	$(CC) $(CFLAGS) -DGACCT -o gacct grids.c maps.c mapx.c keyval.o \
+		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
+	$(RM) grids.o
+	$(INSTALL) gacct $(BINDIR)
 #
 #------------------------------------------------------------------------
 
