@@ -5,7 +5,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.57 2004-02-26 16:45:16 knowlesk Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.58 2004-04-02 15:48:40 brodzik Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -113,7 +113,7 @@ libmapx.a : $(OBJS)
 	$(RANLIB) libmapx.a
 
 install : libmapx.a $(HDRS)
-	$(MKDIR) $(LIBDIR) $(INCDIR) $(BINDIR)
+	$(MKDIR) $(LIBDIR) $(INCDIR) $(BINDIR) $(MAPDIR)
 	$(INSTALL) libmapx.a $(LIBDIR)
 	$(INSTALL) $(HDRS) $(INCDIR)
 
