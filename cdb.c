@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.5 1993-09-24 11:24:01 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.6 1993-09-28 13:22:42 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -736,7 +736,7 @@ cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value)
   }
   else
   { first_seg = this->index;
-    last_seg = this->index + this->seg_count - 1;
+    last_seg = last_segment_cdb(this);
 
     this->segment = bsearch((const void *)&key, (const void *)this->index,
 			    (size_t)this->seg_count, sizeof(cdb_index_entry),
@@ -806,7 +806,7 @@ void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
   float lower, upper;
   cdb_index_entry *last;
 
-  last = this->index + this->seg_count - 1;
+  last = last_segment_cdb(this);
 
   sort_index_cdb(this, order);
 

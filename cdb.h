@@ -5,7 +5,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.4 1993-04-15 14:32:18 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.5 1993-09-28 13:23:08 knowles Exp $";
 
 #include <define.h>
 
@@ -155,6 +155,13 @@ typedef struct
  *	int num_segments_cdb(cdb_class *this)
  *------------------------------------------------------------------------*/
 #define num_segments_cdb(this) ((this)->seg_count)
+
+/*------------------------------------------------------------------------
+ * last_segment_cdb - pointer to last segment
+ *
+ *	cdb_index_entry *last_segment_cdb(cdb_class *this)
+ *------------------------------------------------------------------------*/
+#define last_segment_cdb(this) ((this)->index + (this)->seg_count - 1)
 
 /*------------------------------------------------------------------------
  * normalize_lon_cdb - normalize longitude to [-180.00,180.00]
