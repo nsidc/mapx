@@ -2,9 +2,9 @@
  * cdb_byteswap_... - in situ byteswap routines
  *
  *	ensure correct byte order for all data in memory
- *	disk data is stored with least significant byte first
- *	for machines which require most significant byte first
- *	compile with -DBYTEORDER=LSB1ST
+ *	disk data is stored with most significant byte first
+ *	for machines which require least significant byte first
+ *	(Intel, VAX) compile with -DLSB1ST
  *
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
@@ -21,7 +21,7 @@ static void cdb_byteswap_header(cdb_file_header *header)
 {
 #ifdef LSB1ST
   SWAP4_IS(&(header->code_number));
-  SWAP4_IS(&(header->indev_addr));
+  SWAP4_IS(&(header->index_addr));
   SWAP4_IS(&(header->index_size));
   SWAP4_IS(&(header->max_seg_size));
   SWAP4_IS(&(header->segment_rank));
