@@ -6,6 +6,11 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.6  1997/09/26  17:36:41  brodzik
+ * Added initialize_matrix function.
+ * Ran new test driver test_initialize_matrix, and
+ * re-ran old driver test_matrix_io.
+ *
  * Revision 1.5  1997/03/22  22:53:48  brodzik
  * Walkthrough changes: added error condition checks,
  * changed some variable names.
@@ -27,7 +32,7 @@
 #include <matrix.h>
 #include <matrix_io.h>
 
-static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.6 1997-09-26 17:36:41 brodzik Exp $";
+static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,v 1.7 1997-09-26 17:45:29 brodzik Exp $";
 
 #define ZERO_BYTES 0;
 
@@ -46,7 +51,7 @@ static const char matrix_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.c,
  *               0 in case of error, with error message written to stderr
  *
  *----------------------------------------------------------------------*/
-size_t read_matrix (void **data, char *file_name, 
+size_t read_matrix (void **data, const char *file_name, 
 		    int rows, int cols, size_t element_size)
 {
   int i;
@@ -105,7 +110,7 @@ size_t read_matrix (void **data, char *file_name,
  *               0 in case of error, with error message written to stderr
  *
  *----------------------------------------------------------------------*/
-size_t write_matrix (char *file_name, void **data, 
+size_t write_matrix (const char *file_name, void **data, 
 		     int rows, int cols, size_t element_size)
 {
   int i;
