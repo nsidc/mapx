@@ -1,26 +1,64 @@
 This is the Notes file for mapx.
 
+Refer to NSIDC Best Practices document at 
+http://nsidc.org/intranet/GROUPS/PROGRAMMERS/best_practices.html
+for guidelines and thoughts about what standard files to include.
 
 To make a release of mapx, you need to do these steps
 
 * make sure all changes have been checked into the repository
 
-* The first is to create a cvs tag the maps directory the standard is
-  MAPX_0_0 (where 0_0 is major version_minor version).
+* update the ReleaseNotes with the changes from the last release to this
+  one.  One way to do this is by checking out the set of files you want to
+  include in the new release, and then examining the output from
 
+  cvs diff -kk -r MAPX_n_m > diff.txt
 
-*  Checkout mapx from cvs to a clean directory 
+  where MAPX_n_m is the last release.
 
-~/tmp/production> cvs co mapx
+  For every changed file, include something in the mapx.notes file about
+  why it was changed. Think of it this way: the message in any given file
+  that's in the RCS log tells you what you did, but not why. The entry in
+  the project notes should explain why, and what it affected. The project
+  notes should then be distilled into ReleaseNotes. See
+  generic_swath/generic_swath.notes and generic_swath/ReleaseNotes for
+  examples.
+
+  If you need to really include a previous version of a file.  Say
+  ppgc.html.  do "cvs co -r 1.3 ppgc.html" and that will make it the current
+  version.
+
+* To make a tag, you can use the 't' option in the emacs cvs mode.  Or do:
+
+$ cvs tag TAG_NAME .  
+
+  in the toplevel directory.  This will generally apply to all files in
+  the directory, and will behave recursively.  You'll get a listing like:
+
+cvs server: Tagging .
+T COPYING
+T INSTALL
+T Makefile
+T README
+T README-UTMupgrade
+T README-cdb
+T albers_conic_equal_area.c
+T azimuthal_equal_area.c
+...
+
+* Now, checkout mapx from cvs to a clean directory 
+
+~/tmp/production> cvs co -r TAG_NAME mapx
 ~/tmp/production> cd mapx
 ~/tmp/production/mapx> make tar
 
+  There may be files that should not be included in a release.  At the
+  very least this includes mapx.notes, which is for internal project tracking.
 
 * move the tarball into a directory that corresponds to the curent release number.
 
 ~/tmp/production/mapx> mkdir ../mapx-0.0
 ~/tmp/production/mapx> mv mapx.tar.gz ../mapx-0.0
-
 
 *  Untar the tarball, and remove it.
 
