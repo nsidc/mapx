@@ -1,11 +1,11 @@
 #========================================================================
-# Makefile for maps library
+# Makefile for mapx library
 #
 # 11-Feb-1993 K.Knowles 303-492-0644  knowlesk@kryos.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.55 2004-01-22 22:13:40 knowlesk Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.56 2004-01-28 19:55:30 knowlesk Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -40,7 +40,7 @@ COMPRESS = gzip
 #
 #	archive file name
 #
-TARFILE = maps.tar
+TARFILE = mapx.tar
 
 #
 #	debug or optimization settings
@@ -65,8 +65,8 @@ SYSLIBS = -lm
 #------------------------------------------------------------------------
 
 CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
-LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
-DEPEND_LIBS = $(LIBDIR)/libmaps.a
+LIBS = -L$(LIBDIR) -lmapx $(SYSLIBS)
+DEPEND_LIBS = $(LIBDIR)/libmapx.a
 
 PROJECTION_SRCS = polar_stereographic.c orthographic.c cylindrical_equal_area.c \
 mercator.c mollweide.c cylindrical_equidistant.c sinusoidal.c \
@@ -99,7 +99,7 @@ SRCS = $(MAPX_SRCS) $(MODELS_SRCS) $(GCTP_SRCS)
 HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
 OBJS = $(MAPX_OBJS) $(MODELS_OBJS) $(GCTP_OBJS)
 
-all : libmaps.a install
+all : libmapx.a install
 
 allall: cleanall all appall testall
 
@@ -108,13 +108,13 @@ appall : gridloc regrid resamp irregrid \
 
 testall : xytest mtest gtest crtest macct gacct
 
-libmaps.a : $(OBJS)
-	$(AR) ruv libmaps.a $(OBJS)
-	$(RANLIB) libmaps.a
+libmapx.a : $(OBJS)
+	$(AR) ruv libmapx.a $(OBJS)
+	$(RANLIB) libmapx.a
 
-install : libmaps.a $(HDRS)
+install : libmapx.a $(HDRS)
 	$(MKDIR) $(LIBDIR) $(INCDIR) $(BINDIR)
-	$(INSTALL) libmaps.a $(LIBDIR)
+	$(INSTALL) libmapx.a $(LIBDIR)
 	$(INSTALL) $(HDRS) $(INCDIR)
 
 cleanall : clean cleanexes
@@ -122,7 +122,7 @@ cleanall : clean cleanexes
 	$(RM) $(TARFILE).gz 
 
 clean :
-	- $(RM) libmaps.a $(OBJS)
+	- $(RM) libmapx.a $(OBJS)
 
 cleanexes :
 	- $(RM) cdb_edit cdb_list gacct gpmon gridloc gtest crtest irregrid \
@@ -130,17 +130,8 @@ cleanexes :
 
 tar :
 	$(RM) $(TARFILE).gz 
-	- $(CO) Makefile ppgc.html regrid.c resamp.c irregrid.c \
-		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
-		mapenum.c gridloc.c \
-		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
-		$(UTESTDIR)/other/other* \
-		$(UTESTDIR)/snyder/snyder* \
-		$(UTESTDIR)/tilecalc/tilecalc* \
-		$(UTESTDIR)/sgi/sgi* \
-		$(UTESTDIR)/linux/linux* \
-	 	$(UTESTDIR)/linuxhp/linuxhp*
 	$(TAR) cvf $(TARFILE) \
+		README COPYING INSTALL\
 		Makefile ppgc.html mprojex.gif coordef.gif \
 		regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
