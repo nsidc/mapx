@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 08 June 2004
+Terry Haran 09 June 2004
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator (TM) and Universal
@@ -663,8 +663,8 @@ also made:
        regenerate the unit tests for an existing target) using
        the source unit tests in the "snyder", "tilecalc", and "other"
        subdirectories by means of the utest_new_target.pl script. This
-       is how the sgi, linux, and linuxhp subdirectories were created on glacier,
-       wuzzles, and megadune, respectively.
+       is how the sgi, linux, and linuxhp subdirectories were created on
+       glacier, icewave, and megadune, respectively.
 
        Note that the -v option can also be used with utest_new_target.pl.
 
