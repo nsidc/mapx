@@ -8,7 +8,9 @@
 #ifndef pmodel_h_
 #define pmodel_h_
 
-const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.6 2004-01-21 18:01:32 knowlesk Exp $";
+#ifdef pmodel_c_
+const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.7 2004-01-23 01:53:34 knowlesk Exp $";
+#endif
 
 #define ipow(x,i) \
 ((i) == 0 ? 1.0 : (i) == 1 ? (x) : (x) == 0.0 ? 0.0 : pow((x), (double) (i)))

@@ -13,7 +13,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1990 University of Colorado
  *======================================================================*/
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.9 2004-01-21 23:54:17 knowlesk Exp $";
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.10 2004-01-23 01:53:34 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +22,7 @@ static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.
 #include "define.h"
 #include "matrix.h"
 #include "svd.h"
+#define pmodel_c_
 #include "pmodel.h"
 
 const char *id_pmodel(void)

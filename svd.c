@@ -7,13 +7,14 @@
  * 2-Aug-1990 K.Knowles knowlesk@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.5 2004-01-21 23:54:17 knowlesk Exp $";
+static const char svd_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.c,v 1.6 2004-01-23 01:53:34 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "define.h"
 #include "matrix.h"
+#define svd_c_
 #include "svd.h"
 
 /*

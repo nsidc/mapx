@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1992 University of Colorado
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.14 2004-01-21 23:54:17 knowlesk Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.15 2004-01-23 01:53:34 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +14,7 @@ static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.14 2
 #include <math.h>
 #include <float.h>
 #include "define.h"
+#define maps_c_
 #include "maps.h"
 
 const char *id_maps(void)

@@ -9,12 +9,14 @@
 #ifndef mapx_h_
 #define mapx_h_
 
-const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.26 2004-01-21 18:01:32 knowlesk Exp $";
+#ifdef mapx_c_
+const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.27 2004-01-23 01:53:34 knowlesk Exp $";
+#endif
 
 /*
  * global verbose flag
  */
-#ifdef MAPX_C_
+#ifdef mapx_c_
 #  define GLOBAL
 #else
 #  define GLOBAL extern

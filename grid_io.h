@@ -9,7 +9,9 @@
 
 #include "define.h"
 
-const char grid_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.6 2004-01-21 18:01:32 knowlesk Exp $";
+#ifdef grid_io_c_
+const char grid_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.7 2004-01-23 01:53:34 knowlesk Exp $";
+#endif
 
 typedef enum 
 { grid_io_READ_ONLY, 

@@ -8,7 +8,9 @@
 #ifndef keyval_h_
 #define keyval_h_
 
-const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.7 2004-01-21 18:01:32 knowlesk Exp $";
+#ifdef keyval_c_
+const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.8 2004-01-23 01:53:34 knowlesk Exp $";
+#endif
 
 #include "define.h"
 
@@ -22,9 +24,6 @@ const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.7 2004-
 #endif
 
 static const char *keyval_FALL_THRU_STRING = "-+-keyval_FALL_THRU_STRING-+-";
-static const char *keyval_LATITUDE = "NSns";
-static const char *keyval_LONGITUDE = "EWew";
-
 
 char *get_label_keyval(const char *filename, FILE *fp, int label_length);
 

@@ -8,14 +8,16 @@
 #ifndef grids_h_
 #define grids_h_
 
-const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.10 2004-01-21 18:01:32 knowlesk Exp $";
+#ifdef grids_c_
+const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.11 2004-01-23 01:53:34 knowlesk Exp $";
+#endif
 
 #include "mapx.h"
 
 /*
  * global verbose flag
  */
-#ifdef GRIDS_C_
+#ifdef grids_c_
 #  define GLOBAL
 #else
 #  define GLOBAL extern

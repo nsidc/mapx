@@ -4,7 +4,7 @@
 #ifndef define_h_
 #define define_h_
 
-const char define_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/define.h,v 1.10 2004-01-21 18:01:32 knowlesk Exp $";
+static const char define_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/define.h,v 1.11 2004-01-23 01:53:33 knowlesk Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
