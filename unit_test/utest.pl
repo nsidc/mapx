@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.11 2003-04-23 16:35:34 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.12 2003-04-23 20:39:45 haran Exp $
 #
 
 #
@@ -24,6 +24,7 @@ $script = $script;
 $Usage = "\n
 USAGE: utest.pl [-v] mppfile1 [mppfile2...]
 
+   input:
        mppfile - Map Projection Parameters file to be used as input to
                  macct and xytest to test a particular map projection.
                  One test of macct to be performed must consist of a group
@@ -44,6 +45,9 @@ USAGE: utest.pl [-v] mppfile1 [mppfile2...]
                    # inverse
                    # x,y = <x_in> <y_in>
                    # lat,lon = <lat_expected> <lon_expected> <comment>
+
+   options:
+       -v - verbose
 ";
         
 #
