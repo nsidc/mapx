@@ -4,7 +4,7 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.3 1996-05-28 17:43:41 knowles Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.4 2000-12-12 20:58:44 knowles Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -16,15 +16,14 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 #include "byteswap.h"
 
 #define usage \
-"usage: gridloc [-s -o output_name -p -m -q] file.gpd\n"\
+"usage: gridloc [-pmq -o output_name] file.gpd\n"\
 "\n"\
 " input : file.gpd  - grid parameters definition file\n"\
 "\n"\
 " output: grid of signed decimal latitudes and/or longitudes\n"\
-"         4 byte integers * 100000 by row\n"\
+"         4 byte floats by row\n"\
 "\n"\
-" option: s - swap bytes\n"\
-"	  o - write data to file output_name.WIDTHxHEIGHTxNBANDS.int4\n"\
+" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.float\n"\
 "             otherwise output goes to stdout\n"\
 "         p - do latitudes only\n"\
 "         m - do longitudes only\n"\
@@ -33,26 +32,24 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 "         q - quiet\n"\
 "\n"
 
-#define SCALE_FACTOR 100000
-#define UNDEFINED 'U'
+#define UNDEFINED -999
 
 main (int argc, char *argv[])
 {
   register int i, j, k;
   int band[2], nbands;
   int nbytes, row_bytes, status, total_bytes;
-  bool swap_bytes, verbose;
-  float datum[2];
-  int4 *data;
+  bool verbose;
+  float coord[2];
+  float *value, *undefined;
   char *option, *output_name, output_filename[MAX_STRING];
-  static char *datum_name[2] = {"latitude", "longitude"};
+  static char *coord_name[2] = {"latitude", "longitude"};
   FILE *output_file;
   grid_class *grid_def;
 
 /*
  *	set defaults
  */
-  swap_bytes = FALSE;
   nbands = 0;
   verbose = TRUE;
   output_name = NULL;
@@ -65,9 +62,6 @@ main (int argc, char *argv[])
     { switch (*option)
       { case 'q':
 	  verbose = FALSE;
-	  break;
-	case 's':
-	  swap_bytes = TRUE;
 	  break;
 	case 'm':
 	  if (nbands < 2)
@@ -109,7 +103,7 @@ main (int argc, char *argv[])
   if (verbose) fprintf(stderr,"> using %s...\n", grid_def->gpd_filename);
 
   if (NULL != output_name)
-  { sprintf(output_filename, "%s.%dx%dx%d.int4", 
+  { sprintf(output_filename, "%s.%dx%dx%d.float", 
 	    output_name, grid_def->cols, grid_def->rows, nbands);
     output_file = fopen(output_filename, "w");
     if (NULL == output_file) { perror(output_filename); error_exit(usage); }
@@ -122,26 +116,29 @@ main (int argc, char *argv[])
 /*
  *	allocate storage for data grids
  */
-  data = (int4 *)calloc(grid_def->cols, sizeof(int4));
-  if (NULL == data) { perror("data"); exit(ABORT); }
-  row_bytes = grid_def->cols * sizeof(int4);
+  value = (float *)calloc(grid_def->cols, sizeof(float));
+  if (NULL == value) { perror("value"); exit(ABORT); }
+  row_bytes = grid_def->cols * sizeof(float);
   total_bytes = 0;
+
+  undefined = (float *)calloc(grid_def->cols, sizeof(float));
+  if (NULL == undefined) { perror("undefined"); exit(ABORT); }
+  for (j = 0; j < grid_def->cols; j++) undefined[j] = UNDEFINED;
 
 /*
  *	write data 
  */
   for (k = 0; k < nbands; k++)
-  { if (verbose) fprintf(stderr,"> writing %s data...\n", datum_name[band[k]]);
+  { if (verbose) fprintf(stderr,"> writing %s...\n", coord_name[band[k]]);
     for (i = 0; i < grid_def->rows; i++) 
-    { memset(data, UNDEFINED, row_bytes);
+    { memcpy(value, undefined, row_bytes);
       for (j = 0; j < grid_def->cols; j++)
       { status = inverse_grid(grid_def, (float)j, (float)i, 
-			      &(datum[0]), &(datum[1]));
+			      &(coord[0]), &(coord[1]));
 	if (!status) continue;
-	data[j] = (int4)(datum[band[k]] * SCALE_FACTOR);
-	if (swap_bytes) data[j] = SWAP4(data[j]);
+	value[j] = coord[band[k]];
       }
-      nbytes = fwrite(data, 1, row_bytes, output_file);
+      nbytes = fwrite(value, 1, row_bytes, output_file);
       if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
       total_bytes += nbytes;
     }
