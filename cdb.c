@@ -3,17 +3,20 @@
  *
  *	See cdb.h for a complete description of the cdb file structure.
  *
- *	 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- *	$Log: not supported by cvs2svn $
+ * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.1 1993-01-12 16:59:34 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.2 1993-02-24 10:19:13 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
 #include <define.h>
+#include <mapx.h>
 #include <cdb.h>
+
+static cdb_seg_data *cdb_read_disk(cdb_class *this);
+static cdb_seg_data *cdb_read_memory(cdb_class *this);
 
 /*----------------------------------------------------------------------
  * new_cdb - create new cdb_class instance
@@ -21,9 +24,6 @@ static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.1 1993-01-12
  *	result: pointer to new cdb or NULL
  *
  *--------------------------------------------------------------------*/
-static cdb_seg_data *cdb_read_disk(cdb_class *this);
-static cdb_seg_data *cdb_read_memory(cdb_class *this);
-
 cdb_class *new_cdb(void)
 {
   cdb_class *this = (cdb_class *) malloc(sizeof(cdb_class));
@@ -51,14 +51,19 @@ cdb_class *new_cdb(void)
  * init_cdb - open cdb file, read in file header and segment index
  *              allocate space for segment data buffer
  *
- *      input : filename - full path name of cdb file
+ *      input : cdb_filename - name of cdb file
  *              move_pu - move pen up function
  *              draw_pd - draw pen down function
  *
  *      result: pointer to new cdb or NULL
  *
+ *	note  : if init_cdb fails to open cdb_file on its
+ *		first attempt it will then search the colon
+ *		separated list of paths in the environment
+ *		variable PATHCDB
+ *
  *--------------------------------------------------------------------*/
-cdb_class *init_cdb(char *filename, 
+cdb_class *init_cdb(const char *cdb_filename, 
 		    void (*move_pu)(float lat, float lon), 
 		    void (*draw_pd)(float lat, float lon))
 {
@@ -70,21 +75,30 @@ cdb_class *init_cdb(char *filename,
  */
   this = new_cdb();
   assert(this != NULL);
-  this->filename = strdup(filename);
   this->move_pu = move_pu;
   this->draw_pd = draw_pd;
 
 /*
- *	read in cdb file header and check magic number
+ *	open cdb file
  */
-  this->fp = fopen(filename, "r");
+  this->filename = (char *)realloc(this->filename, (size_t)MAX_STRING);
+  if (this->filename == NULL)
+  { perror("init_cdb");
+    close_cdb(this);
+    return NULL;
+  }
+  strncpy(this->filename, cdb_filename, MAX_STRING);
+  this->fp = search_path(this->filename, "PATHCDB", "r");
   if (this->fp == NULL)
   { fprintf(stderr,"init_cdb: error openning data file.\n");
-    perror(filename);
+    perror(cdb_filename);
     free_cdb(this);
     return (cdb_class *) NULL;
   }
 
+/*
+ *	read in cdb file header and check magic number
+ */
   this->header = (cdb_file_header *) malloc(sizeof(cdb_file_header));
   assert(this->header != NULL);
 
@@ -92,7 +106,7 @@ cdb_class *init_cdb(char *filename,
 
   if (this->header->code_number != CDB_MAGIC_NUMBER)
   { fprintf(stderr,"<%s> is not a cdb file, code number 0x%08x != 0x%08x\n",
-	    filename, this->header->code_number, CDB_MAGIC_NUMBER);
+	    this->filename, this->header->code_number, CDB_MAGIC_NUMBER);
     free_cdb(this);
     return (cdb_class *) NULL;
   }
@@ -102,7 +116,7 @@ cdb_class *init_cdb(char *filename,
  */
   if (this->header->index_size == 0)
   { free_cdb(this);
-    fprintf(stderr,"init_cdb: <%s> has no index\n", filename);
+    fprintf(stderr,"init_cdb: <%s> has no index\n", this->filename);
     return NULL;
   }
   this->index = (cdb_index_entry *) malloc(this->header->index_size);
@@ -124,7 +138,7 @@ cdb_class *init_cdb(char *filename,
   if (ios != this->header->index_size)
   { fprintf(stderr,"init_cdb: reading index, expected %d got %d bytes.\n",
 	    this->header->index_size, ios);
-    perror(filename);
+    perror(this->filename);
     free_cdb(this);
     return (cdb_class *) NULL;
   }

@@ -2,19 +2,11 @@
  * mapx.h - definitions for map projection routines
  *
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * 15-Dec-1992 R.Swick added constants for ellipsoid projections
- * 01-Feb-1993 R.Swick added constants for LCC projection 
- * $Log: not supported by cvs2svn $
- * Revision 1.5  93/02/18  15:59:13  knowles
- * changed Re to Re_km
- * 
- * Revision 1.4  93/02/18  15:28:45  knowles
- * added projection init routines and reinit_mapx
- * 
+ * 15-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.6 1993-02-18 16:14:09 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.7 1993-02-24 10:18:23 knowles Exp $";
 
 /* 
  * useful macros
@@ -72,5 +64,6 @@ void reinit_mapx(mapx_class *this);
 int within_mapx(mapx_class *this, float lat, float lon);
 int forward_mapx(mapx_class *this, float lat, float lon, float *u, float *v);
 int inverse_mapx(mapx_class *this, float u, float v, float *lat, float *lon);
+FILE *search_path(char *filename, const char *pathvar, const char *mode);
 
 #endif
