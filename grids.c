@@ -1,11 +1,14 @@
 /*========================================================================
  * grids - grid coordinate system definition and transformations
  *
- *	26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- *	7-July-1992 K.Knowles - changed grid_struct to grid_class
- *				updated references to mapx
- *	30-Dec-1992 K.Knowles - added interactive and performance tests
+ * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 7-July-1992 K.Knowles - changed grid_struct to grid_class
+ *			   updated references to mapx
+ * 30-Dec-1992 K.Knowles - added interactive and performance tests
+ * $Log: not supported by cvs2svn $
  *========================================================================*/
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.3 1993-02-19 12:37:22 knowles Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,15 +16,23 @@
 #include <mapx.h>
 #include <grids.h>
 
+static FILE *search_path(char *, const char *, const char *);
+
 /*----------------------------------------------------------------------
  * init_grid - initialize grid coordinate system
  *
  *	input : grid_filename - grid parameter definitions file name
- *			format as follows:
- *			 mpp_filename
- *			 number_of_columns number_of_rows 
- *			 columns_per_map_unit rows_per_map_unit 
- *			 map_origin_column map_origin_row 
+ *		format as follows, 
+ *		for full grid definition:
+ *		  mpp_filename
+ *		  number_of_columns number_of_rows 
+ *		  columns_per_map_unit rows_per_map_unit 
+ *		  map_origin_column map_origin_row 
+ *		to define a subset:
+ *		  SUBSET
+ *		  gpd_filename
+ *		  number_of_columns number_of_rows
+ *		  start_column_offset start_row_offset
  *
  *	result: pointer to new grid_class instance
  *		or NULL if an error occurs during initialization
@@ -29,15 +40,21 @@
  *	note:	for some parameters, if no value is specified in 
  *		the .gpd file the parameter is set to a default 
  *		value without warning
+ *		also, if init_grid fails to open the gpd_file on its
+ *		first attempt it will then search the colon separated
+ *		list of directories in the envornment variable PATHGPD
  *
  *----------------------------------------------------------------------*/
-grid_class *init_grid(char *grid_filename)
+grid_class *init_grid(const char *grid_filename)
 {
   register int ios;
   float f1, f2;
-  char map_filename[80], readln[80];
-  grid_class *this;
+  char filename[256], readln[256];
+  grid_class *this, *full;
 
+/*
+ *	allocate storage for grid parameters
+ */
   this = (grid_class *) malloc(sizeof(grid_class));
   if (this == NULL)
   { perror("init_grid");
@@ -47,7 +64,12 @@ grid_class *init_grid(char *grid_filename)
   this->gpd_filename = NULL;
   this->mapx = NULL;
 
-  this->gpd_file = fopen(grid_filename, "r");
+/*
+ *	open .gpd file
+ */
+  this->gpd_filename = (char *)realloc(this->gpd_filename, (size_t)MAX_STRING);
+  strncpy(this->gpd_filename, grid_filename, MAX_STRING);
+  this->gpd_file = search_path(this->gpd_filename, "PATHGPD", "r");
   if (this->gpd_file == NULL)
   { fprintf(stderr,"init_grid: error opening parameters file.\n");
     perror(grid_filename);
@@ -55,47 +77,90 @@ grid_class *init_grid(char *grid_filename)
     return NULL;
   }
 
-  this->gpd_filename = (char *) malloc(strlen(grid_filename)+1);
-  if (this->gpd_filename != NULL) strcpy(this->gpd_filename, grid_filename);
+/*
+ *	determine if this is a subset or full grid
+ */
+  fgets(readln, sizeof(readln), this->gpd_file);
+  sscanf(readln, "%s", filename);
 
+  if (strstr(filename,"SUBSET") == NULL)
+  {
 /*
  *	initialize map transformation
  */
-  fgets(readln, sizeof(readln), this->gpd_file);
-  sscanf(readln, "%s", map_filename);
-
-  this->mapx = init_mapx(map_filename);
-  if (this->mapx == NULL)
-  { close_grid(this);
-    return NULL;
-  }
+    this->mapx = init_mapx(filename);
+    if (this->mapx == NULL)
+    { close_grid(this);
+      return NULL;
+    }
 
 /*
  *	read in remaining parameters
  */
-  fgets(readln, sizeof(readln), this->gpd_file);
-  ios = sscanf(readln, "%f %f", &f1, &f2);
-  this->cols = (ios >= 1) ? f1 : 512;
-  this->rows = (ios >= 2) ? f2 : 512;
+    fgets(readln, sizeof(readln), this->gpd_file);
+    ios = sscanf(readln, "%f %f", &f1, &f2);
+    this->cols = (ios >= 1) ? f1 : 512;
+    this->rows = (ios >= 2) ? f2 : 512;
 
-  fgets(readln, sizeof(readln), this->gpd_file);
-  ios = sscanf(readln, "%f %f", &f1, &f2);
-  this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
-  this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
+    fgets(readln, sizeof(readln), this->gpd_file);
+    ios = sscanf(readln, "%f %f", &f1, &f2);
+    this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
+    this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
 
-  fgets(readln, sizeof(readln), this->gpd_file);
-  ios = sscanf(readln, "%f %f", &f1, &f2);
-  this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
-  this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
+    fgets(readln, sizeof(readln), this->gpd_file);
+    ios = sscanf(readln, "%f %f", &f1, &f2);
+    this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
+    this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
 
-  if (ferror(this->gpd_file) || feof(this->gpd_file))
-  { fprintf(stderr,"init_grid: error reading parameters file.\n");
-    if (feof(this->gpd_file))
-      fprintf(stderr,"%s: unexpected end of file.\n", grid_filename);
-    else
-      perror(grid_filename);
-    close_grid(this);
-    return NULL;
+    if (ferror(this->gpd_file) || feof(this->gpd_file))
+    { fprintf(stderr,"init_grid: error reading parameters file.\n");
+      if (feof(this->gpd_file))
+	fprintf(stderr,"%s: unexpected end of file.\n", grid_filename);
+      else
+	perror(grid_filename);
+      close_grid(this);
+      return NULL;
+    }
+
+    this->col_offset = this->row_offset = 0;
+  }
+  else
+  { 
+/*
+ *	get full grid definition
+ */
+    fgets(readln, sizeof(readln), this->gpd_file);
+    sscanf(readln, "%s", filename);
+    full = init_grid(filename);
+    if (full == NULL)
+    { close_grid(full);
+      close_grid(this);
+      return NULL;
+    }
+
+/*
+ *	copy appropriate parameters to this grid
+ */
+    this->mapx = full->mapx;
+    this->map_origin_col = full->map_origin_col;
+    this->map_origin_row = full->map_origin_row;
+    this->cols_per_map_unit = full->cols_per_map_unit;
+    this->rows_per_map_unit = full->rows_per_map_unit;
+
+/*
+ *	read in remaining parameters
+ */
+    fgets(readln, sizeof(readln), this->gpd_file);
+    ios = sscanf(readln, "%f %f", &f1, &f2);
+    this->cols = (ios >= 1) ? f1 : 512;
+    this->rows = (ios >= 2) ? f2 : 512;
+
+    fgets(readln, sizeof(readln), this->gpd_file);
+    ios = sscanf(readln, "%f %f", &f1, &f2);
+    this->col_offset = (ios >= 1) ? f1 : 0;
+    this->row_offset = (ios >= 2) ? f2 : 0;
+
+    close_grid(full);
   }
 
   return this;
@@ -145,6 +210,9 @@ int forward_grid(grid_class *this, float lat, float lon, float *r, float *s)
   *r = this->map_origin_col + u * this->cols_per_map_unit;
   *s = this->map_origin_row - v * this->rows_per_map_unit;
 
+  *r -= this->col_offset;
+  *s -= this->row_offset;
+
   if (*r <= -0.5 || *r >= this->cols - 0.5 
       || *s <= -0.5 || *s >= this->rows - 0.5)
     return FALSE;
@@ -168,29 +236,93 @@ int inverse_grid (grid_class *this, float r, float s, float *lat, float *lon)
   register int status;
   float u,v;
 
+  r += this->col_offset;
+  s += this->row_offset;
+
   u =  (r - this->map_origin_col) / this->cols_per_map_unit;
   v = -(s - this->map_origin_row) / this->rows_per_map_unit;
+
   status = inverse_mapx(this->mapx, u, v, lat, lon);
   if (status != 0) return FALSE;
   return within_mapx(this->mapx, *lat, *lon);
 }
+
+/*------------------------------------------------------------------------
+ * search_path - search for file in colon separated list of directories
+ *
+ *	input : filename - name of file to try first
+ *		pathvar - environment variable containing path
+ *		mode - same as fopen modes ("r", "w", etc.)
+ *
+ *	output: filename - name of file successfully openned
+ *
+ *	result: file pointer of openned file or NULL on failure
+ *
+ *	note  : directories are searched in order
+ *		if first attempt to open file fails then the directory
+ *		information preceeding the filename is stripped before
+ *		searching the directory path
+ *
+ *------------------------------------------------------------------------*/
+static FILE *search_path(char *filename, const char *pathvar, const char *mode)
+{ const char *envpointer;
+  char *basename, *directory, *pathvalue = NULL;
+  FILE *fp = NULL;
 
+/*
+ *	try to open original name
+ */
+  fp = fopen(filename, mode);
+
+/* 
+ *	failing that, get path information
+ */
+  if (fp == NULL)
+  { envpointer = getenv(pathvar);
+
+/*
+ *	strip off directory name
+ */
+    if (envpointer != NULL)
+    { pathvalue = strdup(envpointer);
+      basename = strrchr(filename,'/');
+      basename = (basename != NULL) ? strdup(basename+1) : strdup(filename);
+
+/*
+ *	try each directory in turn
+ */
+      directory = strtok(pathvalue, ": ");
+      while (directory != NULL)
+      {	strcat(strcat(strcpy(filename, directory), "/"), basename);
+	fp = fopen(filename, mode);
+	if (fp != NULL) break;
+	directory = strtok(NULL, ": ");
+      }
+    }
+  }
+
+  if (pathvalue != NULL) free(pathvalue);
+
+  return fp;
+}
+
 #ifdef GTEST
-/*========================================================================
+/*------------------------------------------------------------------------
  * gtest - interactive test grid routines
- *========================================================================*/
+ *------------------------------------------------------------------------*/
 main(int argc, char* argv[])
 {
   float lat, lon, r, s;
   int status;
   char readln[80];
-  grid_class *the_grid;
+  grid_class *the_grid = NULL;
 
   for (;;)
   { printf("\nenter .gpd file name - ");
     gets(readln);
     if (feof(stdin)) { printf("\n"); exit(0);}
     if (*readln == '\0') break;
+    close_grid(the_grid);
     the_grid = init_grid(readln);
     if (the_grid == NULL) continue;
 
@@ -222,11 +354,11 @@ main(int argc, char* argv[])
   }
 }
 #endif
-
+
 #ifdef GPMON
-/*========================================================================
+/*------------------------------------------------------------------------
  * gpmon - performance test grid routines
- *========================================================================*/
+ *------------------------------------------------------------------------*/
 #define usage "usage: gpmon gpd_file [num_its]"
 main(int argc, char* argv[])
 {
