@@ -21,7 +21,7 @@ OBJECTS = mapx.o grids.o cdb.o maps.o
 
 all : libmaps.a clean
 
-libmaps.a : $(OBJECTS) $(HEADERS)
+libmaps.a : $(HEADERS) $(OBJECTS)
 	$(MV) $(HEADERS) $(LOCAL_INCLUDE)
 	$(AR) ruv libmaps.a $(OBJECTS)
 	$(RANLIB) libmaps.a
