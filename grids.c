@@ -4,7 +4,7 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.15 1999-11-11 18:43:16 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.16 2003-06-24 22:02:10 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,11 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.15
 
 static bool decode_gpd(grid_class *this, char *label);
 static bool old_fixed_format_decode_gpd(grid_class *this, char *label);
-static char *next_line_from_buffer(char *bufptr, char *readln);
+
+char *id_grids(void)
+{
+  return((char *)grids_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * init_grid - initialize grid coordinate system from file
@@ -150,7 +154,7 @@ grid_class *new_grid(char *label)
  *------------------------------------------------------------------------*/
 static bool decode_gpd(grid_class *this, char *label)
 {
-  float f1, f2;
+  double f1, f2;
   char filename[FILENAME_MAX] = "";
 
   /*
@@ -166,9 +170,10 @@ static bool decode_gpd(grid_class *this, char *label)
   } else {
 
     /*
-     *	look for embedded MPP parameters
+     *	look for embedded MPP parameters, but don't complain
+     *  about unknown projection
      */
-    this->mapx = new_mapx(label);
+    this->mapx = new_mapx(label, TRUE);
 
     if (NULL == this->mapx) {
 
@@ -196,32 +201,32 @@ static bool decode_gpd(grid_class *this, char *label)
   /*
    * map origin defaults to (0,0)
    */
-  get_value_keyval(label, "Grid Map Origin Column", "%f", &(this->map_origin_col), "0");
-  get_value_keyval(label, "Grid Map Origin Row", "%f", &(this->map_origin_row), "0");
+  get_value_keyval(label, "Grid Map Origin Column", "%lf", &(this->map_origin_col), "0");
+  get_value_keyval(label, "Grid Map Origin Row", "%lf", &(this->map_origin_row), "0");
 
   /*
    * there are many ways to specify the column/row to map unit scale, default is 1
    */
-  get_value_keyval(label, "Grid Cells per Map Unit", "%f", &f1, "0");
+  get_value_keyval(label, "Grid Cells per Map Unit", "%lf", &f1, "0");
   f2 = f1;
   if (0 == f1) {
-    get_value_keyval(label, "Grid Map Units per Cell", "%f", &f1, "0");
+    get_value_keyval(label, "Grid Map Units per Cell", "%lf", &f1, "0");
     f1 = f1 ? 1/f1 : 0;
     f2 = f1;
   }
 
   if ( 0 == f1) {
-    get_value_keyval(label, "Grid Columns per Map Unit", "%f", &f1, "0");
+    get_value_keyval(label, "Grid Columns per Map Unit", "%lf", &f1, "0");
     if (0 == f1) {
-      get_value_keyval(label, "Grid Map Units per Column", "%f", &f1, "1");
+      get_value_keyval(label, "Grid Map Units per Column", "%lf", &f1, "1");
       f1 = 1/f1;
     }
   }
 
   if (0 == f2) {
-    get_value_keyval(label, "Grid Rows per Map Unit", "%f", &f2, "0");
+    get_value_keyval(label, "Grid Rows per Map Unit", "%lf", &f2, "0");
     if (0 == f2) {
-      get_value_keyval(label, "Grid Map Units per Row", "%f", &(f2), "1");
+      get_value_keyval(label, "Grid Map Units per Row", "%lf", &(f2), "1");
       f2 = 1/f2;
     }
   }
@@ -246,7 +251,7 @@ static bool decode_gpd(grid_class *this, char *label)
 static bool old_fixed_format_decode_gpd(grid_class *this, char *label)
 {
   int ios;
-  float f1, f2;
+  double f1, f2;
   char filename[FILENAME_MAX], readln[FILENAME_MAX];
 
 /*
@@ -262,58 +267,21 @@ static bool old_fixed_format_decode_gpd(grid_class *this, char *label)
  *	read in remaining parameters
  */
   if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
-  ios = sscanf(readln, "%f %f", &f1, &f2);
+  ios = sscanf(readln, "%lf %lf", &f1, &f2);
   this->cols = (ios >= 1) ? f1 : 512;
   this->rows = (ios >= 2) ? f2 : 512;
 
   if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
-  ios = sscanf(readln, "%f %f", &f1, &f2);
+  ios = sscanf(readln, "%lf %lf", &f1, &f2);
   this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
   this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
 
   if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
-  ios = sscanf(readln, "%f %f", &f1, &f2);
+  ios = sscanf(readln, "%lf %lf", &f1, &f2);
   this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
   this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
 
   return TRUE;
-}
-
-/*------------------------------------------------------------------------
- * next_line_from_buffer
- *
- *	input : bufptr - pointer to current line in buffer
- *		readln - pointer to space to copy current line into
- *
- *	result: pointer to next line in buffer or NULL if buffer is empty
- *
- *------------------------------------------------------------------------*/
-static char *next_line_from_buffer(char *bufptr, char *readln)
-{
-  char *next_line;
-  int line_length;
-
-  if (NULL == bufptr) return NULL;
-
-/*
- *	get length of field and pointer to next line
- */
-  line_length = strcspn(bufptr, "\n");
-  if (0 != line_length) {
-    next_line = bufptr + line_length + 1;
-  } else {
-    line_length = strlen(bufptr);
-    if (0 == line_length) return NULL;
-    next_line = bufptr + line_length;
-  }
-
-/*
- *	copy value field to new buffer
- */
-  strncpy(readln, bufptr, line_length);
-  readln[line_length] = '\0';
-
-  return next_line;
 }
 
 /*------------------------------------------------------------------------
@@ -349,10 +317,11 @@ void close_grid(grid_class *this)
  *	in the opposite direction of map v.
  *
  *------------------------------------------------------------------------*/
-int forward_grid(grid_class *this, float lat, float lon, float *r, float *s)
+int forward_grid(grid_class *this,
+		 double lat, double lon, double *r, double *s)
 {
   register int status;
-  float u,v;
+  double u,v;
 
   status = forward_mapx(this->mapx, lat, lon, &u, &v);
   if (status != 0) return FALSE;
@@ -378,10 +347,11 @@ int forward_grid(grid_class *this, float lat, float lon, float *r, float *s)
  *	result: TRUE iff lat, lon are within map boundaries
  *
  *------------------------------------------------------------------------*/
-int inverse_grid (grid_class *this, float r, float s, float *lat, float *lon)
+int inverse_grid (grid_class *this,
+		  double r, double s, double *lat, double *lon)
 {
   register int status;
-  float u,v;
+  double u,v;
 
   u =  (r - this->map_origin_col) / this->cols_per_map_unit;
   v = -(s - this->map_origin_row) / this->rows_per_map_unit;
@@ -397,7 +367,7 @@ int inverse_grid (grid_class *this, float r, float s, float *lat, float *lon)
  *------------------------------------------------------------------------*/
 main(int argc, char* argv[])
 {
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   int status;
   char readln[FILENAME_MAX];
   grid_class *the_grid = NULL;
@@ -430,43 +400,143 @@ main(int argc, char* argv[])
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
-      sscanf(readln, "%f %f", &lat, &lon);
+      sscanf(readln, "%lf %lf", &lat, &lon);
       status = forward_grid(the_grid, lat, lon, &r, &s);
-      printf("col,row = %f %f    status = %d\n", r, s, status);
+      printf("col,row = %lf %lf    status = %d\n", r, s, status);
       status = inverse_grid(the_grid, r, s, &lat, &lon);
-      printf("lat,lon = %f %f    status = %d\n", lat, lon, status);
+      printf("lat,lon = %lf %lf    status = %d\n", lat, lon, status);
     }
 
     printf("\ninverse_grid:\n");
     for (;;)
-    { printf("enter r s: ");
+    { printf("enter col row: ");
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
-      sscanf(readln, "%f %f", &r, &s);
+      sscanf(readln, "%lf %lf", &r, &s);
       status = inverse_grid(the_grid, r, s, &lat, &lon);
-      printf("lat,lon = %f %f    status = %d\n", lat, lon, status);
+      printf("lat,lon = %lf %lf    status = %d\n", lat, lon, status);
       status = forward_grid(the_grid, lat, lon, &r, &s);
-      printf("col,row = %f %f    status = %d\n", r, s, status);
+      printf("col,row = %lf %lf    status = %d\n", r, s, status);
     }
   }
 }
 #endif
 
+#ifdef CRTEST
+/*------------------------------------------------------------------------
+ * crtest - interactive test for grid routines
+ *------------------------------------------------------------------------*/
+main(int argc, char *argv[])
+{
+  double lat, lon, col, row;
+  int status;
+  char readln[FILENAME_MAX];
+  grid_class *the_grid = NULL;
+
+  grid_verbose = 1;
+
+  for (;;)
+  { 
+    if (argc > 1) {
+      --argc; ++argv;
+      strcpy(readln, *argv);
+    }
+    else {
+      printf("\nenter .gpd file name: ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+    }
+
+    close_grid(the_grid);
+    the_grid = init_grid(readln);
+    if (the_grid == NULL) continue;
+    
+    printf("\ngpd: %s\n", the_grid->gpd_filename);
+    printf("mpp:%s\n", the_grid->mapx->mpp_filename);
+
+   printf("\nforward_grid:\n");
+    for (;;)
+    { printf("enter lat lon: ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%lf %lf", &lat, &lon);
+      status = forward_grid(the_grid, lat, lon, &col, &row);
+      printf("col,row = %17.7lf %17.7lf     %s\n", col, row, 
+	     status == 1 ? "valid" : "invalid");
+      status = inverse_grid(the_grid, col, row, &lat, &lon);
+      printf("lat,lon = %11.7lf %12.7lf     %s\n", lat, lon, 
+	     status == 1 ? "valid" : "invalid");
+    }
+    
+    printf("\ninverse_grid:\n");
+    for (;;)
+    { printf("enter col row: ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%lf %lf", &col, &row);
+      status = inverse_grid(the_grid, col, row, &lat, &lon);
+      printf("lat,lon = %11.7lf %#12.7lf    %s\n", lat, lon, 
+	     status == 1 ? "valid" : "invalid");
+      status = forward_grid(the_grid, lat, lon, &col, &row);
+      printf("col,row = %17.7lf %#17.7lf    %s\n", col, row, 
+	     status == 1 ? "valid" : "invalid");
+    }
+  }
+}
+#endif
+
+#ifdef GACCT
+#define usage "usage: gacct mpp_file"
+/*------------------------------------------------------------------------
+ * gacct - accuracy test grid routines
+ *------------------------------------------------------------------------*/
+#define GPMON
+static double dist_pixels(double r1, double s1, double r2, double s2)
+{
+  double dr, ds;
+
+  dr = r1 - r2;
+  ds = s1 - s2;
+  return(sqrt(dr * dr + ds * ds));
+}
+#endif
+
 #ifdef GPMON
 /*------------------------------------------------------------------------
  * gpmon - performance test grid routines
  *------------------------------------------------------------------------*/
+#ifndef usage
 #define usage "usage: gpmon gpd_file [num_its]"
+#endif
 main(int argc, char* argv[])
 {
-  register int ii, npts = 0, status;
+  register int ii, npts = 0, status1, status2;
   int its = 1;
-  register float r, s;
-  float lat, lon, rx, sx;
+  register double r, s;
+  double lat, lon, rx, sx;
   grid_class *the_grid;
+#ifdef GACCT
+  int bad_pts=0;
+  double err=0, sum=0, sum2=0, stdv=0, max_err=-1, lat_max=0, lon_max=0;
+  int r_max=0, s_max=0;
+#endif
 
   if (argc < 2) 
+#ifdef GACCT
+  { fprintf(stderr,"#\tgacct can be used to test the accuracy\n");
+    fprintf(stderr,"#\tof the grid routines. It runs the forward and\n");
+    fprintf(stderr,"#\tinverse transforms over the whole grid.\n");
+    fprintf(stderr,"#\tError statistics are accumulated in kilometers.\n");
+    fprintf(stderr,"#\tTo run the test type:\n");
+    fprintf(stderr,"#\t\tgacct test.gpd\n");
+    fprintf(stderr,"\n");
+    error_exit(usage);
+  }
+#else
   { fprintf(stderr,"#\tgpmon can be used to monitor the performance\n");
     fprintf(stderr,"#\tof the grid routines. It runs the forward and\n");
     fprintf(stderr,"#\tinverse transforms on each point in the grid.\n");
@@ -478,6 +548,8 @@ main(int argc, char* argv[])
     fprintf(stderr,"\n");
     error_exit(usage);
   }
+#endif
+
   the_grid = init_grid(argv[1]);
   if (the_grid == NULL) error_exit(usage);
   if (argc < 3 || sscanf(argv[2],"%d",&its) != 1) its = 1;
@@ -485,12 +557,45 @@ main(int argc, char* argv[])
   for (ii = 1; ii <= its; ii++)
   { for (r = 0; r < the_grid->cols; r++)
     { for (s = 0; s < the_grid->rows; s++)
-      { ++npts;
-	status = inverse_grid(the_grid, r, s, &lat, &lon);
-	status = forward_grid(the_grid, lat, lon, &rx, &sx);
+      { status1 = inverse_grid(the_grid, r, s, &lat, &lon);
+	status2 = forward_grid(the_grid, lat, lon, &rx, &sx);
+	if (!status1 || !status2)
+	  ++bad_pts;
+	++npts;
+#ifdef GACCT
+	if (status1 && status2)
+	{
+	  err = dist_pixels(r, s, rx, sx);
+	  if (err > 0) {
+	    sum += err;
+	    sum2 += err*err;
+	  }
+	  if (err > max_err) {
+	    max_err=err;
+	    r_max = r;
+	    s_max = s;
+	    lat_max = lat;
+	    lon_max = lon;
+	  }
+	}
+#endif
+	  
       }
     }
   }
-  fprintf(stderr,"%d points\n", npts);
+  fprintf(stderr,"%d points,  %d bad points\n", npts, bad_pts);
+#ifdef GACCT
+  npts -= bad_pts;
+  if (npts > 0)
+  { err = sum/npts;
+    stdv = sqrt((sum2 - npts*err*err)/(npts-1));
+  }
+  fprintf(stderr,"average error = %10.4le pixels\n", err);
+  fprintf(stderr,"std dev error = %10.4le pixels\n", stdv);
+  fprintf(stderr,"maximum error = %10.4le pixels\n", max_err);
+  fprintf(stderr,"max error was at col: %d  row: %d   lat: %lf  lon: %lf\n",
+	  r_max, s_max, lat_max, lon_max);
+#endif
+
 }
 #endif
