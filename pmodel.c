@@ -21,7 +21,7 @@
 #include "svd.h"
 #include "pmodel.h"
 
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.5 1994-04-07 16:27:05 knowles Exp $";
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.6 2002-01-08 21:22:40 knowles Exp $";
 
 /*----------------------------------------------------------------------
  * eval_pmodel - evaluate polynomial
@@ -90,6 +90,9 @@ double eval_pmodel(Polynomial *P, double r, double s)
     }
     return sum_j;
   }
+
+  assert(NEVER);
+  return HUGE_VAL;
 }
 
 /*----------------------------------------------------------------------
@@ -177,7 +180,7 @@ static double **design_matrix(Polynomial *P, int npts,
  *----------------------------------------------------------------------*/
 Polynomial *init_pmodel(int dim, int order, int tcode, int npts,
 			double *rdata, double *sdata, double *tdata)
-{ int i, j, nvars;
+{ int j, nvars;
   double *sval = NULL, **v = NULL, **M = NULL;
   double max_sval, thresh;
   Polynomial *P = NULL;
