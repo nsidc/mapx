@@ -185,12 +185,12 @@ main (int argc, char *argv[])
 #endif
 	if (!status) continue;
 
-	if (very_verbose && 0 == i%VV_INTERVAL && 0 == j%VV_INTERVAL)
+	if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	  fprintf(stderr,"> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
-		  j, i, lat, lon, nint(r), nint(s));
+		  j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
-	row = nint(s);
-	col = nint(r);
+	row = (int)(s + 0.5);
+	col = (int)(r + 0.5);
 
 	to_data[i][j] = from_data[row][col];
 	to_beta[i][j] = 1;
@@ -228,14 +228,14 @@ main (int argc, char *argv[])
 	status = forward_grid(to_grid, lat, lon, &r, &s);
 	if (!status) continue;
 
-	if (very_verbose && 0 == i%VV_INTERVAL && 0 == j%VV_INTERVAL)
+	if (very_verbose && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
 	  fprintf(stderr,"> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
-		  j, i, lat, lon, nint(r), nint(s));
+		  j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
-	for (row = (int)s - (k_rows - 1); row <= (int)s + k_rows; row++)
+	for (row=(int)(s-k_rows/2+0.5); row <= (int)(s+k_rows/2+0.5); row++)
 	{ if (row < 0 || row >= to_grid->rows) continue;
 	  ds = (s - row) * km_per_row;
-	  for (col = (int)r - (k_cols - 1); col <= (int)r + k_cols; col++)
+	  for (col=(int)(r-k_cols/2+0.5); col <= (int)(r+k_cols/2+0.5); col++)
 	  { if (col < 0 || col >= to_grid->cols) continue;
 	    dr = (r - col) * km_per_col;
 	    d2 = dr*dr + ds*ds;
