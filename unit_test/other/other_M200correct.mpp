@@ -1,0 +1,37 @@
+# file: other_M200corrent.mpp
+# Unit Test
+# EASE-Grid Global
+#
+Cylindrical Equal-Area
+0.0 0.0 30.0    lat0 lon0 lat1
+0.0             rotation
+200.5402        scale (km/in)
+00.00   00.00   center lat lon
+-90.00  90.00   lat min max
+-180.00 180.00  lon min max
+ 30.00 30.00    grid
+00.00   00.00   label lat lon
+1 0 0           cil bdy riv
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 75.0 -150.0
+#   x,y = dummy dummy
+#
+# xytest inverse
+#   x,y = -72.0312517 35.4351968
+#   lat,lon = dummy dummy
+#
+# xytest forward
+#   lat,lon = -75.0 150.0
+#   x,y = dummy dummy
+#
+# xytest inverse
+#   x,y = 72.0312517 -35.4351968
+#   lat,lon = dummy dummy
