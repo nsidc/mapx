@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.7 2003-04-17 20:20:04 haran Exp $
+# $Id: utest.pl,v 1.8 2003-04-23 00:06:01 haran Exp $
 #
 
 #
@@ -25,16 +25,25 @@ $Usage = "\n
 USAGE: mapx_utest.pl [-v] mppfile1 [mppfile2...]
 
        mppfile - Map Projection Parameters file to be used as input to
-                 xytest to test a particular map projection.
-                 Each test to be performed must consist of a group
-                 of three lines in mppfile of the form:
-                   ; forward
-                   ; lat,lon = <lat_in> <lon_in>
-                   ; x,y = <x_expected> <y_expected>
+                 macct and xytest to test a particular map projection.
+                 One test of macct to be performed must consist of a group
+                 of six lines in mppfile of the form:
+                   # macct
+                   # <points> points,  <bad_points> bad points
+                   # average error = <average_error> km
+                   # std dev error = <std_dev_error> km
+                   # maximum error = <max_error> km
+                   # max error was at <max_err_lat> <max_err_lon>
+                 Each test of xytest to be performed must consist of a group
+                 of three lines in mppfile (following the macct group, if any)
+                 of the form:
+                   # forward
+                   # lat,lon = <lat_in> <lon_in>
+                   # x,y = <x_expected> <y_expected> <comment>
                  or
-                   ; inverse
-                   ; x,y = <x_in> <y_in>
-                   ; lat,lon = <lat_expected> <lon_expected>
+                   # inverse
+                   # x,y = <x_in> <y_in>
+                   # lat,lon = <lat_expected> <lon_expected> <comment>
 ";
         
 #
@@ -58,7 +67,8 @@ my $exit_value = 0;
 #
 foreach $mppfile (@mppfiles) {
 
-    my $ok = 1;
+    my $forinv_ok = 0;
+    my $macct_ok = 0;
 
     #
     # Read the entire mpp file
@@ -70,31 +80,100 @@ foreach $mppfile (@mppfiles) {
     }
     my @mpp = (<MPP>);
     close(MPP);
-    
-    my $got_one_result = 0;
-    my $i = 0;
+
+    #
+    # Run macct to get the macct actual lines
+    #
+
+    my @macct_act_lines = `macct $mppfile 2>&1`;
+    my $i;
+    for ($i = 0; $i < scalar(@macct_act_lines); $i++) {
+	chomp $macct_act_lines[$i];
+	$macct_act_lines[$i] =~ s/\s*$//;
+    }
+
+    my $header_printed        = 0;
+    my $got_one_macct_result  = 0;
+    my $got_one_forinv_result = 0;
+    $i = 0;
     my @mpp_lines;
     while(1) {
 	
 	#
-	# Find the next forward or inverse line
+	# Find the next macct, forward, or inverse line
 	#
+	my $got_macct   = 0;
 	my $got_forward = 0;
 	my $got_inverse = 0;
 	while($i < scalar(@mpp)) {
 	    my $line = $mpp[$i++];
+	    chomp $line;
 	    if (substr($line, 0, 1) ne ";" && substr($line, 0, 1) ne "#") {
 		push(@mpp_lines, $line);
 	    }
-	    chomp $line;
-	    $got_forward = ($line =~ /(\;|\#)\s+forward/);
-	    $got_inverse = ($line =~ /(\;|\#)\s+inverse/);
-	    if ($got_forward || $got_inverse) {
+	    $got_macct   = ($line =~ /(\;|\#)\s*macct/);
+	    $got_forward = ($line =~ /(\;|\#)\s*forward/);
+	    $got_inverse = ($line =~ /(\;|\#)\s*inverse/);
+	    if ($got_macct || $got_forward || $got_inverse) {
 		last;
 	    }
 	}
+	if (!$got_one_macct_result) {
+	    my $macct_ok = 0;
+	    my @macct_exp_lines;
+	    if ($got_macct) {
+
+		#
+		# Compare macct expected and actual results
+		#
+		if (scalar(@macct_act_lines) == 5) {
+		    my $j;
+		    for ($j = 0; $j < 5; $j++) {
+			if ($i < scalar(@mpp)) {
+			    my $line = $mpp[$i++];
+			    chomp $line;
+			    $line =~ s/^(\;|\#)\s*//;
+			    $line =~ s/\s*$//;
+			    $macct_exp_lines[$j] = $line;
+			    if ($line ne $macct_act_lines[$j]) {
+				last;
+			    }
+			} else {
+			    last;
+			}
+		    }
+		    if ($j == 5) {
+			$macct_ok = 1;
+		    }
+		}
+	    }
+	    if ($verbose || !$macct_ok) {
+		&print_header($mppfile, @mpp_lines);
+		$header_printed = 1;
+		&print_header2;
+		print STDERR ("  macct expected results:\n");
+		my $j;
+		for ($j = 0; $j < scalar(@macct_exp_lines); $j++) {
+		    print STDERR "    $macct_exp_lines[$j]\n";
+		}
+		print STDERR ("  macct actual results:\n");
+		for ($j = 0; $j < scalar(@macct_act_lines); $j++) {
+		    print STDERR "    $macct_act_lines[$j]\n";
+		}
+		if (!$macct_ok) {
+		    print STDERR ("  Expected and actual results differ\n");
+		}
+		if ($verbose && $macct_ok) {
+		    print STDERR ("  Expected results match actual results\n");
+		}
+	    }
+	    $got_one_macct_result = 1;
+	    if ($got_macct) {
+		next;
+	    }
+	}
 	if (!$got_forward && !$got_inverse) {
-	    if (!$got_one_result) {
+	    if (!$got_one_forinv_result) {
 		print STDERR ("$script: ERROR: $mppfile:\n" .
 			      "Can't find forward or inverse in $mppfile\n");
 	    }
@@ -260,16 +339,19 @@ foreach $mppfile (@mppfiles) {
 			      "Can't parse $target in output from $command\n");
 		last;
 	    }
-	    $ok = ($x_expected eq $x_actual and
+	    $forinv_ok = ($x_expected eq $x_actual and
 		   $y_expected eq $y_actual);
-	    if ($verbose || !$ok) {
-		print STDERR ("**********************************************\n");
-		print STDERR ("$mppfile forward:\n");
-		print STDERR @mpp_lines;
-		print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
-		print STDERR ("  x,y expected:     $x_expected $y_expected" .
-			      " $xy_comment\n");
-		print STDERR ("  x,y actual:       $x_actual $y_actual\n");
+	    if ($verbose || !$forinv_ok) {
+		if (!$header_printed) {
+		    &print_header($mppfile, @mpp_lines);
+		    $header_printed = 1;
+		}
+		&print_header2;
+		print STDERR ("  xytest forward results:\n");
+		print STDERR ("    lat,lon in:       $lat_in $lon_in\n");
+		print STDERR ("    x,y expected:     $x_expected $y_expected\n" .
+			      "                  $xy_comment\n");
+		print STDERR ("    x,y actual:       $x_actual $y_actual\n");
 	    }
 
 	} else {
@@ -285,29 +367,54 @@ foreach $mppfile (@mppfiles) {
 			      "Can't parse $target in output from $command\n");
 		last;
 	    }
-	    $ok = ($lat_expected eq $lat_actual and
+	    $forinv_ok = ($lat_expected eq $lat_actual and
 		   $lon_expected eq $lon_actual);
-	    if ($verbose || !$ok) {
-		print STDERR ("**********************************************\n");
-		print STDERR ("$mppfile inverse:\n");
-		print STDERR @mpp_lines;
-		print STDERR ("  x,y in:           $x_in $y_in\n");
-		print STDERR ("  lat,lon expected: $lat_expected $lon_expected".
-			      " $latlon_comment\n");
-		print STDERR ("  lat,lon actual:   $lat_actual $lon_actual\n");
+	    if ($verbose || !$forinv_ok) {
+		if (!$header_printed) {
+		    &print_header($mppfile, @mpp_lines);
+		    $header_printed = 1;
+		}
+		&print_header2;
+		print STDERR ("  xytest inverse results:\n");
+		print STDERR ("    x,y in:           $x_in $y_in\n");
+		print STDERR ("    lat,lon expected: $lat_expected $lon_expected\n" .
+			      "                  $latlon_comment\n");
+		print STDERR ("    lat,lon actual:   $lat_actual $lon_actual\n");
 	    }
 	}
-	if (!$ok) {
+	if (!$forinv_ok) {
 	    print STDERR ("  Expected and actual results differ\n");
 	}
-	if ($verbose && $ok) {
+	if ($verbose && $forinv_ok) {
 	    print STDERR ("  Expected results match actual results\n");
 	}
 	system("rm -f $tmpfile");
-	$got_one_result = 1;
+	$got_one_forinv_result = 1;
     }
-    if (!$ok) {
+    if ($header_printed) {
+    print STDERR
+	("****************************************************************\n");
+    }
+    if (!$forinv_ok || !$macct_ok) {
 	$exit_value = 1;
     }
 }
 exit($exit_value);
+
+sub print_header {
+    my ($mppfile, @mpp_lines) = @_;
+    print STDERR
+	("****************************************************************\n");
+    print STDERR
+	("mppfile: $mppfile\n");
+    my $i;
+    for ($i = 0; $i < scalar(@mpp_lines); $i++) {
+	print STDERR "  $mpp_lines[$i]\n";
+    }
+}
+
+sub print_header2 {
+    my ($mppfile, @mpp_lines) = @_;
+    print STDERR
+	("  **************************************************************\n");
+}
