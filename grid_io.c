@@ -4,14 +4,14 @@
  * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.4 1998-06-15 19:10:29 knowles Exp $";
+static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.5 1999-04-15 17:45:33 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
 #include "grid_io.h"
 
 #ifndef MAX_ROW_BUFFER_SIZE
-#define MAX_ROW_BUFFER_SIZE (16*1024*1024)
+#define MAX_ROW_BUFFER_SIZE (2*1024*1024)
 #endif
 
 #ifdef DEBUG
