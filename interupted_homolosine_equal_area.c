@@ -2,6 +2,8 @@
  * interupted homolosine equal-area
  * reference: http://edcwww.cr.usgs.gov/landdaac/1KM/goodesarticle.html
  *--------------------------------------------------------------------------*/
+static const char interupted_homolosine_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/interupted_homolosine_equal_area.c,v 1.2 2003-06-24 22:11:01 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
 
@@ -58,16 +60,22 @@ static const double IH_lam0[] =
  */
 #define IH_mc3 0.0528035274542
 
+char *id_interupted_homolosine_equal_area(void)
+{
+  return((char *)interupted_homolosine_equal_area_c_rcsid);
+}
+
 int init_interupted_homolosine_equal_area(mapx_class *current)
 {
   /* no variables require initialization */
   return 0;
 }
 
-int interupted_homolosine_equal_area(mapx_class *current, float lat, float lon, float *u, float *v)
+int interupted_homolosine_equal_area(mapx_class *current,
+				     double lat, double lon, double *x, double *y)
 {
-  int it, max_it=30, region;
-  double x, y, phi, lam, cos_phi, sin_phi, delta_lam;
+  int it, max_it=35, region;
+  double phi, lam, cos_phi, sin_phi, delta_lam;
   double x0, theta, delta_theta, constant, epsilon=1e-10;
   
   lam = RADIANS(lon);
@@ -102,8 +110,8 @@ int interupted_homolosine_equal_area(mapx_class *current, float lat, float lon, 
  
   if (region==1||region==3||region==4||region==5||region==8||region==9)
   {
-    x = x0 + current->Rg * delta_lam * cos_phi;
-    y = current->Rg * phi;
+    *x = x0 + current->Rg * delta_lam * cos_phi;
+    *y = current->Rg * phi;
   }
   else
   {
@@ -128,24 +136,26 @@ int interupted_homolosine_equal_area(mapx_class *current, float lat, float lon, 
       return -1;
     }
     theta /= 2.0;
-    x = x0 + 2*SQRT2/PI * current->Rg * delta_lam * cos(theta);
-    y = current->Rg * (SQRT2*sin(theta) - IH_mc3*sign(phi));
+    *x = x0 + 2*SQRT2/PI * current->Rg * delta_lam * cos(theta);
+    *y = current->Rg * (SQRT2*sin(theta) - IH_mc3*sign(phi));
   }
 
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
-
+  *x += current->false_easting;
+  *y += current->false_northing;
+  
   return 0;
 }
 
-int inverse_interupted_homolosine_equal_area(mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_interupted_homolosine_equal_area(mapx_class *current,
+					     double x, double y,
+					     double *lat, double *lon)
 {
   int region;
-  double x, y, xor, yor, x0;
+  double xor, yor, x0;
   double lam, phi, theta, alpha, epsilon=1e-8; 
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  x -= current->false_easting;
+  y -= current->false_northing;
 
   xor = x/current->Rg;
   yor = y/current->Rg;
