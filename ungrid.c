@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.3 2004-09-10 21:39:43 haran Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.4 2004-09-14 17:31:52 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
       io_err = ferror(stdout);
     } else {
       if (do_exponential)
-	printf("%e %e %e\n", to_lat, to_lon, value);
+	printf("%15.8e %15.8e %15.8e\n", to_lat, to_lon, value);
       else
 	printf("%f %f %f\n", to_lat, to_lon, value);
       io_err = ferror(stdout);
