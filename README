@@ -55,7 +55,7 @@ packages, only one instance of a given projection can be initialized at a
 time. In mapx the creation and initialization of a new transformation has
 no effect on existing mapx objects. This is an important feature where
 concurrent processing is required. Examples include simultaneously
-ingesting data from different maps, pixel by pixel conversion of one map
+ingesting data from different maps, pixel-by-pixel conversion of one map
 to another, or an online map server with multiple projection options.
 
 Projections:
@@ -83,11 +83,13 @@ The following projections are currently implemented:
  *                       Universal_Transverse_Mercator
  *			or anything reasonably similar
 
-The library's design makes it easy to add a new projections. Many
-projections have both spherical and ellipsoidal versions. The
-initialization allows for the use of different datum to describe the
-spheroid and is not restricted to the Earth. You could easily use mapx on
-the moon or Mars, for example.
+And, the library's design makes it easy to add new projections. 
+
+Many projections have both spherical and ellipsoidal versions. The
+initialization of each transformation allows for the use of a different
+datum to describe the spheroid. Even two transformations with the same
+projection can have different datums. The datum is not restricted to the
+Earth. You could easily use mapx on the moon or Mars, for example.
 
 Accuracy:
 
@@ -106,20 +108,20 @@ Both versions provide constructors, a destructor, a forward transformation
 transformation (map coordinates to latitude and longitude), and a test to
 determine if a point is within a map.
 
-In addition the C version has a derived grid object which abstracts a map
+In addition the C version has a derived grid object that abstracts a map
 projection and a matrix object for the storage and retrieval of gridded
 data.
 
 There are also a couple of two dimensional modeling objects--a polynomial
 based model called pmodel and a cubic spline based model called smodel.
 
-And, finally, an interface to a coast-lines database derived from a
+And, finally, an interface to a coastlines database derived from a
 combination of WDBII and World Vector Shoreline.
 
 Applications:
 
 This package also contains several standalone routines that serve as test
-beds and coding examples but also as useful applications in there own
+beds and coding examples but also as useful applications in their own
 right. Some examples include:
 
 gridloc - output latitude and longitude for every cell in a grid
@@ -148,7 +150,7 @@ Points, Pixels, Grids, and Cells
 
 Predefined map projection files are available from NSIDC. The
 documentation describing these configuration files is in ppgc.html.
-It seems straight forward enough but in practice can be tricky to get it
+It seems straightforward enough but in practice can be tricky to get it
 "just right". We are glad to help. Please contact NSIDC User Services.
 
 
