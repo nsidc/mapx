@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.52 2003-06-25 23:34:57 haran Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.53 2003-06-26 20:46:14 haran Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -24,8 +24,9 @@ UTESTDIR = unit_test
 SHELL = /bin/sh
 CC = cc
 AR = ar
-#RANLIB = touch
-RANLIB = ranlib
+RANLIB = touch
+# Uncomment the next line for MAC OSX
+#RANLIB = ranlib
 CO = co
 MAKEDEPEND = makedepend
 INSTALL = cp -f
