@@ -7,11 +7,11 @@
 #ifndef keyval_h_
 #define keyval_h_
 
-static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.1 1996-10-24 20:14:46 knowles Exp $";
+static const char keyval_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.h,v 1.2 1996-10-25 20:38:59 knowles Exp $";
 
 #include "define.h"
 
-char *get_label_keyval(const char *filename, FILE *fp);
+char *get_label_keyval(const char *filename, FILE *fp, int label_length);
 
 char *get_field_keyval(const char *label, const char *key, const char *default_string);
 
