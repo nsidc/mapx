@@ -6,11 +6,14 @@
  *			   updated references to mapx
  * 30-Dec-1992 K.Knowles - added interactive and performance tests
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  93/02/24  10:18:43  knowles
+ * fixed search_path
+ * 
  * Revision 1.3  93/02/19  12:37:22  knowles
  * added search path for .gpd files
  * 
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.4 1993-02-24 10:18:43 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.5 1993-05-27 15:25:07 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,11 +32,6 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.4 
  *		  number_of_columns number_of_rows 
  *		  columns_per_map_unit rows_per_map_unit 
  *		  map_origin_column map_origin_row 
- *		to define a subset:
- *		  SUBSET
- *		  gpd_filename
- *		  number_of_columns number_of_rows
- *		  start_column_offset start_row_offset
  *
  *	result: pointer to new grid_class instance
  *		or NULL if an error occurs during initialization
@@ -51,7 +49,7 @@ grid_class *init_grid(const char *grid_filename)
   register int ios;
   float f1, f2;
   char filename[256], readln[256];
-  grid_class *this, *full;
+  grid_class *this;
 
 /*
  *	allocate storage for grid parameters
@@ -83,91 +81,46 @@ grid_class *init_grid(const char *grid_filename)
     return NULL;
   }
 
-/*
- *	determine if this is a subset or full grid
- */
-  fgets(readln, sizeof(readln), this->gpd_file);
-  sscanf(readln, "%s", filename);
 
-  if (strstr(filename,"SUBSET") == NULL)
-  {
 /*
  *	initialize map transformation
  */
-    this->mapx = init_mapx(filename);
-    if (this->mapx == NULL)
-    { close_grid(this);
-      return NULL;
-    }
+  fgets(readln, sizeof(readln), this->gpd_file);
+  sscanf(readln, "%s", filename);
+  this->mapx = init_mapx(filename);
+  if (this->mapx == NULL)
+  { close_grid(this);
+    return NULL;
+  }
 
 /*
  *	read in remaining parameters
  */
-    fgets(readln, sizeof(readln), this->gpd_file);
-    ios = sscanf(readln, "%f %f", &f1, &f2);
-    this->cols = (ios >= 1) ? f1 : 512;
-    this->rows = (ios >= 2) ? f2 : 512;
+  fgets(readln, sizeof(readln), this->gpd_file);
+  ios = sscanf(readln, "%f %f", &f1, &f2);
+  this->cols = (ios >= 1) ? f1 : 512;
+  this->rows = (ios >= 2) ? f2 : 512;
 
-    fgets(readln, sizeof(readln), this->gpd_file);
-    ios = sscanf(readln, "%f %f", &f1, &f2);
-    this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
-    this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
+  fgets(readln, sizeof(readln), this->gpd_file);
+  ios = sscanf(readln, "%f %f", &f1, &f2);
+  this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
+  this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
 
-    fgets(readln, sizeof(readln), this->gpd_file);
-    ios = sscanf(readln, "%f %f", &f1, &f2);
-    this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
-    this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
+  fgets(readln, sizeof(readln), this->gpd_file);
+  ios = sscanf(readln, "%f %f", &f1, &f2);
+  this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
+  this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
 
-    if (ferror(this->gpd_file) || feof(this->gpd_file))
-    { fprintf(stderr,"init_grid: error reading parameters file.\n");
-      if (feof(this->gpd_file))
-	fprintf(stderr,"%s: unexpected end of file.\n", grid_filename);
-      else
-	perror(grid_filename);
-      close_grid(this);
-      return NULL;
-    }
-
-    this->col_offset = this->row_offset = 0;
+  if (ferror(this->gpd_file) || feof(this->gpd_file))
+  { fprintf(stderr,"init_grid: error reading parameters file.\n");
+    if (feof(this->gpd_file))
+      fprintf(stderr,"%s: unexpected end of file.\n", grid_filename);
+    else
+      perror(grid_filename);
+    close_grid(this);
+    return NULL;
   }
-  else
-  { 
-/*
- *	get full grid definition
- */
-    fgets(readln, sizeof(readln), this->gpd_file);
-    sscanf(readln, "%s", filename);
-    full = init_grid(filename);
-    if (full == NULL)
-    { close_grid(full);
-      close_grid(this);
-      return NULL;
-    }
 
-/*
- *	copy appropriate parameters to this grid
- */
-    this->mapx = full->mapx;
-    this->map_origin_col = full->map_origin_col;
-    this->map_origin_row = full->map_origin_row;
-    this->cols_per_map_unit = full->cols_per_map_unit;
-    this->rows_per_map_unit = full->rows_per_map_unit;
-
-/*
- *	read in remaining parameters
- */
-    fgets(readln, sizeof(readln), this->gpd_file);
-    ios = sscanf(readln, "%f %f", &f1, &f2);
-    this->cols = (ios >= 1) ? f1 : 512;
-    this->rows = (ios >= 2) ? f2 : 512;
-
-    fgets(readln, sizeof(readln), this->gpd_file);
-    ios = sscanf(readln, "%f %f", &f1, &f2);
-    this->col_offset = (ios >= 1) ? f1 : 0;
-    this->row_offset = (ios >= 2) ? f2 : 0;
-
-    close_grid(full);
-  }
 
   return this;
 }
@@ -216,9 +169,6 @@ int forward_grid(grid_class *this, float lat, float lon, float *r, float *s)
   *r = this->map_origin_col + u * this->cols_per_map_unit;
   *s = this->map_origin_row - v * this->rows_per_map_unit;
 
-  *r -= this->col_offset;
-  *s -= this->row_offset;
-
   if (*r <= -0.5 || *r >= this->cols - 0.5 
       || *s <= -0.5 || *s >= this->rows - 0.5)
     return FALSE;
@@ -241,9 +191,6 @@ int inverse_grid (grid_class *this, float r, float s, float *lat, float *lon)
 {
   register int status;
   float u,v;
-
-  r += this->col_offset;
-  s += this->row_offset;
 
   u =  (r - this->map_origin_col) / this->cols_per_map_unit;
   v = -(s - this->map_origin_row) / this->rows_per_map_unit;

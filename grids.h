@@ -6,7 +6,7 @@
 #ifndef grids_h_
 #define grids_h_
 
-static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.3 1993-02-19 15:57:14 knowles Exp $";
+static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.4 1993-05-27 15:24:46 knowles Exp $";
 
 #include <mapx.h>
 
@@ -21,7 +21,6 @@ typedef struct {
 	float map_origin_col, map_origin_row;
 	float cols_per_map_unit, rows_per_map_unit;
 	int cols, rows;
-	int col_offset, row_offset;
 	FILE *gpd_file;
 	char *gpd_filename;
 	mapx_class *mapx;
