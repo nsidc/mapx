@@ -1,7 +1,7 @@
 /*========================================================================
  * grids - grid coordinate system definition and transformations
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.6 1993-09-24 11:21:18 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.7 1993-10-27 08:18:18 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +43,7 @@ grid_class *init_grid(const char *grid_filename)
 /*
  *	allocate storage for grid parameters
  */
-  this = (grid_class *) malloc(sizeof(grid_class));
+  this = (grid_class *) calloc(1, sizeof(grid_class));
   if (this == NULL)
   { perror("init_grid");
     return NULL;
