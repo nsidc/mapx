@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.15 1994-04-08 10:49:17 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.16 1994-04-08 11:00:34 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -109,19 +109,3 @@ depend :
 	$(CO) $(SRCS) $(HDRS)
 	$(MAKEDEPEND) -I$(INCDIR) -- $(CFLAGS) -- $(SRCS)
 
-# DO NOT DELETE THIS LINE -- make depend depends on it.
-
-mapx.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
-mapx.o: /usr/include/errno.h /usr/include/sys/errno.h /usr/include/ctype.h
-mapx.o: /usr/include/math.h /usr/include/svr4_math.h
-mapx.o: /usr/local/include/define.h maps.h mapx.h
-grids.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
-grids.o: /usr/local/include/define.h maps.h /usr/include/math.h
-grids.o: /usr/include/svr4_math.h mapx.h grids.h
-cdb.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
-cdb.o: /usr/include/math.h /usr/include/svr4_math.h
-cdb.o: /usr/local/include/define.h maps.h mapx.h cdb.h cdb_byteswap.h
-cdb.o: /usr/local/include/byteswap.h
-maps.o: /usr/include/stdio.h /usr/include/stdlib.h /usr/include/string.h
-maps.o: /usr/include/ctype.h /usr/include/math.h /usr/include/svr4_math.h
-maps.o: /usr/local/include/define.h maps.h mapx.h
