@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1991 University of Colorado
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.41 2004-01-23 01:53:34 knowlesk Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.42 2004-06-08 22:05:03 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +14,7 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.41 2
 #include <errno.h>
 #include <ctype.h>
 #include <math.h>
+#include "isin.h"
 #include "define.h"
 #include "keyval.h"
 #define mapx_c_
@@ -22,6 +23,18 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.41 2
 
 static bool decode_mpp(mapx_class *this, char *label);
 static bool old_fixed_format_decode_mpp(mapx_class *this, char *label);
+static int forward_xy_mapx_check (int status, mapx_class *this,
+				  double lat, double lon,
+				  double *x, double *y);
+static int inverse_xy_mapx_check (int status, mapx_class *this,
+				  double x, double y,
+				  double *lat, double *lon);
+static double dist_latlon_map_units(mapx_class *this,
+				    double lat, double lon,
+				    double lat2, double lon2);
+static double dist_xy_map_units(mapx_class *this,
+				double x, double y,
+				double x2, double y2);
 static char *standard_name(char *);
 
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -616,6 +629,17 @@ static bool decode_mpp(mapx_class *this, char *label)
   get_value_keyval(label, "Map Center Scale", "%lf", &(this->center_scale),
 		   default_value);
 
+  /*
+   *  default value for Map Maximum Error is 100.0 for UTM;
+   *  otherwise it's 0.0
+   */
+
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    "100.0" : "0.0";
+  get_value_keyval(label, "Map Maximum Error", "%lf", &(this->maximum_error),
+		   default_value);
+
   get_value_keyval(label, "Map UTM Zone", "%d", &(this->utm_zone), "0");
 
   /*
@@ -666,6 +690,7 @@ static bool decode_mpp(mapx_class *this, char *label)
 	fprintf(stderr,"> using default equatorial radius %lfm\n",
 		this->equatorial_radius);
     }
+    this->eccentricity = 0.0;
   }
   else if (strstr(this->projection_name, "ELLIPSOID")) {
     if (999 == this->eccentricity) {
@@ -690,9 +715,15 @@ static bool decode_mpp(mapx_class *this, char *label)
     if (999 == this->eccentricity) {
       this->eccentricity = 0.0;
     }
-    else if (0 != this->eccentricity) {
-      fprintf(stderr,"mapx: eccentricity specified with spherical map projection\n"
-	      "       use Ellipsoid version of projection name\n");
+    if (0 == this->polar_radius) {
+      this->polar_radius = this->equatorial_radius;
+    }
+    if (0 != this->eccentricity ||
+	this->polar_radius != this->equatorial_radius) {
+      fprintf(stderr,"mapx: eccentricity specified or\n"\
+	      "      polar radius not equal to equatorial radius specified\n"\
+	      "      with spherical map projection;\n"\
+	      "      use Ellipsoid version of projection name\n");
       goto error_return;
     }
   }
@@ -741,9 +772,13 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
     default_eccentricity = mapx_eccentricity_wgs84;
   } else if (streq(this->projection_name, "INTEGERIZEDSINUSOIDAL")) {
     default_equatorial_radius = mapx_equatorial_radius_isin_m;
-  } else {
+    default_eccentricity = 0.0;
+  } else if (strstr(this->projection_name, "ELLIPSOID")) {
     default_equatorial_radius = mapx_Re_km;
     default_eccentricity = mapx_eccentricity;
+  } else {
+    default_equatorial_radius = mapx_Re_km;
+    default_eccentricity = 0.0;
   }
 
   /*
@@ -760,6 +795,10 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
     streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
     0.9996 : 1.0;
   this->center_scale = default_value;
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    100.0 : 0.0;
+  this->maximum_error = default_value;
   this->utm_zone = 0;
   this->isin_nzone = 86400;
   this->isin_justify = 1;
@@ -831,8 +870,14 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
     { ios = sscanf (readln, "%lf", &f1);            
       this->eccentricity = (ios >= 1) ? f1 : default_eccentricity;
     }
+    if (0 != this->eccentricity && 0 == default_eccentricity) {
+      fprintf(stderr, "mapx: eccentricity specified\n"\
+              "       with spherical map projection;\n"\
+	      "       use Ellipsoid version of projection name\n");
+      label = NULL;
+      goto error_return;
+    }
   }
-  
   return TRUE;
   
   /*
@@ -971,6 +1016,11 @@ int reinit_mapx (mapx_class *this)
   this->polar_radius = this->equatorial_radius * sqrt(1.0 - this->e2);
 
   /*
+   *    set the flattening
+   */
+  this->f = 1.0 - this->polar_radius / this->equatorial_radius;
+
+  /*
    *	set scaled radius for spherical projections
    */
   this->Rg = this->equatorial_radius / this->scale;
@@ -1049,14 +1099,16 @@ int within_mapx (mapx_class *this, double lat, double lon)
  *------------------------------------------------------------------------*/
 int forward_mapx (mapx_class *this, double lat, double lon, double *u, double *v)
 {
-  int status;
+  int status, errno_sav;
   double x, y;
 
   errno = 0;
   status = (*(this->geo_to_map))(this, lat, lon, &x, &y);
+  errno_sav = errno;
+  status = forward_xy_mapx_check(status, this, lat, lon, &x, &y);
   *u = this->T00 * x + this->T01 * y - this->u0;
   *v = this->T10 * x + this->T11 * y - this->v0;
-  if (errno != 0) 
+  if (errno_sav != 0) 
     return -1; 
   else
     return status;
@@ -1073,7 +1125,7 @@ int forward_mapx (mapx_class *this, double lat, double lon, double *u, double *v
  *------------------------------------------------------------------------*/
 int inverse_mapx (mapx_class *this, double u, double v, double *lat, double *lon)
 {
-  int status;
+  int status, errno_sav;
   double x, y;
 
   u += this->u0;
@@ -1082,11 +1134,14 @@ int inverse_mapx (mapx_class *this, double u, double v, double *lat, double *lon
   y = -this->T10 * u + this->T11 * v;
   errno = 0;
   status = (*(this->map_to_geo))(this, x, y, lat, lon);
-  if (errno != 0) 
+  errno_sav = errno;
+  status = inverse_xy_mapx_check(status, this, x, y, lat, lon);
+  if (errno_sav != 0) 
     return -1; 
   else
     return status;
 }
+
 /*------------------------------------------------------------------------
  * forward_xy_mapx - forward map transformation
  *
@@ -1099,11 +1154,13 @@ int inverse_mapx (mapx_class *this, double u, double v, double *lat, double *lon
 int forward_xy_mapx (mapx_class *this, double lat, double lon,
 		     double *x, double *y)
 {
-  int status;
+  int status, errno_sav;
 
   errno = 0;
   status = (*(this->geo_to_map))(this, lat, lon, x, y);
-  if (errno != 0) 
+  errno_sav = errno;
+  status = forward_xy_mapx_check(status, this, lat, lon, x, y);
+  if (errno_sav != 0) 
     return -1; 
   else
     return status;
@@ -1121,14 +1178,177 @@ int forward_xy_mapx (mapx_class *this, double lat, double lon,
 int inverse_xy_mapx (mapx_class *this, double x, double y,
 		     double *lat, double *lon)
 {
-  int status;
+  int status, errno_sav;
 
   errno = 0;
   status = (*(this->map_to_geo))(this, x, y, lat, lon);
-  if (errno != 0) 
+  errno_sav = errno;
+  status = inverse_xy_mapx_check(status, this, x, y, lat, lon);
+  if (errno_sav != 0) 
     return -1; 
   else
     return status;
+}
+
+/*------------------------------------------------------------------------
+ * forward_xy_mapx_check - forward map transformation error check
+ *
+ *	input : status - status returned by geo_to_map
+ *              this - pointer to map data structure (returned by new_mapx)
+ *		lat,lon - geographic coordinates in decimal degrees
+ *              x,y - original map coordinates in map units returned by
+ *                    geo_to_map
+ *
+ *      output: x,y - unchanged if returned status is 0;
+ *                    set to NAN otherwise
+ *
+ *      return: status - 0 if ok; -1 otherwise
+ *
+ *------------------------------------------------------------------------*/
+static int forward_xy_mapx_check (int status, mapx_class *this,
+				     double lat, double lon,
+				     double *x, double *y)
+{
+  double lat2, lon2, dist;
+
+  if (this->maximum_error != 0.0 && errno == 0 && status == 0) {
+    status = (*(this->map_to_geo))(this, *x, *y, &lat2, &lon2);
+    dist = dist_latlon_map_units(this, lat, lon, lat2, lon2);
+    if (errno != 0) 
+      status = -1;
+    if (status != 0 || !finite(dist) || dist > this->maximum_error) {
+      *x = NAN;
+      *y = NAN;
+      status = -1;
+    }
+  }
+  return status;
+}
+
+/*------------------------------------------------------------------------
+ * inverse_xy_mapx_check - inverse map transformation error check
+ *
+ *	input : status - status returned by map_to_geo
+ *              this - pointer to map data structure (returned by new_mapx)
+ *		x,y - original map coordinates in map units
+ *              lat,lon - geographic coordinates in decimal degrees
+ *                        returned by map_to_geo
+ *
+ *	output: lat,lon - unchanged if returned status is 0;
+ *                        set to NAN otherwise
+ *
+ *      return: status - 0 if ok; -1 otherwise
+ *
+ *------------------------------------------------------------------------*/
+static int inverse_xy_mapx_check (int status, mapx_class *this,
+				  double x, double y,
+				  double *lat, double *lon)
+{
+  double x2, y2, dist;
+
+  if (this->maximum_error != 0.0 && errno == 0 && status == 0) {
+    status = (*(this->geo_to_map))(this, *lat, *lon, &x2, &y2);
+    dist = dist_xy_map_units(this, x, y, x2, y2);
+    if (errno != 0) 
+      status = -1;
+    if (status != 0 || !finite(dist) || dist > this->maximum_error) {
+      *lat = NAN;
+      *lon = NAN;
+      status = -1;
+    }
+  }
+  return status;
+}
+
+/*------------------------------------------------------------------------
+ * dist_latlon_map_units - return distance between two lat-lon pairs
+ *
+ *	input : this - pointer to map data structure (returned by new_mapx)
+ *		lat1,lon1 - geographic coordinates in decimal degrees
+ *		lat2,lon2 - geographic coordinates in decimal degrees
+ *
+ *      output: none
+ *
+ *      return: distance on ellipsoid surface between lat-lon pairs
+ *              measured in map units
+ *
+ *      reference: Astronomical Algorithms, Jean Meeus, 1991,
+ *                 Willmann-Bell, Inc., pp. 77-82
+ *
+ *------------------------------------------------------------------------*/
+static double dist_latlon_map_units(mapx_class *this,
+				    double lat1, double lon1,
+				    double lat2, double lon2)
+{
+  double F, G, lambda;
+  double S, C, omega;
+  double R, D, H1, H2;
+  double sinsqF, cossqF, sinsqG, cossqG, sinsqlambda, cossqlambda;
+  double eps = 1e-12;
+  double s = 0.0;
+
+  F = RADIANS(lat1 + lat2) / 2;
+  G = RADIANS(lat1 - lat2) / 2;
+  lambda = RADIANS(lon1 - lon2) / 2;
+
+  sinsqF = sin(F);
+  sinsqF = sinsqF * sinsqF;
+  cossqF = 1.0 - sinsqF;
+
+  sinsqG = sin(G);
+  sinsqG = sinsqG * sinsqG;
+  cossqG = 1.0 - sinsqG;
+
+  sinsqlambda = sin(lambda);
+  sinsqlambda = sinsqlambda * sinsqlambda;
+  cossqlambda = 1.0 - sinsqlambda;
+
+  S = sinsqG * cossqlambda + cossqF * sinsqlambda;
+  C = cossqG * cossqlambda + sinsqF * sinsqlambda;
+
+
+  omega = atan(sqrt(S / C));
+  if (fabs(omega) > eps) {
+    R = sqrt(S * C) / omega;
+    D = 2 * omega * this->Rg;
+    if (this->f != 0) {
+      H1 = (3 * R - 1) / (2 * C);
+      H2 = (3 * R + 1) / (2 * S);
+      s = D * (1 + this->f * H1 * sinsqF * cossqG -
+	       this->f * H2 * cossqF * sinsqG);
+    } else {
+      s = D;
+    }
+  }
+  return(s);
+}
+
+/*------------------------------------------------------------------------
+ * dist_xy_map_units - return distance between two x-y pairs
+ *
+ *	input : this - pointer to map data structure (returned by new_mapx)
+ *		x1,y1 - map coordinates in map units
+ *		x2,y2 - map coordinates in map units
+ *
+ *      output: none
+ *
+ *      return: distance on projected surface between x-y pairs
+ *              measured in map units
+ *
+ *      reference: Astronomical Algorithms, Jean Meeus, 1991,
+ *                 Willmann-Bell, Inc., pp. 77-82
+ *
+ *------------------------------------------------------------------------*/
+static double dist_xy_map_units(mapx_class *this,
+				double x1, double y1,
+				double x2, double y2)
+{
+  double xdiff, ydiff;
+
+  xdiff = x1 - x2;
+  ydiff = y1 - y2;
+
+  return(sqrt(xdiff * xdiff + ydiff * ydiff));
 }
 
 /*--------------------------------------------------------------------------
