@@ -4,22 +4,44 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.14 1999-03-22 17:44:02 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.15 1999-11-11 18:43:16 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "define.h"
-#include "maps.h"
+#include "keyval.h"
 #include "mapx.h"
+#include "maps.h"
+#define GRIDS_C_
 #include "grids.h"
 
+static bool decode_gpd(grid_class *this, char *label);
+static bool old_fixed_format_decode_gpd(grid_class *this, char *label);
+static char *next_line_from_buffer(char *bufptr, char *readln);
+
 /*----------------------------------------------------------------------
- * init_grid - initialize grid coordinate system
+ * init_grid - initialize grid coordinate system from file
  *
- *	input : grid_filename - grid parameter definitions file name
- *		format as follows, 
- *		for full grid definition:
+ *	input : filename - grid parameter definitions file name
+ *		file must have following fields:
+ *		 Grid Width: number_of_columns
+ *		 Grid Height: number_of_rows
+ *		 Grid Map Origin Column: col0
+ *		 Grid Map Origin Row: row0
+ *		and either one of:
+ *		 Grid Cells per Map Unit: columns_and_rows
+ *		 Grid Columns per Map Unit: columns
+ *		 Grid Rows per Map Unit: rows
+ *		or:
+ *		 Grid Map Units per Cell: map_units
+ *		 Grid Map Units per Column: map_units
+ *		 Grid Map Units per Row: map_units
+ *		plus:
+ *		 Grid MPP File: mpp_filename
+ *		or map projection parameters embedded in the same label
+ *
+ *		old fixed format was as follows:
  *		  mpp_filename
  *		  number_of_columns number_of_rows 
  *		  columns_per_map_unit rows_per_map_unit 
@@ -37,85 +59,263 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.14
  *		envornment variable
  *
  *----------------------------------------------------------------------*/
-grid_class *init_grid(const char *grid_filename)
+grid_class *init_grid(char *filename)
 {
-  register int ios;
-  float f1, f2;
-  char filename[FILENAME_MAX], readln[FILENAME_MAX];
+  char *gpd_filename, *label=NULL;
+  FILE *gpd_file=NULL;
+  grid_class *this=NULL;
+
+/*
+ *	open .gpd file and read label
+ */
+  gpd_filename = (char *)malloc(FILENAME_MAX);
+  if (gpd_filename == NULL) { perror("init_grid"); return NULL; }
+
+  strncpy(gpd_filename, filename, FILENAME_MAX);
+  gpd_file = search_path_fopen(gpd_filename, mapx_PATH, "r");
+  if (!gpd_file)
+  { fprintf(stderr,"init_grid: error opening parameters file.\n");
+    perror(filename);
+    return NULL;
+  }
+
+  label = get_label_keyval(gpd_filename, gpd_file, 0);
+  if (NULL == label) return NULL;
+
+  /*
+   *	initialize projection parameters
+   */
+  this = new_grid(label);
+  if (NULL == this) goto error_return;
+  free(label); label = NULL;
+
+  /*
+   *	fill in file and filename fields
+   */
+  this->gpd_filename = gpd_filename;
+  this->gpd_file = gpd_file;
+
+  if (!this->mapx->mpp_filename) 
+    this->mapx->mpp_filename = strdup(gpd_filename);
+
+  return this;
+
+error_return:
+  fprintf(stderr,"init_grid: error reading grid parameters definition file\n");
+  if (label) free(label);
+  if (gpd_filename) free(gpd_filename);
+  if (gpd_file) fclose(gpd_file);
+  close_grid(this);
+  return NULL;
+}
+
+/*----------------------------------------------------------------------
+ * new_grid - initialize grid coordinate system from label
+ *
+ *	input : label - char buffer with initialization information
+ *		        see init_grid for format
+ *
+ *	result: pointer to new grid_class instance
+ *		or NULL if an error occurs during initialization
+ *
+ *----------------------------------------------------------------------*/
+grid_class *new_grid(char *label)
+{
   grid_class *this;
 
 /*
  *	allocate storage for grid parameters
  */
-  this = (grid_class *) calloc(1, sizeof(grid_class));
-  if (this == NULL)
-  { perror("init_grid");
-    return NULL;
-  }
-  this->gpd_file = NULL;
-  this->gpd_filename = NULL;
-  this->mapx = NULL;
+  this = (grid_class *)calloc(1, sizeof(grid_class));
+  if (this == NULL) { perror("new_grid"); return NULL; }
 
 /*
- *	open .gpd file
+ *	decode grid parameters definitions
  */
-  this->gpd_filename = (char *)malloc(FILENAME_MAX);
-  if (this->gpd_filename == NULL)
-  { perror("init_grid"); close_grid(this); return NULL; }
+  if (!decode_gpd(this, label)) { close_grid(this); return NULL; }
 
-  strncpy(this->gpd_filename, grid_filename, FILENAME_MAX);
-  this->gpd_file = search_path_fopen(this->gpd_filename, mapx_PATH, "r");
-  if (this->gpd_file == NULL)
-  { fprintf(stderr,"init_grid: error opening parameters file.\n");
-    perror(grid_filename);
-    close_grid(this);
-    return NULL;
+  return this;
+}
+
+/*------------------------------------------------------------------------
+ * decode_gpd - parse information in grid parameters definition label
+ *
+ *	input : this - pointer to grid data structure (returned by new_grid)
+ *		label - grid parameters definition label
+ *
+ *	result: TRUE iff success
+ *
+ *	effect: fills grid data structure with values read from label
+ *
+ *------------------------------------------------------------------------*/
+static bool decode_gpd(grid_class *this, char *label)
+{
+  float f1, f2;
+  char filename[FILENAME_MAX] = "";
+
+  /*
+   *	initialize map projection and determine file format
+   *	first check for Grid MPP File tag
+   */
+  if (get_value_keyval(label, "Grid MPP File", "%s", filename, keyval_FALL_THRU_STRING) &&
+      !streq(filename, keyval_FALL_THRU_STRING)) {
+
+    this->mapx = init_mapx(filename);
+    if (NULL == this->mapx) return FALSE;
+
+  } else {
+
+    /*
+     *	look for embedded MPP parameters
+     */
+    this->mapx = new_mapx(label);
+
+    if (NULL == this->mapx) {
+
+      /*
+       * try old fixed format
+       */
+      if (grid_verbose) fprintf(stderr,"> assuming old style fixed format file\n");
+      return old_fixed_format_decode_gpd(this, label);
+    }
   }
 
+  /*
+   * go with keyword: value format
+   */
+  if (!get_value_keyval(label, "Grid Width", "%d", &(this->cols), NULL)) {
+    fprintf(stderr,"grids: Grid Width is a required field\n");
+    return FALSE;
+  }
+
+  if (!get_value_keyval(label, "Grid Height", "%d", &(this->rows), NULL)) {
+    fprintf(stderr,"grids: Grid Height is a required field\n");
+    return FALSE;
+  }
+
+  /*
+   * map origin defaults to (0,0)
+   */
+  get_value_keyval(label, "Grid Map Origin Column", "%f", &(this->map_origin_col), "0");
+  get_value_keyval(label, "Grid Map Origin Row", "%f", &(this->map_origin_row), "0");
+
+  /*
+   * there are many ways to specify the column/row to map unit scale, default is 1
+   */
+  get_value_keyval(label, "Grid Cells per Map Unit", "%f", &f1, "0");
+  f2 = f1;
+  if (0 == f1) {
+    get_value_keyval(label, "Grid Map Units per Cell", "%f", &f1, "0");
+    f1 = f1 ? 1/f1 : 0;
+    f2 = f1;
+  }
+
+  if ( 0 == f1) {
+    get_value_keyval(label, "Grid Columns per Map Unit", "%f", &f1, "0");
+    if (0 == f1) {
+      get_value_keyval(label, "Grid Map Units per Column", "%f", &f1, "1");
+      f1 = 1/f1;
+    }
+  }
+
+  if (0 == f2) {
+    get_value_keyval(label, "Grid Rows per Map Unit", "%f", &f2, "0");
+    if (0 == f2) {
+      get_value_keyval(label, "Grid Map Units per Row", "%f", &(f2), "1");
+      f2 = 1/f2;
+    }
+  }
+
+  this->cols_per_map_unit = f1;
+  this->rows_per_map_unit = f2;
+
+  return TRUE;
+}
+
+/*------------------------------------------------------------------------
+ * old_fixed_format_decode_gpd
+ *
+ *	input : this - pointer to grid data structure (returned by new_grid)
+ *		label - contents of grid parameters definition file
+ *
+ *	result: TRUE iff success
+ *
+ *	effect: fills grid data structure with values read from label
+ *
+ *------------------------------------------------------------------------*/
+static bool old_fixed_format_decode_gpd(grid_class *this, char *label)
+{
+  int ios;
+  float f1, f2;
+  char filename[FILENAME_MAX], readln[FILENAME_MAX];
 
 /*
  *	initialize map transformation
  */
-  fgets(readln, sizeof(readln), this->gpd_file);
+  
+  if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
   sscanf(readln, "%s", filename);
   this->mapx = init_mapx(filename);
-  if (this->mapx == NULL)
-  { close_grid(this);
-    return NULL;
-  }
+  if (this->mapx == NULL) return FALSE;
 
 /*
  *	read in remaining parameters
  */
-  fgets(readln, sizeof(readln), this->gpd_file);
+  if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
   ios = sscanf(readln, "%f %f", &f1, &f2);
   this->cols = (ios >= 1) ? f1 : 512;
   this->rows = (ios >= 2) ? f2 : 512;
 
-  fgets(readln, sizeof(readln), this->gpd_file);
+  if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
   ios = sscanf(readln, "%f %f", &f1, &f2);
   this->cols_per_map_unit = (ios >= 1) ? f1 : 64;
   this->rows_per_map_unit = (ios >= 2) ? f2 : this->cols_per_map_unit;
 
-  fgets(readln, sizeof(readln), this->gpd_file);
+  if ((label = next_line_from_buffer(label, readln)) == NULL) return FALSE;
   ios = sscanf(readln, "%f %f", &f1, &f2);
   this->map_origin_col = (ios >= 1) ? f1 : this->cols/2.;
   this->map_origin_row = (ios >= 2) ? f2 : this->rows/2.;
 
-  if (ferror(this->gpd_file) || feof(this->gpd_file))
-  { fprintf(stderr,"init_grid: error reading parameters file.\n");
-    if (feof(this->gpd_file))
-      fprintf(stderr,"%s: unexpected end of file.\n", grid_filename);
-    else
-      perror(grid_filename);
-    close_grid(this);
-    return NULL;
+  return TRUE;
+}
+
+/*------------------------------------------------------------------------
+ * next_line_from_buffer
+ *
+ *	input : bufptr - pointer to current line in buffer
+ *		readln - pointer to space to copy current line into
+ *
+ *	result: pointer to next line in buffer or NULL if buffer is empty
+ *
+ *------------------------------------------------------------------------*/
+static char *next_line_from_buffer(char *bufptr, char *readln)
+{
+  char *next_line;
+  int line_length;
+
+  if (NULL == bufptr) return NULL;
+
+/*
+ *	get length of field and pointer to next line
+ */
+  line_length = strcspn(bufptr, "\n");
+  if (0 != line_length) {
+    next_line = bufptr + line_length + 1;
+  } else {
+    line_length = strlen(bufptr);
+    if (0 == line_length) return NULL;
+    next_line = bufptr + line_length;
   }
 
+/*
+ *	copy value field to new buffer
+ */
+  strncpy(readln, bufptr, line_length);
+  readln[line_length] = '\0';
 
-  return this;
+  return next_line;
 }
-
+
 /*------------------------------------------------------------------------
  * close_grid - free storage and close files associated with grid
  *
@@ -201,6 +401,8 @@ main(int argc, char* argv[])
   int status;
   char readln[FILENAME_MAX];
   grid_class *the_grid = NULL;
+
+  grid_verbose = 1;
 
   for (;;)
   { 

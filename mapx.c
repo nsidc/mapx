@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.32 1999-08-02 20:31:50 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.33 1999-11-11 18:43:37 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.32 1
 
 static bool decode_mpp(mapx_class *this, char *label);
 static bool old_fixed_format_decode_mpp(mapx_class *this, char *label);
-char *next_line_from_buffer(char *bufptr, char *readln);
+static char *next_line_from_buffer(char *bufptr, char *readln);
 static char *standard_name(char *);
 
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -186,7 +186,7 @@ mapx_class *init_mapx(char *filename)
 {
   mapx_class *this=NULL;
   char *label=NULL, *mpp_filename=NULL;
-  FILE *mpp_file;
+  FILE *mpp_file=NULL;
 
   /*
    *	open .mpp file and read label
@@ -196,8 +196,7 @@ mapx_class *init_mapx(char *filename)
   strncpy(mpp_filename, filename, FILENAME_MAX);
 
   mpp_file = search_path_fopen(mpp_filename, mapx_PATH, "r");
-  if (mpp_file == NULL)
-  { fprintf (stderr,"init_mapx: error opening parameters file.\n");
+  if (mpp_file == NULL) {
     perror(filename);
     goto error_return;
   }
@@ -220,8 +219,10 @@ mapx_class *init_mapx(char *filename)
   return this;
 
 error_return:
+  fprintf(stderr,"init_mapx: error reading map projection parameters file\n");
   if (label) free(label);
   if (mpp_filename) free(mpp_filename);
+  if (mpp_file) fclose(mpp_file);
   close_mapx(this);
   return NULL;
 
@@ -244,18 +245,12 @@ mapx_class *new_mapx (char *label)
    *	allocate storage for projection parameters
    */
   this = (mapx_class *)calloc(1, sizeof(mapx_class));
-  if (this == NULL)
-  { perror("new_mapx");
-    return NULL;
-  }
+  if (!this) { perror("new_mapx"); return NULL; }
   
   /*
    *	decode map projection parameters
    */
-  if (!decode_mpp(this, label)) {
-    close_mapx(this);
-    return NULL;
-  }
+  if (!decode_mpp(this, label)) { close_mapx(this); return NULL; }
   
   /*
    *	match projection name and initialize remaining parameters
@@ -335,7 +330,7 @@ mapx_class *new_mapx (char *label)
     this->map_to_geo = inverse_albers_conic_equal_area;
   }
   else
-  { fprintf (stderr, "new_mapx: unknown projection %s\n", this->projection_name);
+  { fprintf (stderr, "mapx: unknown projection %s\n", this->projection_name);
     fprintf (stderr, "valid types are:\n");
     fprintf (stderr, " Albers Conic Equal-Area\n");
     fprintf (stderr, " Azimuthal Equal-Area\n");
@@ -368,7 +363,7 @@ mapx_class *new_mapx (char *label)
 
 
 /*------------------------------------------------------------------------
- * decode_mpp - parse information in map projection parameters file
+ * decode_mpp - parse information in map projection parameters label
  *
  *	input : this - pointer to map data structure (returned by new_mapx)
  *		label - map projection parameters label
@@ -387,10 +382,10 @@ static bool decode_mpp(mapx_class *this, char *label)
    *	if Map Projection tag present then interpret as new keyval format
    *  	otherwise try for old fixed format
    */
-  projection_name = get_field_keyval(label, "Map Projection", NULL);
+  projection_name = get_field_keyval(label, "Map Projection", keyval_FALL_THRU_STRING);
 
-  if (!projection_name) {
-    fprintf(stderr,"new_mapx: assuming old style fixed format file\n");
+  if (streq(projection_name, keyval_FALL_THRU_STRING)) {
+    if (mapx_verbose) fprintf(stderr,"> assuming old style fixed format file\n");
     return old_fixed_format_decode_mpp(this, label);
   }
 
@@ -402,12 +397,12 @@ static bool decode_mpp(mapx_class *this, char *label)
    */
   success = get_value_keyval(label, "Map Reference Latitude", "%lat", &(this->lat0), NULL);
   if (!success) {
-    fprintf(stderr,"new_mapx: Map Reference Latitude is a required field\n");
+    fprintf(stderr,"mapx: Map Reference Latitude is a required field\n");
     goto error_return;
   }
   success = get_value_keyval(label, "Map Reference Longitude", "%lon", &(this->lon0), NULL);
   if (!success) {
-    fprintf(stderr,"new_mapx: Map Reference Longitude is a required field\n");
+    fprintf(stderr,"mapx: Map Reference Longitude is a required field\n");
     goto error_return;
   }
 
@@ -426,7 +421,7 @@ static bool decode_mpp(mapx_class *this, char *label)
     this->center_lat = this->lat0;
   }
   get_value_keyval(label, "Map Origin Longitude", "%lon", &(this->center_lon), "999");
-  if (999 == this->center_lat) {
+  if (999 == this->center_lon) {
     if (mapx_verbose) fprintf(stderr,"> assuming map origin lon is same as ref. lon %f\n", this->lon0);
     this->center_lon = this->lon0;
   }
@@ -465,9 +460,12 @@ static bool decode_mpp(mapx_class *this, char *label)
       this->equatorial_radius = mapx_Re_km;
       if (mapx_verbose) fprintf(stderr,"> using default equatorial radius %fkm\n", this->equatorial_radius);
     }
-    if (999 != this->eccentricity && 0 != this->eccentricity) {
-      fprintf(stderr,"new_mapx: eccentricity specified with spherical map projection\n"
-	      "           use Ellipsoid version of projection name\n");
+    if (999 == this->eccentricity) {
+      this->eccentricity = 0.0;
+    }
+    else if (0 != this->eccentricity) {
+      fprintf(stderr,"mapx: eccentricity specified with spherical map projection\n"
+	      "       use Ellipsoid version of projection name\n");
       goto error_return;
     }
   }
@@ -475,7 +473,6 @@ static bool decode_mpp(mapx_class *this, char *label)
   return TRUE;
 
 error_return:
-  if (label) free(label);
   if (projection_name) free(projection_name);
   return FALSE;
 
@@ -579,8 +576,7 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
    *	check for errors when reading
    */
 error_return:
-  fprintf (stderr, "new_mapx: error interpreting map projection parameters\n");
-  if (label && strlen(label) <= MAX_STRING) fprintf(stderr,"%s\n", label);
+  if (mapx_verbose && label && strlen(label) <= MAX_STRING) fprintf(stderr,"> bad label: %s\n", label);
   return FALSE;
 
 }
@@ -593,7 +589,7 @@ error_return:
  *	result: pointer to next line in buffer or NULL if buffer is empty
  *
  *------------------------------------------------------------------------*/
-char *next_line_from_buffer(char *bufptr, char *readln)
+static char *next_line_from_buffer(char *bufptr, char *readln)
 {
   char *next_line;
   int line_length;
@@ -656,14 +652,14 @@ int reinit_mapx (mapx_class *this)
    */
   if (this->east < -180 || this->east > 360 
       || this->west < -180 || this->west > 360)
-  { fprintf(stderr,"new_mapx: illegal bounds: west=%f, east=%f\n",
+  { fprintf(stderr,"mapx: illegal bounds: west=%f, east=%f\n",
 	    this->west, this->east);
     fprintf(stderr,"           should be >= -180 and <= 360\n");
     return -1;
   }
   
   if (fabs(this->east - this->west) > 360)
-  { fprintf(stderr,"new_mapx: illegal bounds: west=%f, east=%f\n",
+  { fprintf(stderr,"mapx: illegal bounds: west=%f, east=%f\n",
 	    this->west, this->east);
     fprintf(stderr,"           bounds cannot span > 360 degrees.\n");
     return -1;
@@ -897,7 +893,9 @@ main(int argc, char *argv[])
   char readln[80];
   mapx_class *the_map;
   int status;
-  
+
+  mapx_verbose = 1;
+
   for (;;)
   { printf("\nenter .mpp file name - ");
     gets(readln);
