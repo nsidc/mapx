@@ -256,7 +256,11 @@ also made:
     b) In init_integerized_sinusoidal(), added passing of false easting
        and false northing values to Isin_inv_init().
 
-17) keyval.c:
+17) interupted_homolosine_equal_area.c:
+    a) In interupted_homolosine_equal_area(), changed max_it from 30 to
+       35 to fix non-convergence problem near latitude = -90.0 on linux.
+
+18) keyval.c:
     a) In get_label_keyval(), added feature such that for each line,
        any characters following a semi-colon or a pound sign are replaced
        with blanks.
@@ -268,11 +272,11 @@ also made:
        "KEYVAL_UNINITIALIZED" and format is "%f" or "%lf", and the keyword
        is not found, then the value KEYVAL_UNINITIALIZED is returned.
 
-18) keyval.h:
+19) keyval.h:
     a) Added definition of KEYVAL_UNINITIALIZED to be FLT_MAX, if FLT_MAX
        is defined, or 9e30 if it isn't.
 
-19) lambert_conic_conformal.c:
+20) lambert_conic_conformal.c:
     a) In init_lambert_conic_conformal_ellipsoid(), added use of Map
        Origin Latitude (center_lat) in addition to Map Reference Latitude
        (lat0) and Map Second Reference Latitude (lat1) as is done in
@@ -281,7 +285,7 @@ also made:
        accuracy series equation 3-5 from Snyder with higher accuracy
        iteration involving equation 7-9.
 
-20) mapx.c:
+21) mapx.c:
     a) Added declarations of the following functions:
        i)   init_transverse_mercator()
        ii)  transverse_mercator()
@@ -372,7 +376,7 @@ also made:
 	ii)  Added ability to specify the .mpp file name on the command
              line just as in gtest.
 
-21) mapx.h:
+22) mapx.h:
     a) Added definitions of WGS-84 equatorial radius and eccentricity.
     b) Added definition of default sphere radius for ISin.
     c) Added user specified constants:
@@ -400,10 +404,10 @@ also made:
        i)   forward_xy_mapx()
        ii)  inverse_xy_mapx()
 
-22) mercator.c:
+23) mercator.c:
     a) In mercator(), changed "dlon" from float to double.
 
-23) mollweide.c:
+24) mollweide.c:
     a) In mollweide(), changed "dlon" from float to double.
     b) In mollweide(), changed the value of epsilon from 0.0025 to 1e-6.
        This improved the average accuracy by about a factor of 4:
@@ -421,7 +425,7 @@ also made:
 		maximum error = 1.4431e-02 km
 		max error was at 90.00S 89.72W
 
-24) orthographic.c:
+25) orthographic.c:
     a) In orthographic(), changed the following temporary variables
        from float to double:
        i)   phi
@@ -432,7 +436,7 @@ also made:
        vi)  cos_lam
        vii) cos_beta
 
-25) polar_stereographic.c:
+26) polar_stereographic.c:
     a) In polar_stereographic(), changed the following temporary variables
        from float to double:
        i)   phi
@@ -455,14 +459,14 @@ also made:
     e) Also in polar_stereographic_ellipsoid(), changed the use of
        equation 15-9 to 15-9a.
 
-26) sinusoidal.c:
+27) sinusoidal.c:
     a) In sinusoidal(), changed "dlon" from float to double.
 
-27) Added transverse_mercator.c.
+28) Added transverse_mercator.c.
 
-28) Added universal_transverse_mercator.c.
+29) Added universal_transverse_mercator.c.
 
-29) Added unit_test directory containing utest.pl and several utest*.mpp
+30) Added unit_test directory containing utest.pl and several utest*.mpp
     files.
     a) In the unit_test directory, typing utest.pl produces:
 
