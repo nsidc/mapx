@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.15 1998-04-02 17:34:40 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.16 1999-04-19 21:20:11 knowles Exp $";
 
 /* 
  * useful macros
@@ -63,7 +63,7 @@ typedef struct {
   double e2, e4, e6, e8, qp, Rq, q1, Rg;
   double sin_phi1, cos_phi1, sin_phi0, cos_phi0, sin_lam1, cos_lam1;
   double beta1, sin_beta1, cos_beta1, D, phis, kz;
-  double rho0, n, F, m0, m1, t0, t1;
+  double rho0, n, C, F, m0, m1, t0, t1;
   int (*geo_to_map)(float, float, float *, float *);
   int (*map_to_geo)(float, float, float *, float *);
   int (*initialize)(void);
