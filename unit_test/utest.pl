@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.16 2003-05-08 16:34:23 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.17 2003-05-08 17:34:49 haran Exp $
 #
 
 #
@@ -24,7 +24,7 @@ $script = "UTEST";
 $script = $script;
 
 $Usage = "\n
-USAGE: utest.pl [-v] [-i tagin] [-o tagout] file1 [file2...filen]
+USAGE: utest.pl [-v] [-i tagin] [-o tagout] [-c] file1 [file2...filen]
 
    input:
        filen - Either a Map Projection Parameters file (mppfile) or a Grid
@@ -88,6 +88,9 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] file1 [file2...filen]
                    tagin value in the input file will be replaced with the
                    tagout value in the output file. If the -o option is not
                    specified, then no output file will be produced.
+
+       -c - When creating an output file, append to comment on any expected
+            line a comment which describes expected value in input file.
 ";
         
 #
@@ -96,9 +99,10 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] file1 [file2...filen]
 my $verbose = 0;
 my $tagin = "utsgi";
 my $tagout = "";
+my $append_comment = 0;
 my %opts;
 
-if (!getopts('vi:o:', \%opts)) {
+if (!getopts('vi:o:c', \%opts)) {
     print STDERR "Incorrect usage\n";
     die($Usage);
     exit 1;
@@ -111,6 +115,9 @@ if ($opts{i}) {
 }
 if ($opts{o}) {
     $tagout = $opts{o};
+}
+if ($opts{c}) {
+    $append_comment = 1;
 }
 if (@ARGV < 1) {
     die($Usage);
@@ -401,7 +408,7 @@ foreach $file_in (@files_in) {
 			  "Can't parse $target in output from $command\n");
 	    last;
 	}
-
+	
 	#
 	#  Compare expected and actual values
 	#
@@ -427,12 +434,17 @@ foreach $file_in (@files_in) {
 	system("rm -f $tmpfile");
 
 	#
+	#  Append to comment as necessary
+	#
+	if ($append_comment) {
+	    my $extra_blank = $comment ? "" : " ";
+	    $comment .= $extra_blank . ".vs $exp1 $exp2 in $tagin";
+	}
+
+	#
 	#  Write actual results to output file as necessary
 	#
 	if ($tagout) {
-	    if (!$comment) {
-		$comment = ".vs $exp1 $exp2 in $tagin";
-	    }
 	    print FILE_OUT "#   $target_out = $act1 $act2 $comment\n";
 	}
 
