@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.45 2001-07-26 21:29:58 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.46 2001-08-20 21:50:01 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -94,12 +94,13 @@ clean :
 	- $(RM) libmaps.a $(OBJS)
 
 tar :
-	- $(CO) Makefile ppgc.html regrid.c resamp.c \
+	- $(CO) Makefile ppgc.html regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
 	$(TAR) cvf $(TARFILE) \
-		Makefile ppgc.html mprojex.gif coordef.gif regrid.c resamp.c \
+		Makefile ppgc.html mprojex.gif coordef.gif \
+		regrid.c resamp.c irregrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
@@ -121,6 +122,9 @@ regrid: regrid.o $(DEPEND_LIBS)
 resamp: resamp.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o resamp resamp.o $(LIBS)
 	$(INSTALL) resamp $(BINDIR)
+irregrid: irregrid.o $(DEPEND_LIBS)
+	$(CC) $(CFLAGS) -o irregrid irregrid.o $(LIBS)
+	$(INSTALL) irregrid $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
