@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.3 1993-03-04 16:00:54 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.4 1993-04-15 14:34:41 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,8 +41,6 @@ cdb_class *new_cdb(void)
   this->npoints = 0;
   this->is_loaded = FALSE;
   this->get_data = cdb_read_disk;
-  this->move_pu = NULL;
-  this->draw_pd = NULL;
 
   return this;
 }
@@ -52,8 +50,6 @@ cdb_class *new_cdb(void)
  *              allocate space for segment data buffer
  *
  *      input : cdb_filename - name of cdb file
- *              move_pu - move pen up function
- *              draw_pd - draw pen down function
  *
  *      result: pointer to new cdb or NULL
  *
@@ -63,9 +59,7 @@ cdb_class *new_cdb(void)
  *		variable PATHCDB
  *
  *--------------------------------------------------------------------*/
-cdb_class *init_cdb(const char *cdb_filename, 
-		    void (*move_pu)(float lat, float lon), 
-		    void (*draw_pd)(float lat, float lon))
+cdb_class *init_cdb(const char *cdb_filename)
 {
   register int ios;
   cdb_class *this;
@@ -75,8 +69,6 @@ cdb_class *init_cdb(const char *cdb_filename,
  */
   this = new_cdb();
   assert(this != NULL);
-  this->move_pu = move_pu;
-  this->draw_pd = draw_pd;
 
 /*
  *	open cdb file
@@ -410,12 +402,16 @@ int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts)
  *
  *	input : this - pointer to cdb_class instance
  *		this->segment points to current segment
+ *              move_pu - move pen up function
+ *              draw_pd - draw pen down function
  *
  *	result: 0 = normal successful completion
  *		-1 = error occurred
  *
  *--------------------------------------------------------------------*/
-int draw_current_seg_cdb(cdb_class *this)
+int draw_current_seg_cdb(cdb_class *this,
+			 void (*move_pu)(float lat, float lon), 
+			 void (*draw_pd)(float lat, float lon))
 {
   register int ipt;
   register cdb_seg_data *data;
@@ -432,16 +428,16 @@ int draw_current_seg_cdb(cdb_class *this)
  */
   lat = this->segment->ilat0 * CDB_LAT_SCALE;
   lon = this->segment->ilon0 * CDB_LON_SCALE;
-  if (this->move_pu != NULL) (*(this->move_pu))(lat, lon);
+  if (move_pu != NULL) move_pu(lat, lon);
 
 /*
  *	call draw pen down for each point
  */
-  if (this->draw_pd != NULL)
+  if (draw_pd != NULL)
   {  for (ipt = 0; ipt < this->npoints; data++, ipt++)
      { lat += data->dlat * CDB_LAT_SCALE;
        lon += data->dlon * CDB_LON_SCALE;
-       (*(this->draw_pd))(lat, lon);
+       draw_pd(lat, lon);
      }
    }
 
@@ -796,12 +792,15 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
  *		start - either lat or lon depending on order
  *		stop - either lat or lon depending on order
  *		order - sort index order
+ *              move_pu - move pen up function
+ *              draw_pd - draw pen down function
  *
  *	result: calls draw_current_segment_cdb for each segment within bounds
  *
  *--------------------------------------------------------------------*/
-void draw_cdb(cdb_class *this, float start, float stop,
-	      cdb_index_sort order)
+void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
+	      void (*move_pu)(float lat, float lon), 
+	      void (*draw_pd)(float lat, float lon))
 {
   int split_search = FALSE;
   float lower, upper;
@@ -859,12 +858,12 @@ void draw_cdb(cdb_class *this, float start, float stop,
   { for(find_segment_cdb(this,start);
 	current_seg_cdb(this) <= last;
 	next_segment_cdb(this))
-      draw_current_seg_cdb(this);
+      draw_current_seg_cdb(this, move_pu, draw_pd);
     for(reset_current_seg_cdb(this);
 	current_seg_cdb(this) <= last
 	&& index_limit_test_cdb(this, lower, upper);
 	next_segment_cdb(this))
-      draw_current_seg_cdb(this);
+      draw_current_seg_cdb(this, move_pu, draw_pd);
   }
 
 /*
@@ -875,6 +874,6 @@ void draw_cdb(cdb_class *this, float start, float stop,
 	 current_seg_cdb(this) <= last
 	 && index_limit_test_cdb(this, lower, upper);
 	 next_segment_cdb(this))
-      draw_current_seg_cdb(this);
+      draw_current_seg_cdb(this, move_pu, draw_pd);
   }
 }
