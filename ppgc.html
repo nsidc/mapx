@@ -27,8 +27,8 @@ Satellite remote sensing has made possible the collection of data over
 large areas of the Earth. These data are often stored in
 &quot;grids.&quot; Grids are an efficient means of storing data because
 the location of a value within the grid is implicit--it is not explicitly
-stored in the grid. The location is also constant, facilitating comparison
-of data from different sensors or different time periods.<p>
+stored in the grid. The location is also constant, which makes it easy to
+compare data from different sensors or different time periods.<p>
 
 The purpose of this document is to give a brief introduction to mapping,
 gridding, and the associated terminology used in the mapx library at
@@ -48,11 +48,10 @@ common to approximate the surface of the earth with a simpler surface such
 as an ellipsoid or sphere.<p>
 
 The ellipsoid is flattened at the poles, relative to the sphere, by about
-1 part in 300. For maps of large areas (continents or bigger) no
-significant error is introduced by using the sphere. When mapping smaller
-areas it is not uncommon to choose an ellipsoid specifically for each
-area; each area is mapped on an ellipsoid with a different radius and
-eccentricity.<P>
+1 part in 300. For maps of large areas (continents or bigger) using the
+sphere introduces no significant error. When mapping smaller areas it is
+not uncommon to choose an ellipsoid specifically for each area; each area
+is mapped on an ellipsoid with a different radius and eccentricity.<P>
 
 Coordinates for points on the surface of the Earth are given in latitude
 and longitude. Geodetic latitude is the angle between a vertical ray at
@@ -89,7 +88,7 @@ globe, and the translation and rotation of the map on the plane
 surface.<p>
 
 There is no one best map projection. Each projection has different
-properties and thus different &quot;best&quot; uses. Two of the most
+properties and different &quot;best&quot; uses. Two of the most
 important characteristics of maps are whether they are conformal or
 equal-area. No map projection is both, and some are neither.
 
@@ -103,9 +102,9 @@ If a map is equal-area then a small circle placed anywhere on the map
 will always cover the same amount of area on the globe and the product of
 <I>h</I> and <I>k</I> at any point is one.<p>
 
-For maps which are not equal-area <I>hk</I> - 1 gives a measure of the
-areal distortion. For maps which are not conformal <I>k</I>/<I>h</I> gives
-the aspect ratio which is a measure of shape distortion. For example, on
+For maps that are not equal-area, <I>hk</I> - 1 gives a measure of the
+areal distortion. For maps that are not conformal, <I>k</I>/<I>h</I> gives
+the aspect ratio, which is a measure of shape distortion. For example, on
 the Polar Stereographic map true at 70N (a conformal map) the areal
 distortion varies from -6% at the pole to +29% at 45N and goes up to +276%
 at the equator while, by definition, the aspect ratio remains 1:1
@@ -122,28 +121,28 @@ complete discussion.<p>
 
 <a name="grids"><h3>Grids</h3></a>
 
-A grid is a rectangular array of points. Grids are used to record
-regularly spaced samples over an area. When sampling over the surface of
-the earth a grid is determined by a map projection, a sampling interval,
-an origin, and the number of rows and columns. So called
-&quot;lat/lon&quot; or &quot;equal angle&quot; grids are equivalent to
-grids sampled on a Cylindrical Equidistant map projection.<p>
+A grid is a rectangular array of points. Grids record regularly spaced
+samples over an area. When sampling over the surface of the earth a grid
+is determined by a map projection, a sampling interval, an origin, and the
+number of rows and columns. So called &quot;lat/lon&quot; or &quot;equal
+angle&quot; grids are equivalent to grids sampled on a Cylindrical
+Equidistant map projection.<p>
 
 A grid coordinate system is defined in the map plane with axes parallel to
 the rows and columns of the grid and units equal to the sampling
-interval. The grid sample locations are then at the whole integer grid
-coordinate points.  To conform to mathematical array conventions the grid
+interval. The grid sample locations are at the whole integer grid
+coordinate points. To conform to mathematical array conventions, the grid
 coordinates (<I>r</I>,<I>s</I>) start at (0,0) in the upper left corner
-with <I>r</I> increasing to the right and <I>s</I> increasing downward
+with <I>r</I> increasing to the right, and <I>s</I> increasing downward
 (this also conforms to digital image processing conventions). A grid cell
 (<I>i</I>,<I>j</I>) is defined as the area between grid coordinates
 <I>i</I>-.5 and <I>i</I>+.5, and <I>j</I>-.5 and <I>j</I>+.5. To conform
-to rounding conventions the lower bound is included in the cell while the
+to rounding conventions, the lower bound is included in the cell while the
 upper bound is not (round up at .5).  Note that the <I>r</I> coordinate
 corresponds to the grid column number <I>j</I>, and the <I>s</I>
 coordinate corresponds to the grid row number <I>i</I>.<P>
 
-It might be useful to think of the grid as a map drawn on graph paper.
+Think of the grid as a map drawn on graph paper.
 To find a grid cell location, count graph lines over from the left and
 down from the top, then read the latitude and longitude off the map.<P>
 
@@ -153,21 +152,17 @@ down from the top, then read the latitude and longitude off the map.<P>
 
 The process of sampling data on a grid is sometimes referred to as
 binning, especially when the sampling method is to average all data
-which falls into the grid cell. Some other methods used to sample data
-are: take the closest value to the grid point (nearest neighbor), or
+that falls into the grid cell. Other methods used to sample data
+are: take the closest value to the grid point (nearest neighbor) or
 interpolate between surrounding grid points.  Also, binning doesn't
-necessarily have to be the average of multiple data points, it could
-be the minimum, the maximum, the median or the latest value in the
+need to be the average of multiple data points; it could
+be the minimum, the maximum, the median, or the latest value in the
 grid cell. The characteristics of the data should determine the
-sampling method used. For example, nearest neighbor works quite well
-for elevation data, where as averaging or bilinear interpolation are
-terrible. When magnifying an image, interpolation is the way to go
-but for shrinking, averaging is usually best.
+sampling method.
 
 <a name="pictures"><h3>Pictures</h3></a>
 
-A pixel coordinate system is defined analogous to the grid coordinate
-system; pixels are analogous to grid cells. To display gridded data as a
+Pixels are analogous to grid cells. To display gridded data as a
 picture, define a transformation from grid coordinates to pixel
 coordinates and then sample the gridded data at the whole integer pixel
 coordinate points. The most common technique is to map grid cells onto
@@ -179,16 +174,16 @@ pixels one for one. More sophisticated techniques, often referred to as
 Many programs we use at NSIDC depend on the &quot;mapx&quot; module
 to handle map projections. These include: GISMO, PSQ, regrid, gridomatic,
 and the EASE-Grid processing software. Most of these tools
-provide access to pre-defined maps, however, it is relatively easy to
+provide access to predefined maps, but, it is relatively easy to
 define your own map with a map projection
-parameters--&quot;.mpp&quot;--file.<P>
+parameters (.mpp) file.<P>
 
-<H3>Map Projection Parameters File Format</H3></a>
+<H3>Map Projection Parameters (.mpp) File Format</H3></a>
 
 Each parameter is described by a "keyword: value" pair on a single
-line. Parameters can be followed by comments which begin with a
+line. Parameters can be followed by comments, which begin with a
 semi-colon. Parameters can appear in any order. The default value is used
-in the case where the corresponding keyword is not found. Unrecognized
+when the corresponding keyword is not found. Unrecognized
 keywords are silently ignored. This means that if you misspell a keyword
 you'll get the default value without warning. The following parameters
 define the map projection.<p>
@@ -205,7 +200,7 @@ define the map projection.<p>
 <td>Map Projection</td>
 <td>string</td>
 <td>required field</td>
-<td>projection name (see list below)</td>
+<td>projection name (see <a href="#proj_list">list</a> below)</td>
 </tr>
 
 <tr>
@@ -226,7 +221,7 @@ define the map projection.<p>
 <td>Map Second Reference Latitude</td>
 <td>decimal degrees</td>
 <td>none</td>
-<td>used by some projections (see list)</td>
+<td>used by some projections</td>
 </tr>
 
 <tr>
@@ -294,7 +289,8 @@ define the map projection.<p>
 
 </table><p>
 
-The following parameters are used only by programs which actually draw maps.<p>
+The following parameters are used only by programs that actually draw
+maps.<p>
 
 
 <table BORDER WIDTH="100%" NOSAVE >
@@ -383,9 +379,9 @@ The following parameters are used only by programs which actually draw maps.<p>
 </tr>
 
 </table>
-<p>n.b. for Integerized Sinusoidal set scale to size of each row</p>
+<p>note: For Integerized Sinusoidal, set scale to size of each row.</p>
 
-<h3>Map Projection Names</h3></a>
+<a name="proj_list"><h3>Map Projection Names</h3></a>
 <ul>
   <li>Albers Conic Equal-Area
   <li>Azimuthal Equal-Area
@@ -403,56 +399,60 @@ The following parameters are used only by programs which actually draw maps.<p>
   <li>Sinusoidal
 </ul><p>
 
-Map names are not case sensitive, white space and dashes are ignored, and
-most word permutations are acceptable. For example, "Equal-Area
-Cylindrical" is equivalent to "CYLINDRICAL EQUALAREA".<p>
- The reference latitude and longitude specify the original location and
-orientation of the map projection. The origin of the rectangular map
-coordinate system can then be rotated and translated with the Rotation and
-Origin keywords.<p>
- For the Cylindrical Equal-Area, and Polar Stereographic projections the
+Keywords must be entered verbatim. Capitalization and white space
+matter. Unrecognized (or mispelled) keywords are silently ignored. Map
+names are not case sensitive, white space and dashes are ignored, and most
+word permutations are acceptable. For example, "Equal-Area Cylindrical" is
+equivalent to "CYLINDRICAL EQUALAREA".<p>
+ The reference latitude and longitude specify the original
+location and orientation of the map projection. The origin of the
+rectangular map coordinate system can be rotated and translated with the
+rotation and origin keywords.<p>
+ For the Cylindrical Equal-Area and Polar Stereographic projections, the
 second reference latitude specifies the latitude of "true"
-scale. Conceptually, where the projection plane intersects the
-surface. For the Albers Conic Equal-Area, and Lambert Conic Conformal
-projections the conic plane is secant to the surface between the reference
-latitude and the second reference latitude.<p>
+scale. Conceptually, this is where the projection plane intersects the
+surface. For the Albers Conic Equal-Area and Lambert Conic Conformal
+projections, the conic plane is secant to the surface between the
+reference latitude and the second reference latitude.<p>
   The equatorial radius and eccentricity specify the surface to be mapped
 (usually the Earth's surface). The scale and the equatorial radius
-determine the map units. For example if the radius is in kilometers (as is
-the case with the default) and the scale is 1.0 then the map units will be
-kilometers.  PostScript units are inches, so for PostScript output you
-would specify kilometers per inch. For a grid you can define the scale in
-terms of kilometers per grid cell. The gridding module &quot;grids&quot;
-also has parameters which specify grid cells per map unit. This allows the
-same .mpp file to be used for multiple nested grids.<p>
+determine the map units. For example, if the radius is in kilometers (as
+is the case with the default) and the scale is 1.0, then the map units
+will be kilometers.  PostScript units are inches, so for PostScript output
+you would specify the scale in kilometers per inch. For a grid you can
+define the scale in terms of kilometers per grid cell. The gridding module
+&quot;grids&quot; also has parameters that specify grid cells per map
+unit. This allows the same .mpp file to be used for multiple nested
+grids.<p>
 
  The remaining parameters are used by programs that actually draw maps
-(e.g. psmap, mapenum). The southern, northern, western, and eastern bounds
-of the map are the starting point for the graticule and are used to speed
-up the search in the map outline data base. They cannot be counted on to
-clip the map accurately. All longitudes should be in the range -180 to
-+360.  West to east should not span more than 360 degrees. West specifies
-the left side of the map and east the right, not necessarily the minimum
-and maximum longitudes.<p>
+(e.g. psmap, mapenum). The southern, northern,
+western, and eastern bounds of the map are the starting
+point for the graticule and are used to speed up the search in the map
+outline data base. They cannot be counted on to clip the map
+accurately. All longitudes should be in the range -180 to +360.  West to
+east should not span more than 360 degrees. West specifies the left side
+of the map and east the right, not necessarily the minimum and maximum
+longitudes.<p>
  The latitude and longitude graticule intervals specify the spacing
 between graticule lines. The graticule is the overlay of latitude and
-longitude lines on the map. By default a parallel is drawn every 30
+longitude lines on the map. By default, a parallel is drawn every 30
 degrees starting at the bottom of the map (90.00S) and a meridian is drawn
 every 30 degrees starting at the left side of the map (180.00W).  Label
 latitude and longitude specify the parallel and meridian along which to
 draw the graticule line labels.<p>
- The last three numbers are used by the data base search routine to
+ The last three numbers are used by the database search routine to
 specify the level of detail for map lines. The level refers to the number
-and size of features which will be selected, as oppossed to resolution of
-each feature. The higher the number the more detail will be included. For
-example level 1 will include only the largest features, such as, whole
+and size of features that will be selected, as opposed to resolution of
+each feature. The higher the number, the more detail will be included. For
+example, level 1 will include only the largest features, such as whole
 continents, while level 2 would also include some smaller features like
 large lakes. In either case the continental outline will appear with the
 same amount of detail (the same jaggedness).<p>
 
-<H3>Grid Parameter Definition File Format</H3></a>
+<H3>Grid Parameter Definition (.gpd) File Format</H3></a>
 
-Grids are defined in grid parameter definition--&quot;.gpd&quot;--files.<p>
+Grids are defined in grid parameter definition (.gpd) files.<p>
 
 <table BORDER WIDTH="100%" NOSAVE >
 <tr>
@@ -548,7 +548,7 @@ on the kinds of grids that can be defined. All grids must be rectangular
 arrays. Rectangular arrays are easy to use with existing scientific
 visualization tools, like IDL, but they may be inefficient in terms of
 storage space for non-rectangular data sets. If some flag value (for
-example zero) is stored in the unused cells then this wasted space can be
+example zero) is stored in the unused cells, then this wasted space can be
 compacted by any good data compression scheme. This same invalid data flag
 can be used within the grid as well, leading to further storage savings.
 Another restriction is that each grid must be based on a map projection
@@ -569,7 +569,7 @@ most common map projections can be found in the references below.
 <hr>
 <address><a href="mailto:Kenneth.Knowles@Colorado.EDU">Ken Knowles &lt;Kenneth.Knowles@Colorado.EDU&gt;</a></address>
 <!-- hhmts start -->
-Last modified: Tue Jan 14 13:33:58 2003
+Last modified: Tue Apr 22 17:29:35 2003
 <!-- hhmts end -->
-<p>$Revision: 1.2 $<p></body> </html>
+<p>$Revision: 1.3 $<p></body> </html>
 
