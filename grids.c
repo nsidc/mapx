@@ -4,7 +4,7 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.11 1996-02-29 16:44:03 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.12 1996-03-20 18:48:42 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +33,7 @@ static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.11
  *		value without warning
  *		also, if init_grid fails to open the gpd_file on its
  *		first attempt it will then search the colon separated
- *		list of directories in the envornment variable PATHGPD
+ *		list of directories in the envornment variable PATHMPP
  *
  *----------------------------------------------------------------------*/
 grid_class *init_grid(const char *grid_filename)
@@ -63,7 +63,7 @@ grid_class *init_grid(const char *grid_filename)
   { perror("init_grid"); close_grid(this); return NULL; }
 
   strncpy(this->gpd_filename, grid_filename, FILENAME_MAX);
-  this->gpd_file = search_path_fopen(this->gpd_filename, "PATHGPD", "r");
+  this->gpd_file = search_path_fopen(this->gpd_filename, "PATHMPP", "r");
   if (this->gpd_file == NULL)
   { fprintf(stderr,"init_grid: error opening parameters file.\n");
     perror(grid_filename);
