@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.9 1999-04-20 19:08:32 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.10 1999-06-29 21:55:17 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.9 $\n"                                                             \
+"$Revision: 1.10 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -386,6 +386,8 @@ main (int argc, char *argv[])
 /*
  *	resample data from input grid into output grid
  */
+  if (verbose) fprintf(stderr,"> resampling...\n");
+
   if (forward_resample)
   { 
     if (weighted_sum)
@@ -411,6 +413,8 @@ main (int argc, char *argv[])
 /*
  *	normalize result
  */
+  if (verbose) fprintf(stderr,"> normalizing...\n");
+
   if (forward_resample || weighted_sum) /* i.e. not nearest-neighbor */
   { for (i = 0; i < to_grid->rows; i++)
     { for (j = 0; j < to_grid->cols; j++)
@@ -430,7 +434,8 @@ main (int argc, char *argv[])
   if (!status) { perror(to_filename); exit(ABORT); }
 
   if (beta_file)
-  { fseek(beta_file, 0, SEEK_SET);
+  { if (verbose) fprintf(stderr,"> writing beta to %s\n", beta_filename);
+    fseek(beta_file, 0, SEEK_SET);
     fwrite(to_beta[0], sizeof(float), to_grid->cols*to_grid->rows, beta_file);
   }
 
