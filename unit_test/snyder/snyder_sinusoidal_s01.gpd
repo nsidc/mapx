@@ -1,0 +1,44 @@
+# file: snyder_sinusoidal_s01.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A: Numerical Examples
+# Adapted from Sinusoidal Sphere pp. 365-366
+#
+Map Projection:                 Sinusoidal
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        90.0
+Grid Width:                     500
+Grid Height:                    250
+Grid Cells Per Map Unit:        135
+Grid Map Origin Column:         249.5
+Grid Map Origin Row:            124.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 50.0 75.0
+#   x,y = -0.1682814 0.8726646
+#
+# xytest inverse
+#   x,y = -0.1682814 0.8726646
+#   lat,lon = 49.9999985 75.0000007
+#
+# crtest forward
+#   lat,lon = 50 75.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 226.7820106 6.6902755
+#   lat,lon = dummy dummy

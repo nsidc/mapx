@@ -1,0 +1,46 @@
+# file: snyder_albers_conic_equal_area_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Albers Conical Equal-Area Sphere pp. 291-292
+#
+Map Projection:                 Albers Conic Equal-Area
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         29.5
+Map Second Reference Latitude:  45.5
+Map Origin Latitude:            23.0
+Map Reference Longitude:        -96.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Cells Per Map Unit:        500
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 35.0 -75.0
+#   x,y = 0.2952720 0.2416774
+#
+# xytest inverse
+#   x,y = 0.2952720 0.2416774
+#   lat,lon = 35.0000007 -75.0000008
+#
+# crtest forward
+#   lat,lon = 35.0 -75.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 297.1360035 28.6612754
+#   lat,lon = dummy dummy

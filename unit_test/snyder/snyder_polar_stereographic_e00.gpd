@@ -1,0 +1,47 @@
+# file: snyder_polar_stereographic_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Stereographic Ellipsoid "Polar Aspect" with known phi-subc not at the
+# pole pp. 315-319
+#
+Map Projection:                 Polar Stereographic Ellipsoid
+Map Equatorial Radius:          6378388.0
+Map Eccentricity:               0.0819919
+Map Reference Latitude:         -90.0
+Map Second Reference Latitude:  -71.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        15000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -75.0 150.0
+#   x,y = -1540033.6       -560526.4
+#
+# xytest inverse
+#   x,y = -1540033.6 -560526.4
+#   lat,lon = -75.0000026 149.9999997
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 46.8310926 186.8684263
+#   lat,lon = dummy dummy

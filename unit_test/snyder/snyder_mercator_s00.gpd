@@ -1,0 +1,44 @@
+# file: snyder_mercator_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Mercator Sphere pp. 266-267
+#
+Map Projection:                 Mercator
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -180.0
+Grid Width:                     500
+Grid Height:                    200
+Grid Cells Per Map Unit:        100
+Grid Map Origin Column:         249.5
+Grid Map Origin Row:            99.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 35.0 -75.0
+#   x,y = 1.8325957 0.6528366
+#
+# xytest inverse
+#   x,y = 1.8325957 0.6528366
+#   lat,lon = 35.0000000 -75.0000000
+#
+# crtest forward
+#   lat,lon = 35.0 -75.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 432.7595715 34.2163420
+#   lat,lon = dummy dummy

@@ -1,0 +1,44 @@
+# file: snyder_mollweide_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Mollweide Sphere p. 367
+#
+Map Projection:                 Mollweide
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -90.0
+Grid Width:                     500
+Grid Height:                    200
+Grid Cells Per Map Unit:        125
+Grid Map Origin Column:         249.5
+Grid Map Origin Row:            79.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -50.0 -75.0
+#   x,y = 0.1788845 -0.9208758
+#
+# xytest inverse
+#   x,y = 0.1788845 -0.9208758
+#   lat,lon = -50.0000000 -75.0000000
+#
+# crtest forward
+#   lat,lon = -50.0 -75.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 271.8605612 194.6094739
+#   lat,lon = dummy dummy

@@ -1,0 +1,44 @@
+# file: snyder_azimuthal_equal_area_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Lambert Azimuthal Equal-Area Sphere pp. 332-333
+#
+Map Projection:                 Azimuthal Equal-Area
+Map Equatorial Radius:          3.0
+Map Reference Latitude:         40.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Cells Per Map Unit:        70
+Grid Map Origin Column:         299.5
+Grid Map Origin Row:            299.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -20.0 100.0
+#   x,y = -4.2339303 4.0257775
+#
+# xytest inverse
+#   x,y = -4.2339303 4.0257775
+#   lat,lon = -19.9999993 100.0000005
+#
+# crtest forward
+#   lat,lon = -20.0 100.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 3.1248776 17.6955755
+#   lat,lon = dummy dummy

@@ -1,0 +1,46 @@
+# file: snyder_transverse_mercator_e01.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Transverse Mercator Ellipsoid pp. 269-273
+#
+Map Projection:                 Transverse Mercator Ellipsoid
+Map Equatorial Radius:          6378206.4
+Map Polar Radius:               6356583.8
+Map Reference Latitude:         0.0
+Map Reference Longitude:        75.0
+Map Center Scale:               0.9996
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        1000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            -4199.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = -40.5 73.5
+#   x,y = -127106.5       -4484124.4
+#
+# xytest inverse
+#   x,y = -127106.5 -4484124.4
+#   lat,lon = -40.5000000 73.5000000
+#
+# crtest forward
+#   lat,lon = -40.5 73.5
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 22.3935326 284.6244632
+#   lat,lon = dummy dummy

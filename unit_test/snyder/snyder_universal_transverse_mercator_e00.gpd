@@ -1,0 +1,46 @@
+# file: snyder_universal_transverse_mercator_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Universal Transverse Mercator
+# Adapted from Transverse Mercator Ellipsoid pp. 269-273
+# 500000 m false easting applied to x coordinate values
+#
+Map Projection:                 Universal Transverse Mercator
+Map Equatorial Radius:          6378206.4
+Map Eccentricity Squared:       0.00676866
+Map UTM Zone:                   18
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        1000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            4499.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 40.5 -73.5
+#   x,y = 627106.5       4484124.4
+#
+# xytest inverse
+#   x,y = 627106.5 4484124.4
+#   lat,lon = 40.5000000 -73.5000000
+#
+# crtest forward
+#   lat,lon = 40.5 -73.5
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 276.6064674 15.3755438
+#   lat,lon = dummy dummy

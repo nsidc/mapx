@@ -1,0 +1,46 @@
+# file: snyder_cylindrical_equal_area_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Cylindrical Equal-Area Ellipsoid "Normal Aspect" pp. 281-285
+#
+Map Projection:                 Cylindrical Equal-Area Ellipsoid
+Map Equatorial Radius:          6378206.4
+Map Eccentricity:               0.0822719
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -75.0
+Map Second Reference Latitude:  5.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        15000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 5.0 -78.0
+#   x,y = -332699.8       554248.5
+#
+# xytest inverse
+#   x,y = -332699.8 554248.5
+#   lat,lon = 5.0000000 -78.0000000
+#
+# crtest forward
+#   lat,lon = 5.0 -78.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 127.3200112 112.5501035
+#   lat,lon = dummy dummy

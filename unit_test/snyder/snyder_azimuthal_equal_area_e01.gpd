@@ -1,0 +1,45 @@
+# file: snyder_azimuthal_equal_area_e01.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Lambert Azimuthal Equal-Area Ellipsoid "Polar Aspect" pp. 334-337
+#
+Map Projection:                 Azimuthal Equal-Area Ellipsoid
+Map Equatorial Radius:          6378388.0
+Map Eccentricity:               0.0819919
+Map Reference Latitude:         90.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        15000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# gacct
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#   dummy
+#
+# xytest forward
+#   lat,lon = 80.0 5.0
+#   x,y = 1077459.7       288704.5
+#
+# xytest inverse
+#   x,y = 1077459.7 288704.5
+#   lat,lon = 80.0000036 5.0000022
+#
+# crtest forward
+#   lat,lon = 80.0 5.0
+#   col,row = dummy dummy
+#
+# crtest inverse
+#   col,row = 221.3306457 130.2530365
+#   lat,lon = dummy dummy
