@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.44 2001-07-26 21:23:00 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.45 2001-07-26 21:29:58 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -99,7 +99,7 @@ tar :
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
 	$(TAR) cvf $(TARFILE) \
-		Makefile ppgc.html regrid.c resamp.c \
+		Makefile ppgc.html mprojex.gif coordef.gif regrid.c resamp.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS)
