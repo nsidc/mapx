@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.1 2003-04-11 23:18:01 haran Exp $
+# $Id: utest.pl,v 1.2 2003-04-11 23:31:11 haran Exp $
 #
 
 #
@@ -60,9 +60,9 @@ foreach $mppfile (@mppfiles) {
     # Read the entire mpp file
     #
     if (!open(MPP, "$mppfile")) {
-	print STDERR ("script: ERROR: $mppfile:\n" .
+	print STDERR ("$script: ERROR: $mppfile:\n" .
 		      "Can't open $mppfile for reading\n");
-	last;
+	next;
     }
     my @mpp = (<MPP>);
     close(MPP);
@@ -90,9 +90,6 @@ foreach $mppfile (@mppfiles) {
 	    if (!$got_one_result) {
 		print STDERR ("$script: ERROR: $mppfile:\n" .
 			      "Can't find input lat,lon in $mppfile\n");
-	    } elsif (!$ok) {
-		print STDERR ("$script: ERROR: $mppfile:\n" .
-			      "Expected and actual results differ\n");
 	    }
 	    last;
 	}
@@ -143,7 +140,7 @@ foreach $mppfile (@mppfiles) {
         # Create a temporary file to hold the input to xytest
         #
 	if (!open(TEMP, ">$tmpfile")) {
-	    print STDERR ("script: ERROR: $mppfile:\n" .
+	    print STDERR ("$script: ERROR: $mppfile:\n" .
 			  "Can't open $tmpfile for writing\n");
 	    last;
 	}
@@ -215,12 +212,21 @@ foreach $mppfile (@mppfiles) {
 	       $lat_expected eq $lat_actual and
 	       $lon_expected eq $lon_actual);
 	if ($verbose || !$ok) {
+	    print STDERR ("**********************************************\n");
 	    print STDERR ("$mppfile:\n");
 	    print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
 	    print STDERR ("  x,y expected:     $x_expected $y_expected\n");
 	    print STDERR ("  x,y actual:       $x_actual $y_actual\n");
 	    print STDERR ("  lat,lon expected: $lat_expected $lon_expected\n");
 	    print STDERR ("  lat,lon actual:   $lat_actual $lon_actual\n");
+	}
+	if (!$ok) {
+	    print STDERR ("$script: ERROR: $mppfile:\n" .
+			  "Expected and actual results differ\n");
+	}
+	if ($verbose && $ok) {
+	    print STDERR ("$script: MESSAGE: $mppfile:\n" .
+			  "Expected results match actual results\n");
 	}
 	system("rm -f $tmpfile");
 	$got_one_result = 1;
