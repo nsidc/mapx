@@ -10,7 +10,7 @@
 #define mapx_h_
 
 #ifdef mapx_c_
-const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.27 2004-01-23 01:53:34 knowlesk Exp $";
+const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.28 2004-06-08 21:51:55 haran Exp $";
 #endif
 
 /*
@@ -47,6 +47,10 @@ GLOBAL int mapx_verbose;
 #define PI 3.141592653589793
 #endif
 
+#ifndef NAN
+#define NAN (asin(2.0))
+#endif
+
 /* radius of the Earth in km, authalic sphere based on International datum */
 #define mapx_Re_km  6371.228
 /* equatorial radius in km and eccentricity of the Earth based on Clark 1866 Datum */
@@ -78,31 +82,33 @@ GLOBAL int mapx_verbose;
 typedef struct {
 /*
  *	user specified constants
+ *      use of dummy values is to maintain 16-byte alignment of doubles so that
+ *      gdb prints doubles correctly
  */
   double lat0, lon0, lat1, lon1;
   double rotation, scale;
   double south, north, west, east;
   double center_lat, center_lon, label_lat, label_lon;
   double lat_interval, lon_interval;
-  int cil_detail, bdy_detail, riv_detail;
+  int cil_detail, bdy_detail, riv_detail, dummy1;
   double equatorial_radius, polar_radius, eccentricity, e2;
   double x0, y0, false_easting, false_northing;
-  double center_scale;
+  double center_scale, maximum_error;
   int utm_zone;
-  int isin_nzone, isin_justify;
+  int isin_nzone, isin_justify, dummy2;
 /*
  *	private projection constants
  */
   double T00, T01, T10, T11, u0, v0;
-  int map_stradles_180;
+  int map_stradles_180, dummy3;
   double e4, e6, e8, qp, Rq, q0, q1, q2, Rg;
   double sin_phi0, sin_phi1, sin_phi2, sin_lam1;
   double cos_phi0, cos_phi1, cos_phi2, cos_lam1;
   double beta1, sin_beta1, cos_beta1, D, phis, kz;
   double rho0, n, C, F, m0, m1, m2, t0, t1, t2;
-  void *isin_data;
+  void *isin_data, *dummy4;
   double e0, e1p, e2p, e3p, ml0, esp;
-  double f1, f2, f3, f4;
+  double f1, f2, f3, f4, f;
   int (*geo_to_map)(void *, double, double, double *, double *);
   int (*map_to_geo)(void *, double, double, double *, double *);
   int (*initialize)(void *);
