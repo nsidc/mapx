@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.8 2003-04-23 00:06:01 haran Exp $
+# $Id: utest.pl,v 1.9 2003-04-23 00:33:00 haran Exp $
 #
 
 #
@@ -128,6 +128,7 @@ foreach $mppfile (@mppfiles) {
 		#
 		if (scalar(@macct_act_lines) == 5) {
 		    my $j;
+		    my $got_bad_one = 0;
 		    for ($j = 0; $j < 5; $j++) {
 			if ($i < scalar(@mpp)) {
 			    my $line = $mpp[$i++];
@@ -136,15 +137,13 @@ foreach $mppfile (@mppfiles) {
 			    $line =~ s/\s*$//;
 			    $macct_exp_lines[$j] = $line;
 			    if ($line ne $macct_act_lines[$j]) {
-				last;
+				$got_bad_one = 1;
 			    }
 			} else {
 			    last;
 			}
 		    }
-		    if ($j == 5) {
-			$macct_ok = 1;
-		    }
+		    $macct_ok = !$got_bad_one;
 		}
 	    }
 	    if ($verbose || !$macct_ok) {
