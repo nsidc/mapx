@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.29 1999-07-28 20:45:48 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.30 1999-07-28 22:23:48 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,48 +50,48 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.29 1
  *
  *
  *::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-int init_azimuthal_equal_area(mapx_class *);
-int azimuthal_equal_area();
-int inverse_azimuthal_equal_area();
-int init_cylindrical_equidistant(mapx_class *);
-int cylindrical_equidistant();
-int inverse_cylindrical_equidistant();
-int init_cylindrical_equal_area(mapx_class *);
-int cylindrical_equal_area();
-int inverse_cylindrical_equal_area();
-int init_mercator(mapx_class *);
-int mercator();
-int inverse_mercator();
-int init_mollweide(mapx_class *);
-int mollweide();
-int inverse_mollweide();
-int init_orthographic(mapx_class *);
-int orthographic();
-int inverse_orthographic();
-int init_polar_stereographic(mapx_class *);
-int polar_stereographic();
-int inverse_polar_stereographic();
-int init_polar_stereographic_ellipsoid(mapx_class *);
-int polar_stereographic_ellipsoid();
-int inverse_polar_stereographic_ellipsoid();
-int init_sinusoidal(mapx_class *);
-int sinusoidal();
-int inverse_sinusoidal();
-int init_azimuthal_equal_area_ellipsoid(mapx_class *);
-int azimuthal_equal_area_ellipsoid();
-int inverse_azimuthal_equal_area_ellipsoid();
-int init_cylindrical_equal_area_ellipsoid(mapx_class *);
-int cylindrical_equal_area_ellipsoid();
-int inverse_cylindrical_equal_area_ellipsoid();
-int init_lambert_conic_conformal_ellipsoid(mapx_class *);
-int lambert_conic_conformal_ellipsoid();
-int inverse_lambert_conic_conformal_ellipsoid();
-int init_interupted_homolosine_equal_area(mapx_class *);
-int interupted_homolosine_equal_area();
-int inverse_interupted_homolosine_equal_area();
-int init_albers_conic_equal_area(mapx_class *);
-int albers_conic_equal_area();
-int inverse_albers_conic_equal_area();
+int init_azimuthal_equal_area(void *);
+int azimuthal_equal_area(void *, float, float, float *, float *);
+int inverse_azimuthal_equal_area(void *, float, float, float *, float *);
+int init_cylindrical_equidistant(void *);
+int cylindrical_equidistant(void *, float, float, float *, float *);
+int inverse_cylindrical_equidistant(void *, float, float, float *, float *);
+int init_cylindrical_equal_area(void *);
+int cylindrical_equal_area(void *, float, float, float *, float *);
+int inverse_cylindrical_equal_area(void *, float, float, float *, float *);
+int init_mercator(void *);
+int mercator(void *, float, float, float *, float *);
+int inverse_mercator(void *, float, float, float *, float *);
+int init_mollweide(void *);
+int mollweide(void *, float, float, float *, float *);
+int inverse_mollweide(void *, float, float, float *, float *);
+int init_orthographic(void *);
+int orthographic(void *, float, float, float *, float *);
+int inverse_orthographic(void *, float, float, float *, float *);
+int init_polar_stereographic(void *);
+int polar_stereographic(void *, float, float, float *, float *);
+int inverse_polar_stereographic(void *, float, float, float *, float *);
+int init_polar_stereographic_ellipsoid(void *);
+int polar_stereographic_ellipsoid(void *, float, float, float *, float *);
+int inverse_polar_stereographic_ellipsoid(void *, float, float, float *, float *);
+int init_sinusoidal(void *);
+int sinusoidal(void *, float, float, float *, float *);
+int inverse_sinusoidal(void *, float, float, float *, float *);
+int init_azimuthal_equal_area_ellipsoid(void *);
+int azimuthal_equal_area_ellipsoid(void *, float, float, float *, float *);
+int inverse_azimuthal_equal_area_ellipsoid(void *, float, float, float *, float *);
+int init_cylindrical_equal_area_ellipsoid(void *);
+int cylindrical_equal_area_ellipsoid(void *, float, float, float *, float *);
+int inverse_cylindrical_equal_area_ellipsoid(void *, float, float, float *, float *);
+int init_lambert_conic_conformal_ellipsoid(void *);
+int lambert_conic_conformal_ellipsoid(void *, float, float, float *, float *);
+int inverse_lambert_conic_conformal_ellipsoid(void *, float, float, float *, float *);
+int init_interupted_homolosine_equal_area(void *);
+int interupted_homolosine_equal_area(void *, float, float, float *, float *);
+int inverse_interupted_homolosine_equal_area(void *, float, float, float *, float *);
+int init_albers_conic_equal_area(void *);
+int albers_conic_equal_area(void *, float, float, float *, float *);
+int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
 static char *standard_name(char *);
 
 /*----------------------------------------------------------------------
