@@ -10,8 +10,11 @@ CC = /usr/bin/cc
 AR = /usr/bin/ar
 RANLIB = /bin/touch
 CO = /usr/sbin/co
-MV = /bin/mv
+INSTALL = /bin/cp
 RM = /bin/rm -f
+TAR = /bin/tar
+COMPRESS = /usr/bsd/compress
+TARFILE = maps.tar
 DEBUG_FLAGS = -O
 CLIBS = -lc_s -lm -lmalloc
 CFLAGS = -I. $(DEBUG_FLAGS)
@@ -26,11 +29,17 @@ libmaps.a : $(HEADERS) $(OBJECTS)
 	$(RANLIB) libmaps.a
 
 install : libmaps.a $(HEADERS)
-	$(MV) libmaps.a $(LOCAL_LIB)
-	$(MV) $(HEADERS) $(LOCAL_INCLUDE)
+	$(INSTALL) libmaps.a $(LOCAL_LIB)
+	$(INSTALL) $(HEADERS) $(LOCAL_INCLUDE)
 
 clean :
-	- $(RM) $(OBJECTS) $(SOURCES) $(HEADERS)
+	- $(RM) libmaps.a $(OBJECTS) $(SOURCES) $(HEADERS)
+
+tar:
+	$(CO) Makefile $(SOURCES)
+	$(TAR) cvf $(TARFILE) Makefile $(SOURCES)
+	$(COMPRESS) $(TARFILE)
+	- $(RM) $(SOURCES)
 
 # interactive tests
 mtest : mapx.c mapx.h
