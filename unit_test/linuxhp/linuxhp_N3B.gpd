@@ -9,10 +9,10 @@ linuxhp/linuxhp_Nps.mpp map projection parameters   # SSM/I Brightness Temp Grid
 #
 # gacct
 #   136192 points,  0 bad points
-#   average error = 4.8712e-11 pixels
-#   std dev error = 4.4949e-11 pixels
-#   maximum error = 1.5889e-10 pixels
-#   max error was at col: 73  row: 8   lat: 38.398360  lon: 154.645776
+#   average error = 4.8711e-11 pixels
+#   std dev error = 4.4942e-11 pixels
+#   maximum error = 1.5893e-10 pixels
+#   max error was at col: 277  row: 28   lat: 38.338642  lon: 103.995259
 #
 # crtest forward
 #   lat,lon = 75.0 -150.0

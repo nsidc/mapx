@@ -15,10 +15,10 @@ Azimuthal Equal-Area
 #
 # macct
 #   102400 points,  0 bad points
-#   average error = 8.4935e-06 km
-#   std dev error = 2.7097e-05 km
+#   average error = 6.8070e-06 km
+#   std dev error = 2.4493e-05 km
 #   maximum error = 9.4939e-05 km
-#   max error was at 66.02S 180.00W
+#   max error was at 59.81S 180.00W
 #
 # xytest forward
 #   lat,lon = -75.0 150.0

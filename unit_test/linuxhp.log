@@ -13,14 +13,14 @@ file: linuxhp/linuxhp_M200correct.mpp
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.0436e-06 km
-    std dev error = 2.1293e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.0436e-06 km
-    std dev error = 2.1293e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
@@ -62,16 +62,16 @@ file: linuxhp/linuxhp_Ml.gpd
   **************************************************************
   gacct expected results:
     810438 points,  0 bad points
-    average error = 4.9482e-15 pixels
-    std dev error = 1.6442e-14 pixels
-    maximum error = 1.2711e-13 pixels
-    max error was at col: 13  row: 25   lat: 65.709394  lon: -176.485896
+    average error = 2.5727e-15 pixels
+    std dev error = 9.4666e-15 pixels
+    maximum error = 8.0389e-14 pixels
+    max error was at col: 179  row: 25   lat: 65.709394  lon: -133.275485
   gacct actual results:
     810438 points,  0 bad points
-    average error = 4.9482e-15 pixels
-    std dev error = 1.6442e-14 pixels
-    maximum error = 1.2711e-13 pixels
-    max error was at col: 13  row: 25   lat: 65.709394  lon: -176.485896
+    average error = 2.5727e-15 pixels
+    std dev error = 9.4666e-15 pixels
+    maximum error = 8.0389e-14 pixels
+    max error was at col: 179  row: 25   lat: 65.709394  lon: -133.275485
   Expected results match actual results
   **************************************************************
   crtest forward results:
@@ -117,14 +117,14 @@ file: linuxhp/linuxhp_N200correct.mpp
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.4961e-06 km
-    std dev error = 2.2172e-05 km
+    average error = 6.3917e-06 km
+    std dev error = 2.3790e-05 km
     maximum error = 9.4939e-05 km
     max error was at 0.28N 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.4961e-06 km
-    std dev error = 2.2172e-05 km
+    average error = 6.3917e-06 km
+    std dev error = 2.3790e-05 km
     maximum error = 9.4939e-05 km
     max error was at 0.28N 180.00W
   Expected results match actual results
@@ -152,16 +152,16 @@ file: linuxhp/linuxhp_N3B.gpd
   **************************************************************
   gacct expected results:
     136192 points,  0 bad points
-    average error = 4.8712e-11 pixels
-    std dev error = 4.4949e-11 pixels
-    maximum error = 1.5889e-10 pixels
-    max error was at col: 73  row: 8   lat: 38.398360  lon: 154.645776
+    average error = 4.8711e-11 pixels
+    std dev error = 4.4942e-11 pixels
+    maximum error = 1.5893e-10 pixels
+    max error was at col: 277  row: 28   lat: 38.338642  lon: 103.995259
   gacct actual results:
     136192 points,  0 bad points
-    average error = 4.8712e-11 pixels
-    std dev error = 4.4949e-11 pixels
-    maximum error = 1.5889e-10 pixels
-    max error was at col: 73  row: 8   lat: 38.398360  lon: 154.645776
+    average error = 4.8711e-11 pixels
+    std dev error = 4.4942e-11 pixels
+    maximum error = 1.5893e-10 pixels
+    max error was at col: 277  row: 28   lat: 38.338642  lon: 103.995259
   Expected results match actual results
   **************************************************************
   crtest forward results:
@@ -187,14 +187,14 @@ file: linuxhp/linuxhp_Na25.gpd
   **************************************************************
   gacct expected results:
     130321 points,  0 bad points
-    average error = 2.6751e-14 pixels
-    std dev error = 3.6328e-14 pixels
+    average error = 3.0090e-14 pixels
+    std dev error = 3.7782e-14 pixels
     maximum error = 1.7906e-12 pixels
     max error was at col: 178  row: 180   lat: 89.549140  lon: -90.000000
   gacct actual results:
     130321 points,  0 bad points
-    average error = 2.6751e-14 pixels
-    std dev error = 3.6328e-14 pixels
+    average error = 3.0090e-14 pixels
+    std dev error = 3.7782e-14 pixels
     maximum error = 1.7906e-12 pixels
     max error was at col: 178  row: 180   lat: 89.549140  lon: -90.000000
   Expected results match actual results
@@ -230,16 +230,16 @@ file: linuxhp/linuxhp_Nps.mpp
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 4.0729e-06 km
-    std dev error = 1.9238e-05 km
+    average error = 4.7312e-06 km
+    std dev error = 2.0659e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 20.66N 159.69W
+    max error was at 20.66N 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.0729e-06 km
-    std dev error = 1.9238e-05 km
+    average error = 4.7312e-06 km
+    std dev error = 2.0659e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 20.66N 159.69W
+    max error was at 20.66N 180.00W
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -271,16 +271,16 @@ file: linuxhp/linuxhp_S200correct.mpp
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 8.4935e-06 km
-    std dev error = 2.7097e-05 km
+    average error = 7.0926e-06 km
+    std dev error = 2.4961e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 66.02S 180.00W
+    max error was at 59.81S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 8.4935e-06 km
-    std dev error = 2.7097e-05 km
+    average error = 7.0926e-06 km
+    std dev error = 2.4961e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 66.02S 180.00W
+    max error was at 59.81S 180.00W
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -306,14 +306,14 @@ file: linuxhp/linuxhp_S3B.gpd
   **************************************************************
   gacct expected results:
     104912 points,  0 bad points
-    average error = 2.9459e-11 pixels
-    std dev error = 2.1951e-11 pixels
+    average error = 2.9461e-11 pixels
+    std dev error = 2.1949e-11 pixels
     maximum error = 1.5688e-10 pixels
     max error was at col: 0  row: 0   lat: -39.364869  lon: -42.232570
   gacct actual results:
     104912 points,  0 bad points
-    average error = 2.9459e-11 pixels
-    std dev error = 2.1951e-11 pixels
+    average error = 2.9461e-11 pixels
+    std dev error = 2.1949e-11 pixels
     maximum error = 1.5688e-10 pixels
     max error was at col: 0  row: 0   lat: -39.364869  lon: -42.232570
   Expected results match actual results
@@ -341,14 +341,14 @@ file: linuxhp/linuxhp_Sa25.gpd
   **************************************************************
   gacct expected results:
     103041 points,  0 bad points
-    average error = 4.3692e-14 pixels
-    std dev error = 4.3627e-14 pixels
+    average error = 4.6003e-14 pixels
+    std dev error = 4.3657e-14 pixels
     maximum error = 1.8190e-12 pixels
     max error was at col: 158  row: 160   lat: -89.549140  lon: -90.000000
   gacct actual results:
     103041 points,  0 bad points
-    average error = 4.3692e-14 pixels
-    std dev error = 4.3627e-14 pixels
+    average error = 4.6003e-14 pixels
+    std dev error = 4.3657e-14 pixels
     maximum error = 1.8190e-12 pixels
     max error was at col: 158  row: 160   lat: -89.549140  lon: -90.000000
   Expected results match actual results
@@ -384,16 +384,16 @@ file: linuxhp/linuxhp_Sps.mpp
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 4.3826e-06 km
-    std dev error = 1.9922e-05 km
+    average error = 4.7284e-06 km
+    std dev error = 2.0653e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 54.89S 180.00W
+    max error was at 61.25S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 4.3826e-06 km
-    std dev error = 1.9922e-05 km
+    average error = 4.7284e-06 km
+    std dev error = 2.0653e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 54.89S 180.00W
+    max error was at 61.25S 180.00W
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -427,30 +427,30 @@ file: linuxhp/linuxhp_albers_conic_equal_area_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 7.7536e-06 km
-    std dev error = 2.6000e-05 km
+    average error = 4.8582e-06 km
+    std dev error = 2.0920e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 159.69W
   macct actual results:
     102400 points,  0 bad points
-    average error = 7.7536e-06 km
-    std dev error = 2.6000e-05 km
+    average error = 4.8582e-06 km
+    std dev error = 2.0920e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 159.69W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 4.6752e-12 pixels
-    std dev error = 1.2844e-11 pixels
-    maximum error = 7.5691e-11 pixels
-    max error was at col: 80  row: 163   lat: 20.633443  lon: -105.744241
+    average error = 4.6741e-12 pixels
+    std dev error = 1.2855e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.6752e-12 pixels
-    std dev error = 1.2844e-11 pixels
-    maximum error = 7.5691e-11 pixels
-    max error was at col: 80  row: 163   lat: 20.633443  lon: -105.744241
+    average error = 4.6741e-12 pixels
+    std dev error = 1.2855e-11 pixels
+    maximum error = 7.5640e-11 pixels
+    max error was at col: 257  row: 158   lat: 20.633791  lon: -80.890740
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -498,30 +498,30 @@ file: linuxhp/linuxhp_albers_conic_equal_area_e01.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 7.0731e-06 km
-    std dev error = 2.4930e-05 km
+    average error = 5.1132e-06 km
+    std dev error = 2.1431e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 178.87W
+    max error was at 38.65S 178.87W
   macct actual results:
     102400 points,  0 bad points
-    average error = 7.0731e-06 km
-    std dev error = 2.4930e-05 km
+    average error = 5.1132e-06 km
+    std dev error = 2.1431e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 178.87W
+    max error was at 38.65S 178.87W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 4.7025e-12 pixels
-    std dev error = 1.2842e-11 pixels
-    maximum error = 7.5778e-11 pixels
-    max error was at col: 294  row: 148   lat: -20.635139  lon: 116.380350
+    average error = 4.6987e-12 pixels
+    std dev error = 1.2846e-11 pixels
+    maximum error = 7.5754e-11 pixels
+    max error was at col: 42  row: 141   lat: -20.633791  lon: 80.890740
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.7025e-12 pixels
-    std dev error = 1.2842e-11 pixels
-    maximum error = 7.5778e-11 pixels
-    max error was at col: 294  row: 148   lat: -20.635139  lon: 116.380350
+    average error = 4.6987e-12 pixels
+    std dev error = 1.2846e-11 pixels
+    maximum error = 7.5754e-11 pixels
+    max error was at col: 42  row: 141   lat: -20.633791  lon: 80.890740
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -567,31 +567,31 @@ file: linuxhp/linuxhp_albers_conic_equal_area_s00.gpd
   Grid Map Origin Row:            149.5
   **************************************************************
   macct expected results:
-    102400 points,  313 bad points
-    average error = 6.0858e-06 km
-    std dev error = 2.3254e-05 km
-    maximum error = 9.4939e-05 km
-    max error was at 90.00S 116.80W
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00S 160.82E
   macct actual results:
-    102400 points,  313 bad points
-    average error = 6.0858e-06 km
-    std dev error = 2.3254e-05 km
-    maximum error = 9.4939e-05 km
-    max error was at 90.00S 116.80W
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00S 160.82E
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 6.8214e-14 pixels
-    std dev error = 4.0841e-14 pixels
-    maximum error = 2.5932e-13 pixels
-    max error was at col: 98  row: 139   lat: 24.022893  lon: -102.367034
+    average error = 4.8363e-14 pixels
+    std dev error = 2.2994e-14 pixels
+    maximum error = 1.6968e-13 pixels
+    max error was at col: 139  row: 17   lat: 38.173223  lon: -97.545615
   gacct actual results:
     90000 points,  0 bad points
-    average error = 6.8214e-14 pixels
-    std dev error = 4.0841e-14 pixels
-    maximum error = 2.5932e-13 pixels
-    max error was at col: 98  row: 139   lat: 24.022893  lon: -102.367034
+    average error = 4.8363e-14 pixels
+    std dev error = 2.2994e-14 pixels
+    maximum error = 1.6968e-13 pixels
+    max error was at col: 139  row: 17   lat: 38.173223  lon: -97.545615
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -637,31 +637,31 @@ file: linuxhp/linuxhp_albers_conic_equal_area_s01.gpd
   Grid Map Origin Row:            149.5
   **************************************************************
   macct expected results:
-    102400 points,  310 bad points
-    average error = 6.0558e-06 km
-    std dev error = 2.3201e-05 km
-    maximum error = 9.4939e-05 km
-    max error was at 90.00S 176.61W
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00N 160.82W
   macct actual results:
-    102400 points,  310 bad points
-    average error = 6.0558e-06 km
-    std dev error = 2.3201e-05 km
-    maximum error = 9.4939e-05 km
-    max error was at 90.00S 176.61W
+    102400 points,  16 bad points
+    average error = 6.6008e-06 km
+    std dev error = 2.5059e-05 km
+    maximum error = 3.1488e-04 km
+    max error was at 90.00N 160.82W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 6.8218e-14 pixels
-    std dev error = 4.0837e-14 pixels
-    maximum error = 2.5932e-13 pixels
-    max error was at col: 98  row: 160   lat: -24.022893  lon: 89.632966
+    average error = 4.8172e-14 pixels
+    std dev error = 2.3122e-14 pixels
+    maximum error = 1.8340e-13 pixels
+    max error was at col: 28  row: 297   lat: -38.568967  lon: 77.909665
   gacct actual results:
     90000 points,  0 bad points
-    average error = 6.8218e-14 pixels
-    std dev error = 4.0837e-14 pixels
-    maximum error = 2.5932e-13 pixels
-    max error was at col: 98  row: 160   lat: -24.022893  lon: 89.632966
+    average error = 4.8172e-14 pixels
+    std dev error = 2.3122e-14 pixels
+    maximum error = 1.8340e-13 pixels
+    max error was at col: 28  row: 297   lat: -38.568967  lon: 77.909665
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -707,30 +707,30 @@ file: linuxhp/linuxhp_azimuthal_equal_area_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.4640e-06 km
-    std dev error = 2.3915e-05 km
+    average error = 4.9129e-06 km
+    std dev error = 2.1031e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 60.09S 93.10E
+    max error was at 48.81S 53.61E
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.4640e-06 km
-    std dev error = 2.3915e-05 km
+    average error = 4.9129e-06 km
+    std dev error = 2.1031e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 60.09S 93.10E
+    max error was at 48.81S 53.61E
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 2.5112e-12 pixels
-    std dev error = 1.1666e-11 pixels
-    maximum error = 7.7494e-11 pixels
-    max error was at col: 6  row: 277   lat: 20.636187  lon: -120.564130
+    average error = 2.5083e-12 pixels
+    std dev error = 1.1667e-11 pixels
+    maximum error = 7.7331e-11 pixels
+    max error was at col: 293  row: 277   lat: 20.636187  lon: -79.435870
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.5112e-12 pixels
-    std dev error = 1.1666e-11 pixels
-    maximum error = 7.7494e-11 pixels
-    max error was at col: 6  row: 277   lat: 20.636187  lon: -120.564130
+    average error = 2.5083e-12 pixels
+    std dev error = 1.1667e-11 pixels
+    maximum error = 7.7331e-11 pixels
+    max error was at col: 293  row: 277   lat: 20.636187  lon: -79.435870
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -776,29 +776,29 @@ file: linuxhp/linuxhp_azimuthal_equal_area_e01.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.4278e-06 km
-    std dev error = 2.3852e-05 km
+    average error = 4.7655e-06 km
+    std dev error = 2.0730e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.4278e-06 km
-    std dev error = 2.3852e-05 km
+    average error = 4.7655e-06 km
+    std dev error = 2.0730e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 5.2939e-11 pixels
+    average error = 5.2937e-11 pixels
     std dev error = 3.2316e-10 pixels
-    maximum error = 2.4062e-08 pixels
+    maximum error = 2.4053e-08 pixels
     max error was at col: 148  row: 148   lat: 89.715131  lon: 125.000000
   gacct actual results:
     90000 points,  0 bad points
-    average error = 5.2939e-11 pixels
+    average error = 5.2937e-11 pixels
     std dev error = 3.2316e-10 pixels
-    maximum error = 2.4062e-08 pixels
+    maximum error = 2.4053e-08 pixels
     max error was at col: 148  row: 148   lat: 89.715131  lon: 125.000000
   Expected results match actual results
   **************************************************************
@@ -845,30 +845,30 @@ file: linuxhp/linuxhp_azimuthal_equal_area_e02.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.7477e-06 km
-    std dev error = 2.4395e-05 km
+    average error = 5.0622e-06 km
+    std dev error = 2.1330e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 138.24W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.7477e-06 km
-    std dev error = 2.4395e-05 km
+    average error = 5.0622e-06 km
+    std dev error = 2.1330e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 138.24W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 2.5471e-12 pixels
+    average error = 2.5445e-12 pixels
     std dev error = 1.1659e-11 pixels
-    maximum error = 7.7165e-11 pixels
-    max error was at col: 6  row: 22   lat: -20.636187  lon: 79.435870
+    maximum error = 7.7348e-11 pixels
+    max error was at col: 38  row: 16   lat: -20.636055  lon: 84.083572
   gacct actual results:
     90000 points,  0 bad points
-    average error = 2.5471e-12 pixels
+    average error = 2.5445e-12 pixels
     std dev error = 1.1659e-11 pixels
-    maximum error = 7.7165e-11 pixels
-    max error was at col: 6  row: 22   lat: -20.636187  lon: 79.435870
+    maximum error = 7.7348e-11 pixels
+    max error was at col: 38  row: 16   lat: -20.636055  lon: 84.083572
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -914,29 +914,29 @@ file: linuxhp/linuxhp_azimuthal_equal_area_e03.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.8933e-06 km
-    std dev error = 2.4636e-05 km
+    average error = 5.3987e-06 km
+    std dev error = 2.1986e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 178.87W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.8933e-06 km
-    std dev error = 2.4636e-05 km
+    average error = 5.3987e-06 km
+    std dev error = 2.1986e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 178.87W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 5.3010e-11 pixels
-    std dev error = 3.2313e-10 pixels
-    maximum error = 2.4062e-08 pixels
+    average error = 5.2997e-11 pixels
+    std dev error = 3.2298e-10 pixels
+    maximum error = 2.4006e-08 pixels
     max error was at col: 148  row: 148   lat: -89.715131  lon: 55.000000
   gacct actual results:
     90000 points,  0 bad points
-    average error = 5.3010e-11 pixels
-    std dev error = 3.2313e-10 pixels
-    maximum error = 2.4062e-08 pixels
+    average error = 5.2997e-11 pixels
+    std dev error = 3.2298e-10 pixels
+    maximum error = 2.4006e-08 pixels
     max error was at col: 148  row: 148   lat: -89.715131  lon: 55.000000
   Expected results match actual results
   **************************************************************
@@ -982,28 +982,28 @@ file: linuxhp/linuxhp_azimuthal_equal_area_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.9044e-06 km
-    std dev error = 2.4654e-05 km
+    average error = 5.6806e-06 km
+    std dev error = 2.2518e-05 km
     maximum error = 9.4939e-05 km
     max error was at 90.00S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.9044e-06 km
-    std dev error = 2.4654e-05 km
+    average error = 5.6806e-06 km
+    std dev error = 2.2518e-05 km
     maximum error = 9.4939e-05 km
     max error was at 90.00S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  21 bad points
-    average error = 6.4014e-14 pixels
-    std dev error = 8.1468e-14 pixels
+    average error = 6.7547e-14 pixels
+    std dev error = 8.2337e-14 pixels
     maximum error = 1.4154e-11 pixels
     max error was at col: 299  row: 122   lat: 89.876363  lon: 169.907579
   gacct actual results:
     90000 points,  21 bad points
-    average error = 6.4014e-14 pixels
-    std dev error = 8.1468e-14 pixels
+    average error = 6.7547e-14 pixels
+    std dev error = 8.2337e-14 pixels
     maximum error = 1.4154e-11 pixels
     max error was at col: 299  row: 122   lat: 89.876363  lon: 169.907579
   Expected results match actual results
@@ -1052,14 +1052,14 @@ file: linuxhp/linuxhp_cylindrical_equal_area_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.5270e-06 km
-    std dev error = 2.4022e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 90.00S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.5270e-06 km
-    std dev error = 2.4022e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 90.00S 180.00W
   Expected results match actual results
@@ -1069,13 +1069,13 @@ file: linuxhp/linuxhp_cylindrical_equal_area_e00.gpd
     average error = 6.8313e-08 pixels
     std dev error = 3.1983e-08 pixels
     maximum error = 1.0327e-07 pixels
-    max error was at col: 8  row: 8   lat: 19.487888  lon: -94.138873
+    max error was at col: 0  row: 8   lat: 19.487888  lon: -95.220930
   gacct actual results:
     90000 points,  0 bad points
     average error = 6.8313e-08 pixels
     std dev error = 3.1983e-08 pixels
     maximum error = 1.0327e-07 pixels
-    max error was at col: 8  row: 8   lat: 19.487888  lon: -94.138873
+    max error was at col: 0  row: 8   lat: 19.487888  lon: -95.220930
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1120,30 +1120,30 @@ file: linuxhp/linuxhp_cylindrical_equal_area_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.2304e-06 km
-    std dev error = 2.3509e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.2304e-06 km
-    std dev error = 2.3509e-05 km
+    average error = 4.7469e-06 km
+    std dev error = 2.0692e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     100000 points,  0 bad points
-    average error = 7.8355e-15 pixels
-    std dev error = 1.3505e-14 pixels
-    maximum error = 6.3553e-14 pixels
-    max error was at col: 21  row: 180   lat: -44.198829  lon: 133.825617
+    average error = 5.5044e-15 pixels
+    std dev error = 8.9709e-15 pixels
+    maximum error = 4.0194e-14 pixels
+    max error was at col: 57  row: 180   lat: -44.198829  lon: 157.643025
   gacct actual results:
     100000 points,  0 bad points
-    average error = 7.8355e-15 pixels
-    std dev error = 1.3505e-14 pixels
-    maximum error = 6.3553e-14 pixels
-    max error was at col: 21  row: 180   lat: -44.198829  lon: 133.825617
+    average error = 5.5044e-15 pixels
+    std dev error = 8.9709e-15 pixels
+    maximum error = 4.0194e-14 pixels
+    max error was at col: 57  row: 180   lat: -44.198829  lon: 157.643025
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1188,30 +1188,30 @@ file: linuxhp/linuxhp_cylindrical_equidistant_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.9337e-06 km
-    std dev error = 2.2981e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.9337e-06 km
-    std dev error = 2.2981e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     64800 points,  0 bad points
-    average error = 1.2091e-15 pixels
-    std dev error = 4.2629e-15 pixels
-    maximum error = 3.1776e-14 pixels
-    max error was at col: 8  row: 6   lat: 83.500000  lon: -171.500000
+    average error = 0.0000e+00 pixels
+    std dev error = 0.0000e+00 pixels
+    maximum error = 0.0000e+00 pixels
+    max error was at col: 0  row: 0   lat: 89.500000  lon: -179.500000
   gacct actual results:
     64800 points,  0 bad points
-    average error = 1.2091e-15 pixels
-    std dev error = 4.2629e-15 pixels
-    maximum error = 3.1776e-14 pixels
-    max error was at col: 8  row: 6   lat: 83.500000  lon: -171.500000
+    average error = 0.0000e+00 pixels
+    std dev error = 0.0000e+00 pixels
+    maximum error = 0.0000e+00 pixels
+    max error was at col: 0  row: 0   lat: 89.500000  lon: -179.500000
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1255,31 +1255,31 @@ file: linuxhp/linuxhp_homolosine_s00.gpd
   Grid Map Origin Row:            999.5
   **************************************************************
   macct expected results:
-    102400 points,  167 bad points
-    average error = 5.6425e-06 km
-    std dev error = 2.2447e-05 km
+    102400 points,  159 bad points
+    average error = 3.5657e-06 km
+    std dev error = 1.8050e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 38.65S 180.00W
+    max error was at 31.88S 180.00W
   macct actual results:
-    102400 points,  167 bad points
-    average error = 5.6425e-06 km
-    std dev error = 2.2447e-05 km
+    102400 points,  159 bad points
+    average error = 3.5657e-06 km
+    std dev error = 1.8050e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 38.65S 180.00W
+    max error was at 31.88S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     100000 points,  0 bad points
-    average error = 1.7999e-13 pixels
-    std dev error = 9.8316e-14 pixels
-    maximum error = 6.6142e-13 pixels
-    max error was at col: 276  row: 60   lat: 42.252201  lon: -105.998107
+    average error = 2.8442e-13 pixels
+    std dev error = 1.7336e-13 pixels
+    maximum error = 9.6291e-13 pixels
+    max error was at col: 95  row: 60   lat: 42.252201  lon: -116.898006
   gacct actual results:
     100000 points,  0 bad points
-    average error = 1.7999e-13 pixels
-    std dev error = 9.8316e-14 pixels
-    maximum error = 6.6142e-13 pixels
-    max error was at col: 276  row: 60   lat: 42.252201  lon: -105.998107
+    average error = 2.8442e-13 pixels
+    std dev error = 1.7336e-13 pixels
+    maximum error = 9.6291e-13 pixels
+    max error was at col: 95  row: 60   lat: 42.252201  lon: -116.898006
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1320,31 +1320,31 @@ file: linuxhp/linuxhp_integerized_sinusoidal_s00.gpd
   Grid Map Origin Row:            999.5
   **************************************************************
   macct expected results:
-    102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    102400 points,  680 bad points
+    average error = 4.7787e-06 km
+    std dev error = 2.0757e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
-    102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    102400 points,  680 bad points
+    average error = 4.7787e-06 km
+    std dev error = 2.0757e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     100000 points,  0 bad points
-    average error = 1.8734e-13 pixels
-    std dev error = 1.3088e-13 pixels
-    maximum error = 8.6441e-13 pixels
-    max error was at col: 455  row: 173   lat: 37.164423  lon: -87.147245
+    average error = 1.5931e-13 pixels
+    std dev error = 9.1374e-14 pixels
+    maximum error = 7.1902e-13 pixels
+    max error was at col: 308  row: 90   lat: 40.896604  lon: -100.622998
   gacct actual results:
     100000 points,  0 bad points
-    average error = 1.8734e-13 pixels
-    std dev error = 1.3088e-13 pixels
-    maximum error = 8.6441e-13 pixels
-    max error was at col: 455  row: 173   lat: 37.164423  lon: -87.147245
+    average error = 1.5931e-13 pixels
+    std dev error = 9.1374e-14 pixels
+    maximum error = 7.1902e-13 pixels
+    max error was at col: 308  row: 90   lat: 40.896604  lon: -100.622998
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1392,16 +1392,16 @@ file: linuxhp/linuxhp_lambert_conic_conformal_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.6309e-06 km
-    std dev error = 2.4198e-05 km
+    average error = 5.3765e-06 km
+    std dev error = 2.1944e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 44.29S 85.20W
+    max error was at 44.29S 178.87W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.6309e-06 km
-    std dev error = 2.4198e-05 km
+    average error = 5.3765e-06 km
+    std dev error = 2.1944e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 44.29S 85.20W
+    max error was at 44.29S 178.87W
   Expected results match actual results
   **************************************************************
   gacct expected results:
@@ -1409,13 +1409,13 @@ file: linuxhp/linuxhp_lambert_conic_conformal_e00.gpd
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 274  row: 163   lat: 19.713639  lon: -78.919500
+    max error was at col: 211  row: 172   lat: 19.699572  lon: -87.601657
   gacct actual results:
     90000 points,  0 bad points
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 274  row: 163   lat: 19.713639  lon: -78.919500
+    max error was at col: 211  row: 172   lat: 19.699572  lon: -87.601657
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1463,16 +1463,16 @@ file: linuxhp/linuxhp_lambert_conic_conformal_e01.gpd
   **************************************************************
   macct expected results:
     102400 points,  640 bad points
-    average error = 5.3524e-06 km
-    std dev error = 2.1898e-05 km
+    average error = 5.1556e-06 km
+    std dev error = 2.1515e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 44.29S 176.61W
+    max error was at 40.34S 94.23W
   macct actual results:
     102400 points,  640 bad points
-    average error = 5.3524e-06 km
-    std dev error = 2.1898e-05 km
+    average error = 5.1556e-06 km
+    std dev error = 2.1515e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 44.29S 176.61W
+    max error was at 40.34S 94.23W
   Expected results match actual results
   **************************************************************
   gacct expected results:
@@ -1480,13 +1480,13 @@ file: linuxhp/linuxhp_lambert_conic_conformal_e01.gpd
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 25  row: 136   lat: -19.713639  lon: 78.919500
+    max error was at col: 36  row: 134   lat: -19.713227  lon: 80.444361
   gacct actual results:
     90000 points,  0 bad points
     average error = 1.5554e-07 pixels
     std dev error = 4.2155e-08 pixels
     maximum error = 2.0647e-07 pixels
-    max error was at col: 25  row: 136   lat: -19.713639  lon: 78.919500
+    max error was at col: 36  row: 134   lat: -19.713227  lon: 80.444361
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1531,30 +1531,30 @@ file: linuxhp/linuxhp_mercator_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  320 bad points
-    average error = 7.1427e-06 km
-    std dev error = 2.5042e-05 km
+    average error = 5.9523e-06 km
+    std dev error = 2.3015e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  320 bad points
-    average error = 7.1427e-06 km
-    std dev error = 2.5042e-05 km
+    average error = 5.9523e-06 km
+    std dev error = 2.3015e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     100000 points,  0 bad points
-    average error = 2.6832e-14 pixels
-    std dev error = 2.0156e-14 pixels
-    maximum error = 1.0248e-13 pixels
-    max error was at col: 148  row: 41   lat: 31.755128  lon: 121.844784
+    average error = 2.1297e-14 pixels
+    std dev error = 1.6304e-14 pixels
+    maximum error = 8.4615e-14 pixels
+    max error was at col: 11  row: 9   lat: 45.949211  lon: 43.349566
   gacct actual results:
     100000 points,  0 bad points
-    average error = 2.6832e-14 pixels
-    std dev error = 2.0156e-14 pixels
-    maximum error = 1.0248e-13 pixels
-    max error was at col: 148  row: 41   lat: 31.755128  lon: 121.844784
+    average error = 2.1297e-14 pixels
+    std dev error = 1.6304e-14 pixels
+    maximum error = 8.4615e-14 pixels
+    max error was at col: 11  row: 9   lat: 45.949211  lon: 43.349566
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1599,28 +1599,28 @@ file: linuxhp/linuxhp_mollweide_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.9337e-06 km
-    std dev error = 2.2981e-05 km
+    average error = 7.1204e-06 km
+    std dev error = 2.5006e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.9337e-06 km
-    std dev error = 2.2981e-05 km
+    average error = 7.1204e-06 km
+    std dev error = 2.5006e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     100000 points,  0 bad points
-    average error = 7.6637e-13 pixels
-    std dev error = 3.2287e-12 pixels
+    average error = 7.6542e-13 pixels
+    std dev error = 3.2289e-12 pixels
     maximum error = 4.3038e-11 pixels
     max error was at col: 499  row: 189   lat: -47.294244  lon: 71.803435
   gacct actual results:
     100000 points,  0 bad points
-    average error = 7.6637e-13 pixels
-    std dev error = 3.2287e-12 pixels
+    average error = 7.6542e-13 pixels
+    std dev error = 3.2289e-12 pixels
     maximum error = 4.3038e-11 pixels
     max error was at col: 499  row: 189   lat: -47.294244  lon: 71.803435
   Expected results match actual results
@@ -1667,30 +1667,30 @@ file: linuxhp/linuxhp_orthographic_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  51177 bad points
-    average error = 6.8892e-06 km
-    std dev error = 2.4629e-05 km
+    average error = 5.4695e-06 km
+    std dev error = 2.2122e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 140.50W
+    max error was at 40.34S 143.89W
   macct actual results:
     102400 points,  51177 bad points
-    average error = 6.8892e-06 km
-    std dev error = 2.4629e-05 km
+    average error = 5.4695e-06 km
+    std dev error = 2.2122e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 140.50W
+    max error was at 40.34S 143.89W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 4.9470e-14 pixels
-    std dev error = 2.8476e-14 pixels
-    maximum error = 2.3004e-13 pixels
-    max error was at col: 130  row: 2   lat: 57.103504  lon: -104.117778
+    average error = 4.7546e-14 pixels
+    std dev error = 2.6983e-14 pixels
+    maximum error = 2.0691e-13 pixels
+    max error was at col: 253  row: 28   lat: 52.684293  lon: -80.033672
   gacct actual results:
     90000 points,  0 bad points
-    average error = 4.9470e-14 pixels
-    std dev error = 2.8476e-14 pixels
-    maximum error = 2.3004e-13 pixels
-    max error was at col: 130  row: 2   lat: 57.103504  lon: -104.117778
+    average error = 4.7546e-14 pixels
+    std dev error = 2.6983e-14 pixels
+    maximum error = 2.0691e-13 pixels
+    max error was at col: 253  row: 28   lat: 52.684293  lon: -80.033672
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1737,14 +1737,14 @@ file: linuxhp/linuxhp_polar_stereographic_e00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.6123e-06 km
-    std dev error = 2.4167e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.6123e-06 km
-    std dev error = 2.4167e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   Expected results match actual results
@@ -1752,15 +1752,15 @@ file: linuxhp/linuxhp_polar_stereographic_e00.gpd
   gacct expected results:
     90000 points,  0 bad points
     average error = 2.4564e-11 pixels
-    std dev error = 1.6002e-11 pixels
-    maximum error = 7.0718e-11 pixels
-    max error was at col: 0  row: 299   lat: -61.398354  lon: 125.000000
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: -61.398354  lon: -145.000000
   gacct actual results:
     90000 points,  0 bad points
     average error = 2.4564e-11 pixels
-    std dev error = 1.6002e-11 pixels
-    maximum error = 7.0718e-11 pixels
-    max error was at col: 0  row: 299   lat: -61.398354  lon: 125.000000
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: -61.398354  lon: -145.000000
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1807,14 +1807,14 @@ file: linuxhp/linuxhp_polar_stereographic_e01.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.1441e-06 km
-    std dev error = 2.3357e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.1441e-06 km
-    std dev error = 2.3357e-05 km
+    average error = 5.9263e-06 km
+    std dev error = 2.2968e-05 km
     maximum error = 9.4939e-05 km
     max error was at 45.99S 180.00W
   Expected results match actual results
@@ -1822,15 +1822,15 @@ file: linuxhp/linuxhp_polar_stereographic_e01.gpd
   gacct expected results:
     90000 points,  0 bad points
     average error = 2.4564e-11 pixels
-    std dev error = 1.6002e-11 pixels
-    maximum error = 7.0718e-11 pixels
-    max error was at col: 0  row: 299   lat: 61.398354  lon: 55.000000
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: 61.398354  lon: -35.000000
   gacct actual results:
     90000 points,  0 bad points
     average error = 2.4564e-11 pixels
-    std dev error = 1.6002e-11 pixels
-    maximum error = 7.0718e-11 pixels
-    max error was at col: 0  row: 299   lat: 61.398354  lon: 55.000000
+    std dev error = 1.6004e-11 pixels
+    maximum error = 7.0804e-11 pixels
+    max error was at col: 0  row: 0   lat: 61.398354  lon: -35.000000
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -1876,28 +1876,28 @@ file: linuxhp/linuxhp_polar_stereographic_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 7.2873e-06 km
-    std dev error = 2.5273e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 38.65S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 7.2873e-06 km
-    std dev error = 2.5273e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 38.65S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 9.4488e-14 pixels
-    std dev error = 1.7106e-13 pixels
+    average error = 9.5582e-14 pixels
+    std dev error = 1.7096e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 149   lat: -89.916702  lon: -145.000000
   gacct actual results:
     90000 points,  0 bad points
-    average error = 9.4488e-14 pixels
-    std dev error = 1.7106e-13 pixels
+    average error = 9.5582e-14 pixels
+    std dev error = 1.7096e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 149   lat: -89.916702  lon: -145.000000
   Expected results match actual results
@@ -1945,28 +1945,28 @@ file: linuxhp/linuxhp_polar_stereographic_s01.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.8933e-06 km
-    std dev error = 2.4636e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.8933e-06 km
-    std dev error = 2.4636e-05 km
+    average error = 5.6871e-06 km
+    std dev error = 2.2530e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 9.4459e-14 pixels
-    std dev error = 1.7107e-13 pixels
+    average error = 9.5489e-14 pixels
+    std dev error = 1.7097e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 150   lat: 89.916702  lon: 55.000000
   gacct actual results:
     90000 points,  0 bad points
-    average error = 9.4459e-14 pixels
-    std dev error = 1.7107e-13 pixels
+    average error = 9.5489e-14 pixels
+    std dev error = 1.7097e-13 pixels
     maximum error = 1.7444e-11 pixels
     max error was at col: 149  row: 150   lat: 89.916702  lon: 55.000000
   Expected results match actual results
@@ -2013,30 +2013,30 @@ file: linuxhp/linuxhp_sinusoidal_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     125000 points,  0 bad points
-    average error = 1.0840e-14 pixels
-    std dev error = 1.7293e-14 pixels
-    maximum error = 1.1457e-13 pixels
-    max error was at col: 492  row: 37   lat: 37.136153  lon: 39.101593
+    average error = 8.8086e-15 pixels
+    std dev error = 1.3626e-14 pixels
+    maximum error = 7.9837e-14 pixels
+    max error was at col: 6  row: 219   lat: -40.107046  lon: 134.881133
   gacct actual results:
     125000 points,  0 bad points
-    average error = 1.0840e-14 pixels
-    std dev error = 1.7293e-14 pixels
-    maximum error = 1.1457e-13 pixels
-    max error was at col: 492  row: 37   lat: 37.136153  lon: 39.101593
+    average error = 8.8086e-15 pixels
+    std dev error = 1.3626e-14 pixels
+    maximum error = 7.9837e-14 pixels
+    max error was at col: 6  row: 219   lat: -40.107046  lon: 134.881133
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -2081,30 +2081,30 @@ file: linuxhp/linuxhp_sinusoidal_s01.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   macct actual results:
     102400 points,  0 bad points
-    average error = 5.6370e-06 km
-    std dev error = 2.2437e-05 km
+    average error = 4.1536e-06 km
+    std dev error = 1.9419e-05 km
     maximum error = 9.4939e-05 km
     max error was at 40.34S 180.00W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     125000 points,  0 bad points
-    average error = 1.0974e-14 pixels
-    std dev error = 1.9176e-14 pixels
-    maximum error = 1.1719e-13 pixels
-    max error was at col: 397  row: 236   lat: -47.322070  lon: -177.651407
+    average error = 9.1542e-15 pixels
+    std dev error = 1.6371e-14 pixels
+    maximum error = 7.6528e-14 pixels
+    max error was at col: 37  row: 243   lat: -50.292962  lon: -51.169385
   gacct actual results:
     125000 points,  0 bad points
-    average error = 1.0974e-14 pixels
-    std dev error = 1.9176e-14 pixels
-    maximum error = 1.1719e-13 pixels
-    max error was at col: 397  row: 236   lat: -47.322070  lon: -177.651407
+    average error = 9.1542e-15 pixels
+    std dev error = 1.6371e-14 pixels
+    maximum error = 7.6528e-14 pixels
+    max error was at col: 37  row: 243   lat: -50.292962  lon: -51.169385
   Expected results match actual results
   **************************************************************
   xytest forward results:
@@ -2290,29 +2290,29 @@ file: linuxhp/linuxhp_transverse_mercator_s00.gpd
   **************************************************************
   macct expected results:
     102400 points,  0 bad points
-    average error = 6.2563e-06 km
-    std dev error = 2.3555e-05 km
+    average error = 5.2105e-06 km
+    std dev error = 2.1623e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 178.87W
   macct actual results:
     102400 points,  0 bad points
-    average error = 6.2563e-06 km
-    std dev error = 2.3555e-05 km
+    average error = 5.2105e-06 km
+    std dev error = 2.1623e-05 km
     maximum error = 9.4939e-05 km
-    max error was at 40.34S 180.00W
+    max error was at 40.34S 178.87W
   Expected results match actual results
   **************************************************************
   gacct expected results:
     90000 points,  0 bad points
-    average error = 6.5751e-14 pixels
-    std dev error = 3.3888e-13 pixels
-    maximum error = 2.2027e-11 pixels
+    average error = 6.4173e-14 pixels
+    std dev error = 3.4212e-13 pixels
+    maximum error = 2.2823e-11 pixels
     max error was at col: 299  row: 149   lat: 0.078503  lon: 5.536934
   gacct actual results:
     90000 points,  0 bad points
-    average error = 6.5751e-14 pixels
-    std dev error = 3.3888e-13 pixels
-    maximum error = 2.2027e-11 pixels
+    average error = 6.4173e-14 pixels
+    std dev error = 3.4212e-13 pixels
+    maximum error = 2.2823e-11 pixels
     max error was at col: 299  row: 149   lat: 0.078503  lon: 5.536934
   Expected results match actual results
   **************************************************************

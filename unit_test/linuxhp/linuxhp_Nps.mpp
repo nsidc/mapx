@@ -17,10 +17,10 @@ Polar Stereographic Ellipsoid
 #
 # macct
 #   102400 points,  0 bad points
-#   average error = 4.0729e-06 km
-#   std dev error = 1.9238e-05 km
+#   average error = 4.7312e-06 km
+#   std dev error = 2.0659e-05 km
 #   maximum error = 9.4939e-05 km
-#   max error was at 20.66N 159.69W
+#   max error was at 20.66N 180.00W
 #
 # xytest forward
 #   lat,lon = 75.0 -150.0

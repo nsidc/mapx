@@ -16,18 +16,18 @@ Grid Map Origin Column:         149.5
 Grid Map Origin Row:            149.5
 #
 # macct
-#   102400 points,  313 bad points
-#   average error = 5.6106e-06 km
-#   std dev error = 2.2387e-05 km
-#   maximum error = 9.4939e-05 km
-#   max error was at 90.00S 116.80W
+#   102400 points,  4 bad points
+#   average error = 6.5538e-06 km
+#   std dev error = 2.4740e-05 km
+#   maximum error = 2.6853e-04 km
+#   max error was at 90.00S 165.33E
 #
 # gacct
 #   90000 points,  0 bad points
-#   average error = 7.0692e-14 pixels
-#   std dev error = 4.2860e-14 pixels
-#   maximum error = 2.8985e-13 pixels
-#   max error was at col: 88  row: 290   lat: 5.667211  lon: -102.353567
+#   average error = 4.8354e-14 pixels
+#   std dev error = 2.2995e-14 pixels
+#   maximum error = 1.6968e-13 pixels
+#   max error was at col: 139  row: 17   lat: 38.173223  lon: -97.545615
 #
 # xytest forward
 #   lat,lon = 35.0 -75.0

@@ -9,8 +9,8 @@ linuxhp/linuxhp_Sps.mpp map projection parameters   # SSM/I Brightness Temp Grid
 #
 # gacct
 #   104912 points,  0 bad points
-#   average error = 2.9459e-11 pixels
-#   std dev error = 2.1951e-11 pixels
+#   average error = 2.9461e-11 pixels
+#   std dev error = 2.1949e-11 pixels
 #   maximum error = 1.5688e-10 pixels
 #   max error was at col: 0  row: 0   lat: -39.364869  lon: -42.232570
 #

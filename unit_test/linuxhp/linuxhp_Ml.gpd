@@ -9,10 +9,10 @@ linuxhp/linuxhp_M200correct.mpp map projection parameters   # EASE-Grid
 #
 # gacct
 #   810438 points,  0 bad points
-#   average error = 4.9482e-15 pixels
-#   std dev error = 1.6442e-14 pixels
-#   maximum error = 1.2711e-13 pixels
-#   max error was at col: 13  row: 25   lat: 65.709394  lon: -176.485896
+#   average error = 2.5727e-15 pixels
+#   std dev error = 9.4666e-15 pixels
+#   maximum error = 8.0389e-14 pixels
+#   max error was at col: 179  row: 25   lat: 65.709394  lon: -133.275485
 #
 # crtest forward
 #   lat,lon = 75.0 -150.0
