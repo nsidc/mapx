@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1994 University of Colorado
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.18 2004-07-20 20:33:22 knowlesk Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.19 2004-07-30 22:07:32 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -14,8 +14,8 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.18 $\n"                                                             \
-"usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
+"$Revision: 1.19 $\n"                                                             \
+"usage: regrid [-fwubslFv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
 " input : from.gpd  - original grid parameters definition file\n"	   \
@@ -31,6 +31,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 "         b - byte data (default)\n"					   \
 "         s - short (2 bytes per sample)\n"				   \
 "         l - long (4 bytes)\n"						   \
+"         F - float (4 bytes)\n"                                           \
 "         v - verbose (can be repeated)\n"				   \
 "         i value - ignore fill value\n"				   \
 "         p power - 0=smooth, 6=sharp, 2=default (used with -fw only)\n"   \
@@ -96,6 +97,7 @@ int cubiccon(grid_class *, float **, grid_class *, float **, float **);
  *	input : cols, rows - grid width and height
  *		data_bytes - number of bytes per datum
  *		signed_data - TRUE = signed, FALSE = unsigned
+ *              float_data - TRUE = floating-point, FALSE = integer
  *		fp - file pointer
  *
  *	output: data - matrix
@@ -103,7 +105,8 @@ int cubiccon(grid_class *, float **, grid_class *, float **, float **);
  *	result: TRUE iff success
  *
  *------------------------------------------------------------------------*/
-bool read_grid_data(int cols, int rows, int data_bytes, bool signed_data,
+bool read_grid_data(int cols, int rows, int data_bytes,
+		    bool signed_data, bool float_data,
 		    float **data, FILE *fp)
 { int i, j, row_bytes, status, total_bytes;
   byte1 *bufp, *iobuf;
@@ -122,14 +125,18 @@ bool read_grid_data(int cols, int rows, int data_bytes, bool signed_data,
       perror("read_grid_data"); free(iobuf); return FALSE; }
     total_bytes += status;
     for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
-    { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: data[i][j] = FLOAT(*((int1 *)bufp)); break;
-        case -2: data[i][j] = FLOAT(*((int2 *)bufp)); break;
-        case -4: data[i][j] = FLOAT(*((int4 *)bufp)); break;
-        case  1: data[i][j] = FLOAT(*((byte1 *)bufp)); break;
-	case  2: data[i][j] = FLOAT(*((byte2 *)bufp)); break;
-	case  4: data[i][j] = FLOAT(*((byte4 *)bufp)); break;
-        default: assert(NEVER); /* should never execute */
+    { if (float_data)
+      { data[i][j] = *((float *)bufp);
+      } else
+      { switch (data_bytes * (signed_data ? -1 : 1))
+	{ case -1: data[i][j] = FLOAT(*((int1 *)bufp)); break;
+          case -2: data[i][j] = FLOAT(*((int2 *)bufp)); break;
+          case -4: data[i][j] = FLOAT(*((int4 *)bufp)); break;
+          case  1: data[i][j] = FLOAT(*((byte1 *)bufp)); break;
+	  case  2: data[i][j] = FLOAT(*((byte2 *)bufp)); break;
+	  case  4: data[i][j] = FLOAT(*((byte4 *)bufp)); break;
+          default: assert(NEVER); /* should never execute */
+	}
       }
     }
   }
@@ -144,13 +151,15 @@ bool read_grid_data(int cols, int rows, int data_bytes, bool signed_data,
  *	input : cols, rows - grid width and height
  *		data_bytes - number of bytes per datum
  *		signed_data - TRUE = signed, FALSE = unsigned
+ *              float_data - TRUE = floating-point, FALSE = integer
  *		data - matrix
  *		fp - file pointer
  *
  *	result: TRUE iff success
  *
  *------------------------------------------------------------------------*/
-bool write_grid_data(int cols, int rows, int data_bytes, bool signed_data,
+bool write_grid_data(int cols, int rows, int data_bytes,
+		     bool signed_data, bool float_data,
 		     float **data, FILE *fp)
 { int i, j, row_bytes, status, total_bytes;
   byte1 *bufp, *iobuf;
@@ -165,14 +174,18 @@ bool write_grid_data(int cols, int rows, int data_bytes, bool signed_data,
 
   for (i = 0; i < rows; i++)
   { for (j = 0, bufp = iobuf; j < cols; j++, bufp += data_bytes)
-    { switch (data_bytes * (signed_data ? -1 : 1))
-      { case -1: *((int1 *)bufp) = ROUND(data[i][j]); break;
-	case -2: *((int2 *)bufp) = ROUND(data[i][j]); break;
-	case -4: *((int4 *)bufp) = ROUND(data[i][j]); break;
-        case  1: *((byte1 *)bufp) = ROUND(data[i][j]); break;
-	case  2: *((byte2 *)bufp) = ROUND(data[i][j]); break;
-	case  4: *((byte4 *)bufp) = ROUND(data[i][j]); break;
-        default: assert(NEVER); /* should never execute */
+    { if (float_data)
+      { *((float *)bufp) = data[i][j];
+      } else
+      { switch (data_bytes * (signed_data ? -1 : 1))
+	{ case -1: *((int1 *)bufp) = ROUND(data[i][j]); break;
+	  case -2: *((int2 *)bufp) = ROUND(data[i][j]); break;
+	  case -4: *((int4 *)bufp) = ROUND(data[i][j]); break;
+          case  1: *((byte1 *)bufp) = ROUND(data[i][j]); break;
+	  case  2: *((byte2 *)bufp) = ROUND(data[i][j]); break;
+	  case  4: *((byte4 *)bufp) = ROUND(data[i][j]); break;
+          default: assert(NEVER); /* should never execute */
+	}
       }
     }
     status = fwrite(iobuf, 1, row_bytes, fp);
@@ -190,6 +203,7 @@ int main(int argc, char *argv[])
   int data_bytes, nparams, status;
   bool forward_resample, weighted_sum;
   bool signed_data, wide_weighted;
+  bool float_data;
   float **from_data, **to_data, **to_beta;
   char *option;
   char from_filename[FILENAME_MAX], to_filename[FILENAME_MAX];
@@ -206,6 +220,7 @@ int main(int argc, char *argv[])
   modified_option = FALSE;
   data_bytes = 1;
   signed_data = TRUE;
+  float_data = FALSE;
   k_rows = k_cols = 0;
   power = 2;
   beta_file = NULL;
@@ -264,6 +279,9 @@ int main(int argc, char *argv[])
 	case 'l':
 	  data_bytes = 4;
 	  break;
+        case 'F':
+	  float_data = TRUE;
+          break;
 	case 'i':
 	  ++argv; --argc;
 	  if (sscanf(*argv, "%d", &fill) != 1) error_exit(usage);
@@ -310,6 +328,14 @@ int main(int argc, char *argv[])
   if (!to_file) { perror(to_filename); exit(ABORT); }
   if (verbose) fprintf(stderr,"> to data file %s\n", to_filename);
   ++argv; --argc;
+
+  /*
+   *    set up for floating-point data
+   */
+  if (float_data)
+  { data_bytes = 4;
+    signed_data = TRUE;
+  }
   
 /*
  *	determine extent of kernel
@@ -343,17 +369,20 @@ int main(int argc, char *argv[])
 /*
  *	read input grid data
  */
-  if (verbose) fprintf(stderr,"> %s %s data\n",
-		       (signed_data ? "signed" : "unsigned"),
-		       (1 == data_bytes ? "byte" :
-			2 == data_bytes ? "short" :
-			4 == data_bytes ? "long" : 
-			"unknown"));
+  if (verbose) {
+    if (float_data) fprintf(stderr, "> single precision floating-point data\n");
+    else fprintf(stderr,"> %s %s data\n",
+		 (signed_data ? "signed" : "unsigned"),
+		 (1 == data_bytes ? "byte" :
+		  2 == data_bytes ? "short" :
+		  4 == data_bytes ? "long" : 
+		  "unknown"));
+  }
 
   if (verbose >= 2) fprintf(stderr,">> initializing...\n");
 
   status = read_grid_data(from_grid->cols, from_grid->rows, data_bytes, 
-			  signed_data, from_data, from_file);
+			  signed_data, float_data, from_data, from_file);
   if (!status) { fprintf(stderr,"regrid: error reading input file: %s\n",
 			 from_filename); exit(ABORT); }
 
@@ -363,7 +392,7 @@ int main(int argc, char *argv[])
   if (preload_data)
   {
     status = read_grid_data(to_grid->cols, to_grid->rows, data_bytes, 
-			    signed_data, to_data, to_file);
+			    signed_data, float_data, to_data, to_file);
     if (!status) { fprintf(stderr,"regrid: error reading initial data: %s\n",
 			   to_filename); exit(ABORT); }
 
@@ -454,7 +483,7 @@ int main(int argc, char *argv[])
  *	write out result
  */
   status = write_grid_data(to_grid->cols, to_grid->rows, data_bytes,
-			   signed_data, to_data, to_file);
+			   signed_data, float_data, to_data, to_file);
   if (!status) { perror(to_filename); exit(ABORT); }
 
   if (beta_file)
