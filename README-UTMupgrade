@@ -1,0 +1,334 @@
+Readme for mapx library UTM update
+Terry Haran 01/22/03
+
+This document describes a set of changes to the mapx library implemented
+in the course of adding the Transverse Mercator and Universal Transverse
+Mercator projections. To date, none of these changes have been added yet
+to the cvs repository.
+
+In order to evaluate the changes, you should install the new version of
+the library into some directory, leaving the old version of the library
+intact. Assume that the new version of mapx is to be placed in a
+directory called mapsnew. Then execute the following commands:
+
+mkdir mapsnew
+cd mapsnew
+mkdir src
+mkdir src/maps
+mkdir bin
+mkdir include
+mkdir lib
+mkdir lib/maps
+cd src/maps
+ftp sidads.colorado.edu
+anonymous
+<your email address>
+cd pub/incoming/tharan/maps
+bin
+get mapsnew.tar.gz
+quit
+gunzip mapsnew.tar.gz
+tar Uxvf maps_new.tar
+make allall
+
+If you don't have the latest released version of mapx installed, you can
+retrieve it from the same ftp directory as above in the file
+mapsold.tar.gz. Note that the Makefile in the released version will
+install the software into the src, lib, and include directories under your
+home directory. Note also that the "allall" target doesn't exist in the
+released Makefile. You'll have do "make all" to make the library, and then
+individual makes of the individual applications and test programs.
+
+The following changes were made to all .c and .h files:
+
+1) <module>_rcsid character strings were added where missing.
+
+2) Any <module>_RCSID identifies were changed to <module>_rcsid.
+
+3) The function id_<module>() was added to all .c files. This function
+   returns a pointer to the rcsid string. This was done in order to
+   suppress warnings as well as provide a means for applications to
+   retrieve version information.
+
+4) The following files were not modified since they were provided from
+   third parties:
+   a) isin.h
+   b) isinusfor.c
+   c) isinusinv.c
+   d) wdbpltc.c
+   The compilations of the above .c files still produce warnings.
+
+In addition to the changes mentioned in 1-4, the following changes were
+also made:
+
+5) ppgc.html:
+   a) Modified keywords Map Reference Latitude and Longitude default
+      behavior for UTM.
+   b) Added keywords Map Origin X and Y.
+   c) Modified keywords Map False Easting and Northing default behavior
+      for UTM.
+   d) Added keywords Map Center Scale and Map UTM Zone.
+   e) Fixed the spelling of Interrupted Homolosine Equal-Area. The
+      mispelled form is still supported in the code.
+   f) Added the following map projection names:
+      i)   Polar Stereographic (ellipsoid)
+      ii)  Transverse Mercator
+      iii) Transverse Mercator (ellipsoid)
+      iv)  Universal Transverse Mercator
+      v)   Universal Transverse Mercator (ellipsoid)
+   g) Added or expanded explanations of several map keywords including
+      how the default values are modified for UTM.
+
+6) Makefile:
+   a) Changed TOPDIR from HOME to ../.. (temporary changed to aid in
+      evaluation).
+   b) Changed INSTALL from cp to cp -f so that old files are overwritten.
+   c) Removed -DLSB1ST from CONFIG_FLAGS. Linux users should add it back.
+   d) Added transverse_mercator and universal_transverse_mercator to
+      PROJECTION_SRCS and PROJECTION_OBJS.
+   e) Added targets:
+      i)   allall
+      ii)  appall
+      iii) testall
+      iv)  cleanall
+      v)   cleanexes
+   f) Under cdb_edit, changed "$(CP) cdb_edit.mpp $(MAPDIR)" to
+      "$(INSTALL) cdb_edit.mpp $(MAPDIR)".
+   g) Added build of xytest and gacct.
+   h) Added $(INSTALL) for each test program.
+
+7) The following changes were made to all projection .c files:
+   a) For forward projection functions, the output parameters *u and *v were
+      changed to *x and *y, respectively, and the following two lines of
+      code:
+	*u = current->T00*x + current->T01*y - current->u0;
+	*v = current->T10*x + current->T11*y - current->v0;
+      were replaced with:
+	*x += current->false_easting;
+	*y += current->false_northing;
+      Note that "x" and "y" were changed from "double" to "float *".
+   b) For inverse projection functions, the input parameters u and v were
+      changed to x and y, respectively, and the following two lines of
+      code:
+        x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
+        y = -current->T10*(u+current->u0) + current->T11*(v + current->v0);
+      were replaced with
+        x -= current->false_easting;
+        y -= current->false_northing;
+      Note that "x" and "y" were changed from double to float.
+   c) Testing with macct indicates that these changes did degrade the
+      accuracy somewhat, but it is still generally better than 1 meter.
+      For example, for Azimuthal Equal Area:
+      i)   macct N200correct.mpp:
+	     Old: 
+               102400 points,  0 bad points
+               average error = 8.6325e-05 km
+               std dev error = 1.3475e-04 km
+               maximum error = 8.3848e-04 km
+               max error was at 7.90N 37.81E
+	     New:
+               102400 points,  0 bad points
+               average error = 1.1850e-04 km
+               std dev error = 1.7604e-04 km
+               maximum error = 9.7283e-04 km
+               max error was at 1.41N 60.38W
+   d) The accuracy of a few projections improved due to changing
+      some temporary variables from float to double. For example,
+      for Polar Stereographic Ellipsoid:
+      i)   macct Sps.mpp:
+             Old:
+               102400 points,  0 bad points
+               average error = 1.2009e-04 km
+               std dev error = 1.8439e-04 km
+               maximum error = 1.5249e-03 km
+               max error was at 29.22S 157.43W
+	     New:
+               102400 points,  0 bad points
+               average error = 8.6325e-05 km
+               std dev error = 1.3475e-04 km
+               maximum error = 8.3848e-04 km
+               max error was at 7.90N 37.81E
+
+8) cdb.c:
+   a) In init_cb(), added a typecast on line 134 to suppress a warning.
+
+9) cdb_edit.c:
+   a) In main(), removed declaration of unused variables "i", "ios", and
+      "extent".
+   b) In finish_new_file(), removed declaration of unused variable
+      "command".
+
+10) cdb_list.c:
+    a) In main(), removed unused variable "i".
+
+11) cylindrical_equal_area.c:
+    a) In cylindrical_equal_area() and cylindrical_equal_area_ellipsoid(),
+       changed "dlon" from float to double.
+
+12) cylindrical_equidistant.c:
+    a) In cylindrical_equidistant(), changed "dlon" from float to double.
+
+13) grids.c:
+    a) In gtest main(), changed "enter r s: " prompt to "enter col row: ".
+    b) Added gacct, a grid accuracy test similar to macct, but for .gpd
+       files rather than .mpp files. gacct tests the accuracy for each
+       point in the grid.
+
+14) keyval.c:
+    a) In get_value_keyval(), added feature such that if default_string is
+       "FLT_MAX" and format is "%f" or "%lf", and the keyword is not
+       found, then the value FLT_MAX is returned.
+
+15) maps.c:
+    a) Added asinz() which returns asin(x) such that x is constrained to
+       fall within the range -1 to +1; called by
+       inverse_transverse_mercator() in transvese_mercator.c.
+
+16) maps.h:
+    a) Added declaration of asinz().
+
+17) mapx.c:
+    a) Added declarations of the following functions:
+       i)   init_transverse_mercator()
+       ii)  transverse_mercator()
+       iii) inverse_transverse_mercator()
+       iv)  init_transverse_mercator_ellipsoid()
+       v)   transverse_mercator_ellipsoid()
+       vi)  inverse_transverse_mercator_ellipsoid()
+       vii) init_universal_transverse_mercator()
+       viii)init_universal_transverse_mercator_ellipsoid()
+       Note that no forward or inverse functions for UTM are declared,
+       since UTM uses transverse mercator forward and inverse functions.
+     b) In new_mapx(), added initialization for Transverse Mercator and
+        Universal Transverse Mercator.
+     c) In decode_mpp():
+        i)   Added code to make Map Reference Latitude and Longitude
+             optional keywords for UTM.
+        ii)  Added code to process Map Origin X and Y keywords. These
+	     values are stored in x0 and y0 in the mapx structure.
+        iii) Deferred assuming that Map Origin Latitude and Longitude
+             take on Reference Latitude and Longitude values,
+             respectively, when the former are not defined and the
+             projection is UTM until UTM initialization.
+        iv)  Changed assignment of Map False Easting and Northing keyword
+             values from u0, v0 to false_easting, false_northing,
+             respectively, in the mapx structure.
+	v)   Deferred assigning of default values to Map False Easting and
+             Northing keywords when they are not defined and the
+             projection is UTM until UTM initialization.
+        vi)  Added code to process Map Center Scale and Map UTM Zone
+             keywords.
+     d) In old_fixed_format_decode_mpp():
+        i) Added code to initialize the following new mpp parameters that
+           are not supported by the old format:
+             x0
+             y0
+	     false_easting
+	     false_northing
+	     center_scale
+	     utm_zone
+     e) In reinit_mapx():
+        i)   If Map Origin X and Y not provided, then forward transform
+             Map Origin Latitude and Longitude (center_lat and center_lon
+             in the mapx structure) into Map Origin X and Y (x0 and y0
+             in the mapx structure).
+        ii)  Changed the initialization of u0 and v0 in the mapx structure.
+	     The old definitions of u0 and v0 were false easting and false
+             northing, respectively. The new definition is the u and v values
+	     resulting from the forward rotation (if any) of (x0,y0). Thus
+             (x0,y0) serves as the center of the rotation.
+     f) In forward_mapx():
+        i)   Changed call to (*(this->geo_to_map))() so that pointers to
+             temporary float variables x and y are passed rather than u and
+             v. (x,y) is then rotated and translated to (u,v). Note there
+             is now some loss of precision since x and y used to be doubles
+	     in each forward projection function.
+     g) In inverse_mapx():
+        i)   Translate and rotate (u,v) to temporary floats (x,y). Note
+             there is now some loss of precision since x and y used to be
+             doubles in each inverse projection function. Changed call to
+             (*(this->map_to_geo))() so that x and y are passed rather than
+             u and v.
+     h) Added mapx_forward_xy converts (lat,lon) to (x,y).
+     i) Added mapx_inverse_xy converts (x,y) to (lat,lon).
+     j) In standard_name():
+	i)   Added support for correct spelling of "interrupted" for
+	     Goode Interrupted Homolosine Equal Area. Incorrect spelling
+             is still supported.
+	ii)  Added Transverse Mercator.
+	iii) Added Transverse Mercator Ellipsoid.
+	iv)  Added Universal Transverse Mercator.
+	v)   Added Universal Transverse Mercator Ellipsoid.
+     k) Added main program xytest, an interactive test for mapx routines
+        that is similar to mtest, but works with original map coordinates
+        (x,y) rather than rotated and translated coordinates (u,v).
+     l) In mtest:
+        i)   Changed declaration of readln[80] to readln[FILENAME_MAX].
+	ii)  Added ability to specify the .mpp file name on the command
+             line just as in gtest.
+
+18) mapx.h:
+    a) Added user specified constants:
+       i)   x0
+       ii)  y0
+       iii) false_easting
+       iv)  false_northing
+       v)   center_scale
+       vi)  utm_zone
+    b) Added private projection constants:
+       i)   e0
+       ii)  e1p
+       iii) e2p
+       iv)  e3p
+       v)   ml0
+       vi)  esp
+       vii) f1
+       viii)f2
+       ix)  f3
+       x)   f4
+    c) Added funtion prototypes:
+       i)   forward_mapx_xy()
+       ii)  inverse_mapx_xy()
+
+19) mercator.c:
+    a) In mercator(), changed "dlon" from float to double.
+
+20) mollweide.c:
+    a) In mollweide(), changed "dlon" from float to double.
+
+21) orthographic.c:
+    a) In orthographic(), changed the following temporary variables
+       from float to double:
+       i)   phi
+       ii)  lam
+       iii) sin_phi
+       iv)  cos_phi
+       v)   sin_lam
+       vi)  cos_lam
+       vii) cos_beta
+
+22) polar_stereographic.c:
+    a) In polar_stereographic(), changed the following temporary variables
+       from float to double:
+       i)   phi
+       ii)  lam
+       iii) rho
+    b) In init_polar_stereographic_ellipsoid(), changed the following
+       temporary variables from float to double:
+       i)   numerator
+       ii)  denominator
+    c) In polar_stereographic_ellipsoid(), changed the following
+       temporary variables from float to double:
+       i)   phi
+       ii)  lam
+       iii) rho
+       iv)  t
+       v)   numerator
+       vi)  denominator
+
+23) sinusoidal.c:
+    a) In sinusoidal(), changed "dlon" from float to double.
+
+24) Added transverse_mercator.c.
+
+25) Added universal_transverse_mercator.c.
