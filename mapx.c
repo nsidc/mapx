@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.14 1993-10-27 15:35:27 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.15 1993-10-27 16:53:10 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +45,9 @@ static int inverse_orthographic(float,float,float*,float*);
 static int init_polar_stereographic(void);
 static int polar_stereographic(float,float,float*,float*);
 static int inverse_polar_stereographic(float,float,float*,float*);
+static int init_polar_stereographic_ellipsoid(void);
+static int polar_stereographic_ellipsoid(float,float,float*,float*);
+static int inverse_polar_stereographic_ellipsoid(float,float,float*,float*);
 static int init_sinusoidal(void);
 static int sinusoidal(float,float,float*,float*);
 static int inverse_sinusoidal(float,float,float*,float*);
@@ -87,6 +90,7 @@ static char *standard_name(char *);
  *			 Sinusoidal
  *			 Cylindrical_Equidistant
  *			 Polar_Stereographic
+ *			 Polar_Stereographic_Ellipsoid
  *			 Azimuthal_Equal_Area_Ellipsoid			 
  *			 Cylindrical_Equal_Area_Ellipsoid
  *                       Lambert_Conic_Conformal_Ellipsoid
@@ -289,6 +293,12 @@ mapx_class *init_mapx (char *map_filename)
     this->map_to_geo = inverse_polar_stereographic;
   }
   
+  else if (strcmp (projection, "POLARSTEREOGRAPHICELLIPSOID") == 0)
+  { this->initialize = init_polar_stereographic_ellipsoid;
+    this->geo_to_map = polar_stereographic_ellipsoid;
+    this->map_to_geo = inverse_polar_stereographic_ellipsoid;
+  }
+  
   else if (strcmp (projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) 
   { this->initialize = init_azimuthal_equal_area_ellipsoid;
     this->geo_to_map = azimuthal_equal_area_ellipsoid;
@@ -319,6 +329,7 @@ mapx_class *init_mapx (char *map_filename)
     fprintf (stderr, " Mollweide\n");
     fprintf (stderr, " Orthographic\n");
     fprintf (stderr, " Polar Stereographic\n");
+    fprintf (stderr, " Polar Stereographic Ellipsoid\n");
     fprintf (stderr, " Sinusoidal\n");
     close_mapx (this);
     return NULL;
@@ -552,6 +563,12 @@ static char *standard_name(char *s)
   else if ((streq(new_name, "POLARSTEREOGRAPHIC") != NULL)|| 
 	   (streq(new_name, "STEREOGRAPHICPOLAR") != NULL))
   { strcpy(new_name, "POLARSTEREOGRAPHIC");
+  }
+  else if ((streq(new_name, "POLARSTEREOGRAPHICELLIPSOID") != NULL)|| 
+	   (streq(new_name, "ELLIPSOIDPOLARSTEREOGRAPHIC") != NULL))
+	   (streq(new_name, "STEREOGRAPHICPOLARELLIPSOID") != NULL))
+	   (streq(new_name, "ELLIPSOIDSTEREOGRAPHICPOLAR") != NULL))
+  { strcpy(new_name, "POLARSTEREOGRAPHICELLIPSOID");
   }
   else if ((streq(new_name, "AZIMUTHALEQUALAREAELLIPSOID") != NULL) || 
 	   (streq(new_name, "ELLIPSOIDAZIMUTHALEQUALAREA") != NULL) || 
@@ -929,6 +946,78 @@ static int polar_stereographic (float lat, float lon, float *u, float *v)
 }
 
 static int inverse_polar_stereographic (float u, float v, float *lat, float *lon)
+{
+  double phi, lam, rho, c, q, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  rho = sqrt(x*x + y*y);
+  q = current->Rg*(1 + current->sin_phi1);
+  c = 2*atan2(rho,q);
+  
+  if (current->lat0 == 90)
+  { phi = asin(cos(c));
+    lam = atan2(x, -y);
+  }
+  else if (current->lat0 == -90)
+  { phi = asin(-cos(c));
+    lam = atan2(x, y);
+  }
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE(*lon);
+  
+  return 0;
+}
+
+/*------------------------------------------------------------------------
+ * polar_stereographic_ellipsoid
+ *------------------------------------------------------------------------*/
+
+static int init_polar_stereographic_ellipsoid(void)
+{
+  if (current->lat1 == 999) current->lat1 = current->lat0;
+  current->sin_phi1 = sin (RADIANS (current->lat1));
+  if (current->lat0 != 90.00 && current->lat0 != -90.00)
+  { fprintf(stderr,"mapx: only polar aspects allowed: lat0 = %7.2f\n",
+	    current->lat0);
+    return -1;
+  }
+  return 0;
+}
+
+static int polar_stereographic_ellipsoid(float lat, float lon, 
+					 float *u, float *v)
+{
+  float x, y;
+  float phi, lam, rho;
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (lon - current->lon0);
+  
+  if (current->lat0 == 90)
+  { rho = current->Rg * cos(phi) 
+      * (1 + current->sin_phi1) / (1 + sin(phi));
+    x =  rho * sin(lam);
+    y = -rho * cos(lam);
+  }
+  else if (current->lat0 == -90)
+  { rho = current->Rg * cos(phi) 
+      * (1 - current->sin_phi1) / (1 - sin(phi));
+    x = rho * sin(lam);
+    y = rho * cos(lam);
+  }
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
+}
+
+static int inverse_polar_stereographic_ellipsoid(float u, float v, 
+						 float *lat, float *lon)
 {
   double phi, lam, rho, c, q, x, y;
   
