@@ -9,7 +9,7 @@
 
 #include "define.h"
 
-static const char grid_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.1 1998-06-11 22:30:19 knowles Exp $";
+static const char grid_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.h,v 1.2 1998-06-15 19:01:15 knowles Exp $";
 
 typedef enum 
 { grid_io_READ_ONLY, 
@@ -36,8 +36,6 @@ grid_io_class *init_grid_io(int width, int height, int datum_size,
 			    char *filename);
 
 bool fill_grid_io(grid_io_class *this, double fill_value);
-
-bool buffer_swap_grid_io(grid_io_class *this, int row);
 
 bool get_element_grid_io(grid_io_class *this, int row, int col, double *value);
 
