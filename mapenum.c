@@ -2,8 +2,9 @@
  * mapenum - enumerate map feature vectors
  *
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.3 1994-03-18 13:39:57 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.4 1994-04-07 16:17:40 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

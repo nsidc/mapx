@@ -3,10 +3,11 @@
  *
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 15-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.11 1994-03-18 13:48:48 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.12 1994-04-07 16:16:35 knowles Exp $";
 
 /* 
  * useful macros

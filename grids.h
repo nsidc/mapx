@@ -2,11 +2,12 @@
  * grids.h - grid coordinate system parameters
  *
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
 #ifndef grids_h_
 #define grids_h_
 
-static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.5 1993-11-17 13:03:37 knowles Exp $";
+static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.6 1994-04-07 16:16:37 knowles Exp $";
 
 #include "mapx.h"
 

@@ -1,7 +1,10 @@
 /*========================================================================
  * grids - grid coordinate system definition and transformations
+ *
+ * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.8 1993-11-17 13:03:34 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.9 1994-04-07 16:16:36 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,7 +1,10 @@
 /*========================================================================
  * maps - map utility functions
+ *
+ * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.5 1993-11-08 16:42:15 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.6 1994-04-07 16:19:06 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>

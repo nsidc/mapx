@@ -1,7 +1,8 @@
 /*========================================================================
  * maps - map utility functions
  *
- *	18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
 #ifndef maps_h_
 #define maps_h_

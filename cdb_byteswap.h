@@ -6,6 +6,8 @@
  *	for machines which require most significant byte first
  *	compile with -DBYTEORDER=LSB1ST
  *
+ * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ * National Snow & Ice Data Center, University of Colorado, Boulder
  *------------------------------------------------------------------------*/
 #ifndef LSB1ST
 #define NO_SWAP

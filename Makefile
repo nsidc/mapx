@@ -2,6 +2,7 @@
 # Makefile for maps library
 #
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
+# National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
 SHELL = /bin/sh
 TOP = /usr/local
