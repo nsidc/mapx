@@ -22,7 +22,7 @@ Grid Map Origin Row:            79.5
 #
 # gacct
 #   100000 points,  0 bad points
-#   average error = 7.6541e-13 pixels
+#   average error = 7.6542e-13 pixels
 #   std dev error = 3.2289e-12 pixels
 #   maximum error = 4.3038e-11 pixels
 #   max error was at col: 499  row: 189   lat: -47.294244  lon: 71.803435

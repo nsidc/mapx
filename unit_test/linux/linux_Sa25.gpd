@@ -9,8 +9,8 @@ linux/linux_S200correct.mpp map projection parameters   # AVHRR 25km EASE-Grid
 #
 # gacct
 #   103041 points,  0 bad points
-#   average error = 4.7786e-14 pixels
-#   std dev error = 4.4922e-14 pixels
+#   average error = 4.6003e-14 pixels
+#   std dev error = 4.3657e-14 pixels
 #   maximum error = 1.8190e-12 pixels
 #   max error was at col: 158  row: 160   lat: -89.549140  lon: -90.000000
 #

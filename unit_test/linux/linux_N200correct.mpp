@@ -15,8 +15,8 @@ Azimuthal Equal-Area
 #
 # macct
 #   102400 points,  0 bad points
-#   average error = 6.3954e-06 km
-#   std dev error = 2.3797e-05 km
+#   average error = 6.3917e-06 km
+#   std dev error = 2.3790e-05 km
 #   maximum error = 9.4939e-05 km
 #   max error was at 0.28N 180.00W
 #
