@@ -7,6 +7,9 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *
  *$Log: not supported by cvs2svn $
+ * Revision 1.4  1997/09/26  17:37:10  brodzik
+ * Added initialize_matrix function.
+ *
  * Revision 1.3  1997/03/22  22:54:20  brodzik
  * Changed obsolete **at to **data.
  *
@@ -24,11 +27,11 @@
 #include <define.h>
 #include "grids.h"
 
-static const char matrix_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.4 1997-09-26 17:37:10 brodzik Exp $";
+static const char matrix_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.5 1997-09-26 17:46:00 brodzik Exp $";
 
-size_t read_matrix (void **data, char *file_name, 
+size_t read_matrix (void **data, const char *file_name, 
 		    int rows, int cols, size_t size);
-size_t write_matrix (char *file_name, void **data, 
+size_t write_matrix (const char *file_name, void **data, 
 		     int rows, int cols, size_t size);
 
 /* Allocate memory for and read matrix object from external file */
