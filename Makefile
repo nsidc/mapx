@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.20 1994-04-12 15:02:46 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.21 1994-05-09 10:56:26 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -36,6 +36,9 @@ TARFILE = maps.tar
 
 #
 #	debug or optimization settings
+#
+#	on least significant byte first machines (Intel, Vax)
+#	add -DLSB1ST option to enable byteswapping of cdb files
 #
 CONFIG_CFLAGS = -O
 #CONFIG_CFLAGS = -DDEBUG -g
