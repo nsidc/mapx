@@ -7,9 +7,22 @@
 #ifndef grids_h_
 #define grids_h_
 
-static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.6 1994-04-07 16:16:37 knowles Exp $";
+static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.7 1999-11-19 16:56:49 knowles Exp $";
 
 #include "mapx.h"
+
+/*
+ * global verbose flag
+ */
+#ifdef GRIDS_C_
+#  define GLOBAL
+#else
+#  define GLOBAL extern
+#endif
+
+GLOBAL int grid_verbose;
+
+#undef GLOBAL
 
 /* 
  * useful macros
@@ -30,7 +43,8 @@ typedef struct {
 /*
  * function prototypes
  */
-grid_class *init_grid(const char *grid_filename);
+grid_class *init_grid(char *filename);
+grid_class *new_grid(char *label);
 void close_grid(grid_class *this);
 int forward_grid(grid_class *this, float lat, float lon, float *r, float *s);
 int inverse_grid(grid_class *this, float r, float s, float *lat, float *lon);

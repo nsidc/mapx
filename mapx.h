@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.20 1999-08-02 20:32:05 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.21 1999-11-19 16:57:09 knowles Exp $";
 
 /*
  * global verbose flag
@@ -20,6 +20,7 @@ static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.20 1
 
 GLOBAL int mapx_verbose;
 
+#undef GLOBAL
 
 /* 
  * useful macros
