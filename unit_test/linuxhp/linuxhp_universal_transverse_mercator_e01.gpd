@@ -1,0 +1,47 @@
+# file: linuxhp_universal_transverse_mercator_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Universal Transverse Mercator
+# Adapted from Transverse Mercator Ellipsoid pp. 269-273
+# 500000 m false easting applied to x coordinate values
+#
+Map Projection:                 Universal Transverse Mercator
+Map Equatorial Radius:          6378206.4
+Map Polar Radius:               6356583.8
+Map Reference Longitude:        75.0
+Map Reference Latitude:         -40.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        1000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            -4199.5
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 4.3851e+03 km
+#   std dev error = 4.5931e+03 km
+#   maximum error = 1.9672e+04 km
+#   max error was at 78.71S 147.27E
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 1.1493e-04 pixels
+#   std dev error = 1.6250e-05 pixels
+#   maximum error = 1.4576e-04 pixels
+#   max error was at col: 299  row: 0   lat: -37.932638  lon: 76.701126
+#
+# xytest forward
+#   lat,lon = -40.5 73.5
+#   x,y = 372893.5326059 5515875.5368421  .vs 372893.5       5515875.6 in snyder
+#
+# xytest inverse
+#   x,y = 372893.5 5515875.6
+#   lat,lon = -40.5000003 73.4999996  .vs -40.5000000 73.5000000 in snyder
+#
+# crtest forward
+#   lat,lon = -40.5 73.5
+#   col,row = 22.3935326 284.6244632 
+#
+# crtest inverse
+#   col,row = 22.3935326 284.6244632
+#   lat,lon = -40.5000008 73.5000000 
