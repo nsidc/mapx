@@ -14,18 +14,20 @@ MV = /bin/mv
 RM = /bin/rm -f
 DEBUG_FLAGS = -O
 CLIBS = -lc_s -lm -lmalloc
-CFLAGS = -I$(LOCAL_INCLUDE) $(DEBUG_FLAGS)
+CFLAGS = -I. $(DEBUG_FLAGS)
 SOURCES = mapx.c grids.c cdb.c maps.c
 HEADERS = mapx.h grids.h cdb.h maps.h
 OBJECTS = mapx.o grids.o cdb.o maps.o
 
-all : libmaps.a clean
+all : libmaps.a install clean
 
 libmaps.a : $(HEADERS) $(OBJECTS)
-	$(MV) $(HEADERS) $(LOCAL_INCLUDE)
 	$(AR) ruv libmaps.a $(OBJECTS)
 	$(RANLIB) libmaps.a
+
+install : libmaps.a $(HEADERS)
 	$(MV) libmaps.a $(LOCAL_LIB)
+	$(MV) $(HEADERS) $(LOCAL_INCLUDE)
 
 clean :
 	- $(RM) $(OBJECTS) $(SOURCES) $(HEADERS)
@@ -66,4 +68,3 @@ maps.o:		$(LOCAL_INCLUDE)/mapx.h $(LOCAL_INCLUDE)/grids.h \
 
 .h,v.h :
 	$(CO) $<
-
