@@ -5,14 +5,14 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.2 2004-07-20 21:19:39 knowlesk Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.3 2004-09-10 21:39:43 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
 #include "grids.h"
 
 #define usage									\
-"usage: ungrid [-v] [-b] [-i fill] [-n min_value] [-x max_value]\n"		\
+"usage: ungrid [-v] [-b] [-e] [-i fill] [-n min_value] [-x max_value]\n"	\
 "              [-c method] [-r radius] [-p power]\n"				\
 "              from_gpd from_data\n"						\
 "\n"										\
@@ -28,6 +28,8 @@ static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.
 "             If binary is set, the location is not echoed to\n"		\
 "             the output but the data values are written in the\n"		\
 "             same order as the input points.\n"				\
+"         e - If binary is not set, then output ASCII in exponential (%e)\n"	\
+"             format (default is %f). If binary is set, then -e is ignored.\n"  \
 "         i fill - fill value for missing data (default = 0)\n"			\
 "         n min_value - ignore data values less than min_value\n"		\
 "         x max_value - ignore data values greater than max_value\n"		\
@@ -83,6 +85,7 @@ static char *method_string[] = { "nearest-neighbor",
 int main(int argc, char *argv[]) { 
   int io_err, status, method_number, line_num, row;
   bool do_binary;
+  bool do_exponential;
   double to_lat, to_lon;
   double from_r, from_s;
   float **from_data;
@@ -104,6 +107,7 @@ int main(int argc, char *argv[]) {
   control.shell_radius = 0.5;
   control.power = 2;
   do_binary = FALSE;
+  do_exponential = FALSE;
   verbose = 0;
   method = 'N';
 
@@ -119,6 +123,9 @@ int main(int argc, char *argv[]) {
 	case 'b':
 	  do_binary = TRUE;
 	  break;
+        case 'e':
+          do_exponential = TRUE;
+          break;
 	case 'c':
 	  ++argv; --argc;
 	  method = *argv[0];
@@ -193,7 +200,9 @@ int main(int argc, char *argv[]) {
     if (control.max_set) fprintf(stderr,"> Valid max:\t%g\n", control.max_value);
     fprintf(stderr,"> Shell radius:\t%g\n", control.shell_radius);
     if (method == 'I') fprintf(stderr,"> Power:\t%g\n", control.power);
-    fprintf(stderr,"> Format:\t%s\n", do_binary ? "binary" : "ascii");
+    fprintf(stderr,"> Format:\t%s\n",
+                   do_binary ? "binary" : 
+                               (do_exponential ? "ascii %%e" : "ascii %%f"));
   }
 
 /*
@@ -263,7 +272,10 @@ int main(int argc, char *argv[]) {
       fwrite(&value, sizeof(value), 1, stdout);
       io_err = ferror(stdout);
     } else {
-      printf("%f %f %f\n", to_lat, to_lon, value);
+      if (do_exponential)
+	printf("%e %e %e\n", to_lat, to_lon, value);
+      else
+	printf("%f %f %f\n", to_lat, to_lon, value);
       io_err = ferror(stdout);
     }
 
