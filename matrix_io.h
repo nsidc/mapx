@@ -8,10 +8,10 @@
 #ifndef matrix_io_h_
 #define matrix_io_h_
 
+static const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.7 2003-06-24 22:50:31 haran Exp $";
+
 #include "define.h"
 #include "grids.h"
-
-static const char matrix_io_h_RCSID[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.6 1997-10-03 20:47:25 root Exp $";
 
 size_t read_matrix (void **data, const char *file_name, 
 		    int rows, int cols, size_t size);
