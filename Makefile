@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.33 1995-09-20 18:46:16 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.34 1996-07-31 18:16:07 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -43,7 +43,7 @@ TARFILE = maps.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #
 CONFIG_CFLAGS = -O
-#CONFIG_CFLAGS = -DDEBUG -g
+CONFIG_CFLAGS = -DDEBUG -g
 
 #
 #	system libraries
@@ -55,7 +55,8 @@ SYSLIBS = -lm
 #------------------------------------------------------------------------
 
 CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
-LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
+LIBS = -L$(LIBDIR) -lmaps -lmodels $(SYSLIBS)
+DEPEND_LIBS = $(LIBDIR)/libmaps.a $(LIBDIR)/libmodels.a
 
 SRCS = mapx.c grids.c cdb.c maps.c 
 HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
@@ -92,23 +93,23 @@ depend :
 #------------------------------------------------------------------------
 # applications
 #
-gridloc: gridloc.o $(LIBDIR)/libmaps.a
+gridloc: gridloc.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o gridloc gridloc.o $(LIBS)
 	$(INSTALL) gridloc $(BINDIR)
-regrid: regrid.o $(LIBDIR)/libmaps.a
-	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBDIR) -lmodels $(LIBS)
+regrid: regrid.o $(DEPEND_LIBS)
+	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS)
 	$(INSTALL) regrid $(BINDIR)
-cdb_edit: cdb_edit.o $(LIBDIR)/libmaps.a
+cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
 	$(CP) cdb_edit.mpp $(MAPDIR)
-cdb_list: cdb_list.o $(LIBDIR)/libmaps.a
+cdb_list: cdb_list.o $(DEPEND_LIBS)
 	$(CC) -o cdb_list cdb_list.o $(LIBS)
 	$(INSTALL) cdb_list $(BINDIR)
-wdbtocdb: wdbtocdb.o wdbpltc.o $(LIBDIR)/libmaps.a
+wdbtocdb: wdbtocdb.o wdbpltc.o $(DEPEND_LIBS)
 	$(CC) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
 	$(INSTALL) wdbtocdb $(BINDIR)
-mapenum: mapenum.o $(LIBDIR)/libmaps.a
+mapenum: mapenum.o $(DEPEND_LIBS)
 	$(CC) -o mapenum mapenum.o $(LIBS)
 	$(INSTALL) mapenum $(BINDIR)
 #
