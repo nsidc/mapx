@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1994 University of Colorado
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.17 2004-01-19 00:57:22 knowlesk Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.18 2004-07-20 20:33:22 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -14,7 +14,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.17 $\n"                                                             \
+"$Revision: 1.18 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -780,7 +780,7 @@ int cubiccon(grid_class *from_grid, float **from_data,
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
 /*
- *	get cubic spline coefficients
+ *	get cubic coefficients
  */
       dr = r - (int)r;
       ds = s - (int)s;
