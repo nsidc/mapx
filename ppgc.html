@@ -1,0 +1,557 @@
+<html> <head>
+<title>Points, Pixels, Grids, and Cells: A Mapping and Gridding Primer</title>
+   <meta name="Author" content="Ken Knowles">
+   <meta name="Keywords" content="mapx grids">
+</head>
+
+<body text="#000000" bgcolor="#FFDEAD" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<H1>Points, Pixels, Grids, and Cells</H1>
+<H2>A Mapping and Gridding Primer</H2>
+<b>by <i>Kenneth W. Knowles</i>,<br>NSIDC</b><p>
+<hr><p>
+
+
+<h2>Table of Contents</h2>
+<dl>
+<li><a href="#intro">Introduction</a>
+<li><a href="#maps">Maps</a>
+<li><a href="#projections">Projections</a>
+<li><a href="#grids">Grids</a>
+<li><a href="#binning">Binning</a>
+<li><a href="#pictures">Pictures</a>
+<li><a href="#parameters">Parameters</a>
+<li><a href="#limitations">Limitations</a>
+<li><a href="#references">References</a>
+<li><a href="#notes">Notes</a>
+</dl><p>
+<hr>
+
+<a name="intro"><H2>Introduction</H2></a>
+
+Satellite remote sensing has made possible the collection of data over
+large areas of the Earth. These data are often stored in
+&quot;grids.&quot; Grids are an efficient means of storing data because
+the location of a value within the grid is implicit, i.e. it is not
+explicitly stored in the grid. The location is also constant,
+facilitating comparison of data from different sensors or different
+time periods. The purpose of this document is to give a brief
+introduction to mapping, gridding, and the associated terminology.
+Many different conventions are in use and no widely accepted standards
+exist. The intent here is not to dictate usage but rather to clarify
+and provide a context in which to discuss issues of exactly how data
+are stored in grids at NSIDC.<p>
+<a name="maps"><H2>Maps</H2></a>
+
+When we speak of a map projection we are talking about some procedure
+or mathematical formula to transform a curved surface into a plane. A
+map projection is a one to one mapping (in the mathematical sense) of
+points on the curved surface to points on the plane. The curved
+surface is usually the surface of the Earth and the plane is what we
+call a &quot;map.&quot; The derivation of a map transformation requires a
+mathematical representation of the surface of the Earth. The surface
+of constant geopotential referred to as mean sea level or the geoid is
+quite complicated and its mathematical form is correspondingly
+complex. When defining map projections then, it is common to
+approximate the surface of the earth with a simpler surface such as an
+ellipsoid or sphere. The ellipsoid is flattened at the poles, relative
+to the sphere, by about one part in three hundred, so for maps of
+large areas (continents or bigger) no significant error is introduced
+by using the sphere. On the other hand, when mapping smaller areas it
+is not uncommon to choose an ellipsoid specifically for each area
+(i.e. each area is mapped on an ellipsoid with a different radius and
+eccentricity).<P>
+
+Coordinates for points on the surface of the Earth are given in
+latitude and longitude. Geodetic latitude is the angle between a
+vertical ray at the point and the plane of the equator. Geocentric
+latitude is the angle between a ray from the center of the Earth to
+the point and the plane of the equator. On a sphere, the geodetic
+latitude is equivalent to the geocentric latitude. There is only one
+definition of longitude, which is, the angle between a ray from the
+center of the Earth to the point and the plane of the Greenwich
+Meridian (an arbitrary reference point). Coordinates in the map plane
+(<I>x</I>,<I>y</I>) are defined in the usual manner with <I>x</I>
+horizontal and increasing to the right and <I>y</I> vertical and
+increasing upward.
+
+<a name="projections"><H2>Projections</H2></a>
+
+<IMG SRC = "mprojex.gif"><P>
+
+Map transformations are referred to as projections because they are
+commonly conceptualized as geometric constructs. That is, we think of
+the map as a piece of paper wrapped around a globe with lines
+emanating from points on the globe and &quot;projected&quot; onto the
+paper.<A HREF = #note1>1</A><A NAME = "ref1"> </A> Map projections
+are specified as a set of equations giving <I>x</I> and <I>y</I> in
+terms of <I>latitude</I> and <I>longitude</I>. The form of the
+equations can be thought of as the manner in which we wrap the paper
+around the globe.  Cylindrical projections wrap the paper around in a
+tube, conical projections use a cone, and azimuthal projections use a
+flat surface.  Several parameters are used in these equations to
+specify exactly where the surface intersects the globe, the scale or
+size of the globe, and the translation and rotation of the map on the
+plane surface. There is no one best map projection. Each projection
+has different properties and thus different &quot;best&quot; uses. Two
+of the most important characteristics of maps are whether they are
+conformal or equal-area. No map projection is both, and some are
+neither. If a map is conformal then angles within a small area are
+reproduced accurately. This means that shapes are preserved, i.e. a
+small circle on the globe will look like a small circle on the map.
+Formally we say that at any point on the map, the scale <I>h</I> along
+a meridian of longitude is equal to the scale <I>k</I> along a
+parallel of latitude. If a map is said to be equal-area, then a small
+circle placed anywhere on the map will always cover the same amount of
+area on the globe and the product of <I>h</I> and <I>k</I> at any
+point is one. For maps which are not equal-area <I>hk</I> - 1 gives a
+measure of the areal distortion. For maps which are not conformal
+<I>k</I>/<I>h</I> gives the aspect ratio which is a measure of shape
+distortion. For example, on the Polar Stereographic map true at
+70N (a conformal map) the areal distortion varies from -6% at the
+pole to +29% at 45N and goes up to +276% at the equator while, by
+definition, the aspect ratio remains 1:1 everywhere. The Azimuthal
+Equal-Area map over the pole has, of course, no areal distortion,
+while the aspect ratio varies from 1:1 at the pole to 1.17:1 at
+45N and goes up to 2:1 at the equator.
+
+<a name="grids"><H2>Grids</H2></a>
+
+A grid is an array of points. Grids are used to record regularly
+spaced samples over an area. When sampling over the surface of the
+earth a grid is determined by a map projection, a sampling interval,
+an origin, and the number of rows and columns.<A HREF =
+#note2>2</A><A NAME = "ref2"> </A> A grid coordinate system is
+defined in the map plane with axes parallel to the rows and columns of
+the grid and units equal to the sampling interval. The grid sample
+locations are then at the whole integer grid coordinate points.  To
+conform to mathematical array conventions the grid coordinates
+(<I>r</I>,<I>s</I>) start at (0,0) in the upper left corner with
+<I>r</I> increasing to the right and <I>s</I> increasing downward
+(this also conforms to digital image processing conventions). A grid
+cell (<I>i</I>,<I>j</I>) is defined as the area between grid
+coordinates <I>i</I>-.5 and <I>i</I>+.5, and <I>j</I>-.5 and
+<I>j</I>+.5. To conform to rounding conventions the lower bound is
+included in the cell while the upper bound is not (round up at .5).
+Note that the <I>r</I> coordinate corresponds to the grid column
+number <I>j</I>, and the <I>s</I> coordinate corresponds to the grid
+row number <I>i</I>.<P>
+
+It might be useful to think of the grid as a map drawn on graph paper.
+To find a grid cell location, count graph lines over from the left and
+down from the top, then read the latitude and longitude off the map.<P>
+
+<IMG SRC = "coordef.gif"><P>
+
+<a name="binning"><H2>Binning</H2></a>
+
+The process of sampling data on a grid is sometimes referred to as
+binning, especially when the sampling method is to average all data
+which falls into the grid cell. Some other methods used to sample data
+are: take the closest value to the grid point (nearest neighbor), or
+interpolate between surrounding grid points.  Also, binning doesn't
+necessarily have to be the average of multiple data points, it could
+be the minimum, the maximum, the median or the latest value in the
+grid cell. The characteristics of the data should determine the
+sampling method used. For example, nearest neighbor works quite well
+for elevation data, where as averaging or bilinear interpolation are
+terrible. When magnifying an image, interpolation is the way to go,
+but for shrinking, averaging is usually best.
+
+<a name="pictures"><H2>Pictures</H2></a>
+
+A pixel coordinate system is defined analogously to the grid
+coordinate system; pixels are analogous to grid cells. To display
+gridded data as a picture, we define a transformation from grid
+coordinates to pixel coordinates and then sample the gridded data at
+the whole integer pixel coordinate points. The most common technique
+is to map grid cells onto pixels one for one, but there are more
+sophisticated techniques which allow for scrolling, zooming, and
+rotating. This is often referred to as resampling.
+
+<a name="parameters"><H2>Parameters</H2></a>
+
+Many programs that we use at NSIDC depend on the &quot;mapx&quot;
+module to handle map projections. These include: popview, gomap,
+olsgrid, mapenum, and the EASE-Grid processing software. Most of these
+tools provide access to pre-defined maps, however, it is relatively
+easy to define your own map with a map projection parameters or &quot;.mpp&quot; file.<P>
+
+<H3>Map Projection Parameters File Format</H3></a>
+
+Each parameter is described by a "keyword: value" pair on a single
+line. Parameters can be followed by comments which begin with a
+semi-colon. Parameters can appear in any order.&nbsp; The default value is
+used in the case where the corresponding keyword is not
+found. Unrecognized keywords are ignored. The following parameters define
+the map projection.<p>
+
+<table BORDER WIDTH="100%" NOSAVE >
+<tr>
+<th>Keyword</th>
+<th>Format</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Map Projection</td>
+<td>string</td>
+<td>required field</td>
+<td>projection name (see list below)</td>
+</tr>
+
+<tr>
+<td>Map Reference Latitude</td>
+<td>decimal degrees</td>
+<td>required field</td>
+<td>reference latitude for map projection</td>
+</tr>
+
+<tr>
+<td>Map Reference Longitude</td>
+<td>decimal degrees</td>
+<td>required field</td>
+<td>reference longitude for map projection</td>
+</tr>
+
+<tr>
+<td>Map Second Reference Latitude</td>
+<td>decimal degrees</td>
+<td>none</td>
+<td>used by some projections (see list)</td>
+</tr>
+
+<tr>
+<td>Map Rotation</td>
+<td>decimal degrees</td>
+<td>0.0</td>
+<td>rotation counter-clockwise</td>
+</tr>
+
+<tr>
+<td>Map Scale</td>
+<td>float</td>
+<td>1.0</td>
+<td>map scale factor (radius units per map unit)</td>
+</tr>
+
+<tr>
+<td>Map Origin Latitude</td>
+<td>decimal degrees</td>
+<td>refrence latitude</td>
+<td>translated map origin latitude</td>
+</tr>
+
+<tr>
+<td>Map Origin Longitude</td>
+<td>decimal degrees</td>
+<td>reference longitude</td>
+<td>translated map origin longitude</td>
+</tr>
+
+<tr>
+<td>Map Eccentricity</td>
+<td>float</td>
+<td>Clark 1866</td>
+<td>eccentricity of ellipsoid</td>
+</tr>
+
+<tr>
+<td>Map Equatorial Radius</td>
+<td>float</td>
+<td>Clark 1866 ellipsoid or equivalent authallic sphere</td>
+<td>radius of ellipsoid or sphere</td>
+</tr>
+
+</table><p>
+
+The following parameters are used only by programs which actually draw maps.<p>
+
+
+<table BORDER WIDTH="100%" NOSAVE >
+<tr>
+<th>Keyword</th>
+<th>Format</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Map Southern Bound</td>
+<td>decimal degrees</td>
+<td>90.00S</td>
+<td>bottom of map, starting point for latitude graticule</td>
+</tr>
+
+<tr>
+<td>Map Northern Bound</td>
+<td>decimal degrees</td>
+<td>90.00N</td>
+<td>top of map</td>
+</tr>
+
+<tr>
+<td>Map Western Bound</td>
+<td>decimal degrees</td>
+<td>180.00W</td>
+<td>left side of map, starting point for longitude graticule</td>
+</tr>
+
+<tr>
+<td>Map Eastern Bound</td>
+<td>decimal degrees</td>
+<td>180.00E</td>
+<td>right side of map</td>
+</tr>
+
+<tr>
+<td>Map Graticule Latitude Interval</td>
+<td>decimal degrees</td>
+<td>30.</td>
+<td>graticule spacing</td>
+</tr>
+
+<tr>
+<td>Map Graticule Longitude Interval</td>
+<td>decimal degrees</td>
+<td>30.</td>
+<td>graticule spacing</td>
+</tr>
+
+<tr>
+<td>Map Graticule Label Latitude</td>
+<td>decimal degrees</td>
+<td>0.00N</td>
+<td>where to label meridians</td>
+</tr>
+
+<tr>
+<td>Map Graticule Label Longitude</td>
+<td>decimal degrees</td>
+<td>0.00E</td>
+<td>where to label parallels</td>
+</tr>
+
+<tr>
+<td>Map CIL Detail Level</td>
+<td>integer</td>
+<td>1</td>
+<td>level of detail for coastlines, islands, and lakes</td>
+</tr>
+
+<tr>
+<td>Map BDY Detail Level</td>
+<td>integer</td>
+<td>0</td>
+<td>level of detail for political boundaries</td>
+</tr>
+
+<tr>
+<td>Map RIV Detail Level</td>
+<td>integer</td>
+<td>0</td>
+<td>level of detail for rivers</td>
+</tr>
+
+</table>
+
+<h3>Map Projection Names</h3></a>
+<ul>
+  <li>Albers_Conic_Equal_Area </li><br>
+  <li>Azimuthal Equal-Area </li><br>
+  <li>Azimuthal Equal-Area (ellipsoid) </li><br>
+  <li>Cylindrical Equal-Area </li><br>
+  <li>Cylindrical Equal-Area (ellipsoid) </li><br>
+  <li>Cylindrical Equidistant </li><br>
+  <li>Interupted Homolosine Equal-Area </li><br>
+  <li>Lambert Conic Conformal (ellipsoid) </li><br>
+  <li>Mercator </li><br>
+  <li>Mollweide </li><br>
+  <li>Orthographic </li><br>
+  <li>Polar Stereographic </li><br>
+  <li>Sinusoidal </li><br>
+</ul><p>
+
+Map names are not case sensitive, white space and dashes are ignored, and
+most word permutations are acceptable. For example, "Equal-Area
+Cylindrical" is equivalent to "CYLINDRICAL EQUALAREA".<p>
+ The reference latitude and longitude specify the original location and
+orientation of the map projection. The origin of the rectangular map
+coordinate system can then be rotated and translated with the Rotation and
+Origin keywords.<p>
+ For the Cylindrical Equal-Area, and Polar Stereographic projections the
+second reference latitude specifies the latitude of "true"
+scale. Conceptually, where the projection plane intersects the
+surface. For the Albers Conic Equal-Area, and Lambert Conic Conformal
+projections the conic plane is secant to the surface between the reference
+latitude and the second reference latitude.<p>
+  The equatorial radius and eccentricity specify the surface to be mapped
+(usually the Earth's surface). The scale and the equatorial radius
+determine the map units. For example if the radius is in kilometers (as is
+the case with the default) and the scale is 1.0 then the map units will be
+kilometers.  PostScript units are inches, so for PostScript output you
+would specify kilometers per inch. For a grid you can define the scale in
+terms of kilometers per grid cell. The gridding module &quot;grids&quot;
+also has parameters which specify grid cells per map unit. This allows the
+same .mpp file to be used for multiple nested grids.<p>
+
+ The remaining parameters are used by programs that actually draw maps
+(e.g. psmap, mapenum). The southern, northern, western, and eastern bounds
+of the map are the starting point for the graticule and are used to speed
+up the search in the map outline data base. They cannot be counted on to
+clip the map accurately. All longitudes should be in the range -180 to
++360.  West to east should not span more than 360 degrees. West specifies
+the left side of the map and east the right, not necessarily the minimum
+and maximum longitudes.<p>
+ The latitude and longitude graticule intervals specify the spacing
+between graticule lines. The graticule is the overlay of latitude and
+longitude lines on the map. By default a parallel is drawn every 30
+degrees starting at the bottom of the map (90.00S) and a meridian is drawn
+every 30 degrees starting at the left side of the map (180.00W).  Label
+latitude and longitude specify the parallel and meridian along which to
+draw the graticule line labels.<p>
+ The last three numbers are used by the data base search routine to
+specify the level of detail for map lines. The level refers to the number
+and size of features which will be selected, as oppossed to resolution of
+each feature. The higher the number the more detail will be included. For
+example level 1 will include only the largest features, such as, whole
+continents, while level 2 would also include some smaller features like
+large lakes. In either case the continental outline will appear with the
+same amount of detail (the same jaggedness).<p>
+
+<H3>Grid Parameter Definition File Format</H3></a>
+
+Grids are defined in a similar manner in grid parameter definition or 
+&quot;.gpd&quot; files.<P>
+
+<table BORDER WIDTH="100%" NOSAVE >
+<tr>
+<th>Keyword</th>
+<th>Format</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Grid Width</td>
+<td>integer</td>
+<td>required field</td>
+<td>number of columns in grid</td>
+</tr>
+
+<tr>
+<td>Grid Height</td>
+<td>integer</td>
+<td>required field</td>
+<td>number of rows in grid</td>
+</tr>
+
+<tr>
+<td>Grid Map Origin Column</td>
+<td>float</td>
+<td>0.0</td>
+<td>column coordinate of map origin</td>
+</tr>
+
+<tr>
+<td>Grid Map Origin Row</td>
+<td>float</td>
+<td>0.0</td>
+<td>row coordinate of map origin</td>
+</tr>
+
+<tr>
+<td>Grid Cells per Map Unit</td>
+<td>float</td>
+<td>1.0</td>
+<td>sets both column and row scale</td>
+</tr>
+
+<tr>
+<td>Grid Columns per Map Unit</td>
+<td>float</td>
+<td>1.0</td>
+<td>sets column scale if not already set</td>
+</tr>
+
+<tr>
+<td>Grid Rows per Map Unit</td>
+<td>float</td>
+<td>1.0</td>
+<td>sets row scale if not already set</td>
+</tr>
+
+<tr>
+<td>Grid Map Units per Cell</td>
+<td>float</td>
+<td>1.0</td>
+<td>alternative method to set both column and row scale</td>
+</tr>
+
+<tr>
+<td>Grid Map Units per Column</td>
+<td>float</td>
+<td>1.0</td>
+<td>sets column scale if not already set</td>
+</tr>
+
+<tr>
+<td>Grid Map Units per Row</td>
+<td>float</td>
+<td>1.0</td>
+<td>sets row scale if not already set</td>
+</tr>
+
+<tr>
+<td>Grid MPP File</td>
+<td>string</td>
+<td>none</td>
+<td>name of .mpp file, map projection parameters can also be specified in the same file with the grid definition parameters</td>
+</tr>
+
+</table>
+
+<a name="limitations"><H2>Limitations </H2></a>
+
+These modules, maps and grids, are very flexible, but they do impose
+certain restrictions on the kinds of grids that can be defined. All
+grids must be rectangular arrays. Rectangular arrays are easy to use
+with existing scientific visualization tools, like IDL, PV~WAVE,
+Khoros, and Explorer, but they may be inefficient in terms of storage
+space for non-rectangular data sets. If some flag value (for example
+zero) is stored in the unused cells then this wasted space can be
+compacted by any good data compression scheme. This same invalid data
+flag can be used within the grid as well, leading to further storage
+savings.  Another restriction is that each grid must be based on a map
+projection defined in mapx. Many of the most useful projections have
+already been implemented and fortunately it is rather easy, given a
+mathematical formulation of the forward and inverse transformations,
+to add a new projection to mapx (see source code for instructions).
+The mathematical formulations of most common map projections are quite
+straight forward and can be found in the references below.
+
+<a name="references"><H2>References</H2></a><P>
+
+<b>American Society of Photogrammetry. 1983.</b> <i>Manual of Remote Sensing.</i> Robert N. Colwell, editor. Second edition. Falls Church, VA.<p>
+<b>Gonzalez, Rafael C. and Paul Wintz. 1987.</b><i>Digital Image Processing.</i>Second edition. Reading, MA: Addison-Wesley. <p>
+<b>Maling, D. H. 1992.</b> <i> Coordinate Systems and Map Projections.</i> Second edition. Elmsford, N.Y.: Pergamon Press.
+<b>Snyder, John P. 1987.</b><i>Map Projections, A Working Manual</I>. U. S. Geological Survey Professional Paper 1395. Department of the Interior. Washington, D. C.<p>
+
+
+<a name="notes"><H2>Notes</H2></a><P>
+
+<A HREF = #ref1>1.</A><A NAME = "note1"> </A>Not all map
+projections are or can be constructed in this manner.<P>
+
+<A HREF = #ref2>2.</A><A NAME = "note2"> </A>So called equal angle
+grids are equivalent in this scheme to grids sampled on a Cylindrical
+Equidistant map projection.<P>
+
+<hr>
+<address><a href="mailto:Kenneth.Knowles@Colorado.EDU">Ken Knowles &lt;Kenneth.Knowles@Colorado.EDU&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Wed Aug 18 15:40:52 1999
+<!-- hhmts end -->
+<p>$Revision: 1.1 $<p></body> </html>
+
