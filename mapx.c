@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.36 2002-12-17 18:35:34 knowlesk Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.37 2003-06-24 22:45:59 haran Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,6 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.36 2
 
 static bool decode_mpp(mapx_class *this, char *label);
 static bool old_fixed_format_decode_mpp(mapx_class *this, char *label);
-static char *next_line_from_buffer(char *bufptr, char *readln);
 static char *standard_name(char *);
 
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -57,53 +56,88 @@ static char *standard_name(char *);
  *
  *::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 int init_azimuthal_equal_area(void *);
-int azimuthal_equal_area(void *, float, float, float *, float *);
-int inverse_azimuthal_equal_area(void *, float, float, float *, float *);
+int azimuthal_equal_area(void *, double, double, double *, double *);
+int inverse_azimuthal_equal_area(void *, double, double, double *, double *);
 int init_cylindrical_equidistant(void *);
-int cylindrical_equidistant(void *, float, float, float *, float *);
-int inverse_cylindrical_equidistant(void *, float, float, float *, float *);
+int cylindrical_equidistant(void *, double, double, double *, double *);
+int inverse_cylindrical_equidistant(void *,
+				    double, double, double *, double *);
 int init_cylindrical_equal_area(void *);
-int cylindrical_equal_area(void *, float, float, float *, float *);
-int inverse_cylindrical_equal_area(void *, float, float, float *, float *);
+int cylindrical_equal_area(void *, double, double, double *, double *);
+int inverse_cylindrical_equal_area(void *, double, double, double *, double *);
 int init_mercator(void *);
-int mercator(void *, float, float, float *, float *);
-int inverse_mercator(void *, float, float, float *, float *);
+int mercator(void *, double, double, double *, double *);
+int inverse_mercator(void *, double, double, double *, double *);
 int init_mollweide(void *);
-int mollweide(void *, float, float, float *, float *);
-int inverse_mollweide(void *, float, float, float *, float *);
+int mollweide(void *, double, double, double *, double *);
+int inverse_mollweide(void *, double, double, double *, double *);
 int init_orthographic(void *);
-int orthographic(void *, float, float, float *, float *);
-int inverse_orthographic(void *, float, float, float *, float *);
+int orthographic(void *, double, double, double *, double *);
+int inverse_orthographic(void *, double, double, double *, double *);
 int init_polar_stereographic(void *);
-int polar_stereographic(void *, float, float, float *, float *);
-int inverse_polar_stereographic(void *, float, float, float *, float *);
+int polar_stereographic(void *, double, double, double *, double *);
+int inverse_polar_stereographic(void *, double, double, double *, double *);
 int init_polar_stereographic_ellipsoid(void *);
-int polar_stereographic_ellipsoid(void *, float, float, float *, float *);
-int inverse_polar_stereographic_ellipsoid(void *, float, float, float *, float *);
+int polar_stereographic_ellipsoid(void *, double, double, double *, double *);
+int inverse_polar_stereographic_ellipsoid(void *,
+					  double, double, double *, double *);
 int init_sinusoidal(void *);
-int sinusoidal(void *, float, float, float *, float *);
-int inverse_sinusoidal(void *, float, float, float *, float *);
+int sinusoidal(void *, double, double, double *, double *);
+int inverse_sinusoidal(void *, double, double, double *, double *);
 int init_azimuthal_equal_area_ellipsoid(void *);
-int azimuthal_equal_area_ellipsoid(void *, float, float, float *, float *);
-int inverse_azimuthal_equal_area_ellipsoid(void *, float, float, float *, float *);
+int azimuthal_equal_area_ellipsoid(void *, double, double, double *, double *);
+int inverse_azimuthal_equal_area_ellipsoid(void *,
+					   double, double, double *, double *);
 int init_cylindrical_equal_area_ellipsoid(void *);
-int cylindrical_equal_area_ellipsoid(void *, float, float, float *, float *);
-int inverse_cylindrical_equal_area_ellipsoid(void *, float, float, float *, float *);
+int cylindrical_equal_area_ellipsoid(void *,
+				     double, double, double *, double *);
+int inverse_cylindrical_equal_area_ellipsoid(void *,
+					     double, double,
+					     double *, double *);
 int init_lambert_conic_conformal_ellipsoid(void *);
-int lambert_conic_conformal_ellipsoid(void *, float, float, float *, float *);
-int inverse_lambert_conic_conformal_ellipsoid(void *, float, float, float *, float *);
+int lambert_conic_conformal_ellipsoid(void *,
+				      double, double, double *, double *);
+int inverse_lambert_conic_conformal_ellipsoid(void *,
+					      double, double,
+					      double *, double *);
 int init_interupted_homolosine_equal_area(void *);
-int interupted_homolosine_equal_area(void *, float, float, float *, float *);
-int inverse_interupted_homolosine_equal_area(void *, float, float, float *, float *);
+int interupted_homolosine_equal_area(void *,
+				     double, double, double *, double *);
+int inverse_interupted_homolosine_equal_area(void *,
+					     double, double,
+					     double *, double *);
 int init_albers_conic_equal_area(void *);
-int albers_conic_equal_area(void *, float, float, float *, float *);
-int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
+int albers_conic_equal_area(void *, double, double, double *, double *);
+int inverse_albers_conic_equal_area(void *,
+				    double, double, double *, double *);
 int init_albers_conic_equal_area_ellipsoid(void *);
-int albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
-int inverse_albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
+int albers_conic_equal_area_ellipsoid(void *,
+				      double, double, double *, double *);
+int inverse_albers_conic_equal_area_ellipsoid(void *,
+					      double, double,
+					      double *, double *);
 int init_integerized_sinusoidal(void *);
-int integerized_sinusoidal(void *, float, float, float *, float *);
-int inverse_integerized_sinusoidal(void *, float, float, float *, float *);
+int integerized_sinusoidal(void *, double, double, double *, double *);
+int inverse_integerized_sinusoidal(void *,
+				   double, double, double *, double *);
+int init_transverse_mercator(void *);
+int transverse_mercator(void *,
+			double, double, double *, double *);
+int inverse_transverse_mercator(void *, double, double, double *, double *);
+int init_transverse_mercator_ellipsoid(void *);
+int transverse_mercator_ellipsoid(void *, double, double, double *, double *);
+int inverse_transverse_mercator_ellipsoid(void *,
+					  double, double, double *, double *);
+int init_universal_transverse_mercator(void *);
+/*
+  uses transverse_mercator_ellipsoid
+  uses inverse_transverse_mercator_ellipsoid
+*/
+
+char *id_mapx(void)
+{
+  return((char *)mapx_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * init_mapx - initialize map projection from file
@@ -111,16 +145,21 @@ int inverse_integerized_sinusoidal(void *, float, float, float *, float *);
  *	input : filename - map parameters file name
  *			file must have following fields:
  *			 Map Projection: see below
- *			 Map Reference Latitude: lat0
- *			 Map Reference Longitude: lon0
+ *			 Map Reference Latitude: lat0 (required except for UTM)
+ *			 Map Reference Longitude: lon0 (required except for UTM)
  *			may also contain optional fields:
  *			 Map Second Reference Latitude: lat1
  *			 Map Second Reference Longitude: lon1
  *			 Map Rotation: counter-clockwise
  *			 Map Scale: scale (radius units per map unit)
- *			 Map ISin Justify: justify flag for ISin map
+ *                       Map ISin NZone: Number of latitudinal zones for ISin
+ *			 Map ISin Justify: justify flag for ISin
  *			 Map Origin Latitude: center_lat
  *			 Map Origin Longitude: center_lon
+ *                       Map Origin X: x0
+ *                       Map Origin Y: y0
+ *                       Map False Easting: false_easting
+ *                       Map False Northing: false_northing
  *			 Map Southern Bound: southernmost lat
  *			 Map Northern Bound: northernmost lat
  *			 Map Western Bound: westernmost longitude
@@ -133,7 +172,11 @@ int inverse_integerized_sinusoidal(void *, float, float, float *, float *);
  *			 Map BDY Detail Level: default 0
  *			 Map RIV Detail Level: default 0
  *			 Map Eccentricity: default Clark 1866
+ *                       Map Eccentricity Squared: default Clark 1866
  *			 Map Equatorial Radius: default Clark 1866 for ellipsoid, authalic for sphere
+ *                       Map Polar Radius: default Clark 1866
+ *                       Map Center Scale: default 1.0
+ *                       Map UTM Zone: default 0
 
  *			old fixed format was as follows:
  *			 Map_Projection_Name
@@ -167,6 +210,9 @@ int inverse_integerized_sinusoidal(void *, float, float, float *, float *);
  *                       Albers_Conic_Equal_Area
  *                       Albers_Conic_Equal_Area_Ellipsoid
  *			 Integerized_Sinusoidal
+ *                       Transverse_Mercator
+ *                       Transverse_Mercator_Ellipsoid
+ *                       Universal_Transverse_Mercator
  *			or anything reasonably similar
  *
  *	The parameter lat1 is currently used for the Polar_Stereographic
@@ -215,7 +261,7 @@ mapx_class *init_mapx(char *filename)
   /*
    *	initialize projection parameters
    */
-  this = new_mapx(label);
+  this = new_mapx(label, FALSE);
   if (NULL == this) goto error_return;
   free(label); label = NULL;
 
@@ -241,12 +287,14 @@ error_return:
  *
  *	input : label - char buffer with initialization information
  *			see init_mapx for format
+ *              quiet - if set, then don't complain about unknown
+ *                      projection              
  *
  *	result: pointer to new mapx_class instance for this map
  *		or NULL if an error occurs during initialization
  *
  *----------------------------------------------------------------------*/
-mapx_class *new_mapx (char *label)
+mapx_class *new_mapx (char *label, bool quiet)
 {
   mapx_class *this;
   
@@ -348,25 +396,54 @@ mapx_class *new_mapx (char *label)
     this->geo_to_map = integerized_sinusoidal;
     this->map_to_geo = inverse_integerized_sinusoidal;
   }
+  else if (strcmp (this->projection_name, "TRANSVERSEMERCATOR") == 0)
+    {
+      this->initialize = init_transverse_mercator;
+      this->geo_to_map = transverse_mercator;
+      this->map_to_geo = inverse_transverse_mercator;
+    }
+  else if (strcmp (this->projection_name, "TRANSVERSEMERCATORELLIPSOID") == 0)
+    {
+      this->initialize = init_transverse_mercator_ellipsoid;
+      this->geo_to_map = transverse_mercator_ellipsoid;
+      this->map_to_geo = inverse_transverse_mercator_ellipsoid;
+    }
+  else if (strcmp (this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") == 0)
+    {
+      this->initialize = init_universal_transverse_mercator;
+      /*
+      this->geo_to_map = universal_transverse_mercator;
+      this->map_to_geo = inverse_universal_transverse_mercator;
+      */
+      this->geo_to_map = transverse_mercator_ellipsoid;
+      this->map_to_geo = inverse_transverse_mercator_ellipsoid;
+    }
   else
-  { fprintf (stderr, "mapx: unknown projection %s\n", this->projection_name);
-    fprintf (stderr, "valid types are:\n");
-    fprintf (stderr, " Albers Conic Equal-Area\n");
-    fprintf (stderr, " Albers Conic Equal-Area Ellipsoid\n");
-    fprintf (stderr, " Azimuthal Equal-Area\n");
-    fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
-    fprintf (stderr, " Cylindrical Equal-Area\n");
-    fprintf (stderr, " Cylindrical Equal-Area Ellipsoid\n");
-    fprintf (stderr, " Cylindrical Equidistant\n");
-    fprintf (stderr, " Integerized Sinusoidal\n");
-    fprintf (stderr, " Interupted Homolosine Equal-Area\n");
-    fprintf (stderr, " Lambert Conic Conformal Ellipsoid\n");
-    fprintf (stderr, " Mercator\n");
-    fprintf (stderr, " Mollweide\n");
-    fprintf (stderr, " Orthographic\n");
-    fprintf (stderr, " Polar Stereographic\n");
-    fprintf (stderr, " Polar Stereographic Ellipsoid\n");
-    fprintf (stderr, " Sinusoidal\n");
+    {
+      if (!quiet) {
+	fprintf (stderr, "mapx: unknown projection %s\n",
+		 this->projection_name);
+	fprintf (stderr, "valid types are:\n");
+	fprintf (stderr, " Albers Conic Equal-Area\n");
+	fprintf (stderr, " Albers Conic Equal-Area Ellipsoid\n");
+	fprintf (stderr, " Azimuthal Equal-Area\n");
+	fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
+	fprintf (stderr, " Cylindrical Equal-Area\n");
+	fprintf (stderr, " Cylindrical Equal-Area Ellipsoid\n");
+	fprintf (stderr, " Cylindrical Equidistant\n");
+	fprintf (stderr, " Integerized Sinusoidal\n");
+	fprintf (stderr, " Interupted Homolosine Equal-Area\n");
+	fprintf (stderr, " Lambert Conic Conformal Ellipsoid\n");
+	fprintf (stderr, " Mercator\n");
+	fprintf (stderr, " Mollweide\n");
+	fprintf (stderr, " Orthographic\n");
+	fprintf (stderr, " Polar Stereographic\n");
+	fprintf (stderr, " Polar Stereographic Ellipsoid\n");
+	fprintf (stderr, " Sinusoidal\n");
+	fprintf (stderr, " Transverse Mercator\n");
+	fprintf (stderr, " Transverse Mercator Ellipsoid\n");
+	fprintf (stderr, " Universal Transverse Mercator\n");
+      }
     close_mapx (this);
     return NULL;
   }
@@ -398,6 +475,7 @@ static bool decode_mpp(mapx_class *this, char *label)
 {
   bool success;
   char *projection_name=NULL;
+  char *default_value;
 
   /*
    *	if Map Projection tag present then interpret as new keyval format
@@ -414,14 +492,27 @@ static bool decode_mpp(mapx_class *this, char *label)
   free(projection_name); projection_name = NULL;
 
   /*
-   *	get required fields
+   *	get "required" fields.
+   *    Map Reference Latitude and Longitude are required fields if and
+   *    only if the projection is not Universal Transverse Mercator
+   *    nor Integerized Sinusoidal.
    */
-  success = get_value_keyval(label, "Map Reference Latitude", "%lat", &(this->lat0), NULL);
+  if (streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR"))
+    default_value = "999";
+  else if (streq(this->projection_name, "INTEGERIZEDSINUSOIDAL"))
+    default_value = "0.0";
+  else
+    default_value = NULL;
+
+  success = get_value_keyval(label, "Map Reference Latitude",
+			     "%lat", &(this->lat0), default_value);
   if (!success) {
     fprintf(stderr,"mapx: Map Reference Latitude is a required field\n");
     goto error_return;
   }
-  success = get_value_keyval(label, "Map Reference Longitude", "%lon", &(this->lon0), NULL);
+	  
+  success = get_value_keyval(label, "Map Reference Longitude",
+			     "%lon", &(this->lon0), default_value);
   if (!success) {
     fprintf(stderr,"mapx: Map Reference Longitude is a required field\n");
     goto error_return;
@@ -433,58 +524,167 @@ static bool decode_mpp(mapx_class *this, char *label)
   get_value_keyval(label, "Map Second Reference Latitude", "%lat", &(this->lat1), "999");
   get_value_keyval(label, "Map Second Reference Longitude", "%lon", &(this->lon1), "999");
 
-  get_value_keyval(label, "Map Rotation", "%f", &(this->rotation), "0.0");
-  get_value_keyval(label, "Map Scale", "%f", &(this->scale), "1.0");
+  get_value_keyval(label, "Map Rotation", "%lf", &(this->rotation), "0.0");
+  get_value_keyval(label, "Map Scale", "%lf", &(this->scale), "1.0");
 
-  get_value_keyval(label, "Map ISin Justify", "%d", &(this->isin_justify), "2");
+  get_value_keyval(label, "Map ISin NZone", "%d", &(this->isin_nzone), "86400");
+  get_value_keyval(label, "Map ISin Justify", "%d", &(this->isin_justify), "1");
+
+  get_value_keyval(label, "Map Origin X", "%lf", &(this->x0),
+		   "KEYVAL_UNINITIALIZED");
+  get_value_keyval(label, "Map Origin Y", "%lf", &(this->y0),
+		   "KEYVAL_UNINITIALIZED");
+  if (this->x0 == KEYVAL_UNINITIALIZED && this->y0 != KEYVAL_UNINITIALIZED) {
+    fprintf(stderr,
+	    "mapx: Map Origin X must be specified if Map Origin Y is specified\n");
+    goto error_return;
+  }    
+  if (this->x0 != KEYVAL_UNINITIALIZED && this->y0 == KEYVAL_UNINITIALIZED) {
+    fprintf(stderr,
+	    "mapx: Map Origin Y must be specified if Map Origin X is specified\n");
+    goto error_return;
+  }
+
+  /*
+   *  defer assuming that Map Origin Latitude and Longitude
+   *  take on Reference Latitude and Longitude values,
+   *  respectively, when the former are not defined and the
+   *  projection is UTM until UTM initialization.
+   */
 
   get_value_keyval(label, "Map Origin Latitude", "%lat", &(this->center_lat), "999");
-  if (999 == this->center_lat) {
-    if (mapx_verbose) fprintf(stderr,"> assuming map origin lat is same as ref. lat %f\n", this->lat0);
+  if (999 == this->center_lat &&
+      !streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") &&
+      KEYVAL_UNINITIALIZED == this->x0) {
+    if (mapx_verbose) fprintf(stderr,"> assuming map origin lat is same as ref. lat %lf\n", this->lat0);
     this->center_lat = this->lat0;
   }
   get_value_keyval(label, "Map Origin Longitude", "%lon", &(this->center_lon), "999");
-  if (999 == this->center_lon) {
-    if (mapx_verbose) fprintf(stderr,"> assuming map origin lon is same as ref. lon %f\n", this->lon0);
+  if (999 == this->center_lon &&
+      !streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") &&
+      KEYVAL_UNINITIALIZED == this->x0) {
+    if (mapx_verbose) fprintf(stderr,"> assuming map origin lon is same as ref. lon %lf\n", this->lon0);
     this->center_lon = this->lon0;
   }
 
-  get_value_keyval(label, "Map False Easting", "%f", &(this->u0), "0.0");
-  get_value_keyval(label, "Map False Northing", "%f", &(this->v0), "0.0");
+  /*
+   *  defer assigning of default values to Map False Easting and
+   *  Northing keywords when they are not defined and the
+   *  projection is UTM until UTM initialization.
+   */
+
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    "KEYVAL_UNINITIALIZED" : "0.0";
+  get_value_keyval(label, "Map False Easting", "%lf", &(this->false_easting),
+		   default_value);
+  get_value_keyval(label, "Map False Northing", "%lf", &(this->false_northing),
+		   default_value);
 
   get_value_keyval(label, "Map Southern Bound", "%lat", &(this->south), "90S");
   get_value_keyval(label, "Map Northern Bound", "%lat", &(this->north), "90N");
   get_value_keyval(label, "Map Western Bound", "%lon", &(this->west), "180W");
   get_value_keyval(label, "Map Eastern Bound", "%lon", &(this->east), "180E");
 
-  get_value_keyval(label, "Map Graticule Latitude Interval", "%f", &(this->lat_interval), "30.");
-  get_value_keyval(label, "Map Graticule Longitude Interval", "%f", &(this->lon_interval), "30.");
-  get_value_keyval(label, "Map Graticule Label Latitude", "%lat", &(this->label_lat), "0.0");
-  get_value_keyval(label, "Map Graticule Label Longitude", "%lon", &(this->label_lon), "0.0");
+  get_value_keyval(label, "Map Graticule Latitude Interval", "%lf",
+		   &(this->lat_interval), "30.");
+  get_value_keyval(label, "Map Graticule Longitude Interval", "%lf",
+		   &(this->lon_interval), "30.");
+  get_value_keyval(label, "Map Graticule Label Latitude", "%lat",
+		   &(this->label_lat), "0.0");
+  get_value_keyval(label, "Map Graticule Label Longitude", "%lon",
+		   &(this->label_lon), "0.0");
 
   get_value_keyval(label, "Map CIL Detail Level", "%d", &(this->cil_detail), "1");
   get_value_keyval(label, "Map BDY Detail Level", "%d", &(this->bdy_detail), "0");
   get_value_keyval(label, "Map RIV Detail Level", "%d", &(this->riv_detail), "0");
 
   get_value_keyval(label, "Map Equatorial Radius", "%lf", &(this->equatorial_radius), "0.0");
+  get_value_keyval(label, "Map Polar Radius", "%lf", &(this->polar_radius), "0.0");
   get_value_keyval(label, "Map Eccentricity", "%lf", &(this->eccentricity), "999");
+  get_value_keyval(label, "Map Eccentricity Squared", "%lf", &(this->e2), "999");
 
   /*
-   *	try to make educated guess at defaults for map eccentricity and equatorial radius
+   *  default value for Map Center Scale is 0.9996 for UTM;
+   *  otherwise it's 1.0
    */
-  if (strstr(this->projection_name, "ELLIPSOID")) {
+
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    "0.9996" : "1.0";
+  get_value_keyval(label, "Map Center Scale", "%lf", &(this->center_scale),
+		   default_value);
+
+  get_value_keyval(label, "Map UTM Zone", "%d", &(this->utm_zone), "0");
+
+  /*
+   *  If we have eccentricity squared but not eccentricity,
+   *  then derive eccentricity from eccentricity squared
+   */
+  if (999 != this->e2 && 999 == this->eccentricity)
+    this->eccentricity = sqrt(this->e2);
+
+  /*  If we have equatorial radius and polar radius, but not eccentricity,
+   *  then derive eccentricity from equatorial radius and polar radius
+   */
+  if (0.0 != this->equatorial_radius && 0.0 != this->polar_radius &&
+      999 == this->eccentricity)
+    this->eccentricity =
+      sqrt(1.0 - ((this->polar_radius * this->polar_radius) /
+		  (this->equatorial_radius * this->equatorial_radius)));
+
+  /*  If we have polar radius and eccentricity but not equatorial radius,
+   *  then derive equatorial radius from polar radius and eccentricity
+   */
+  if (0.0 != this->polar_radius && 999 != this->eccentricity &&
+      0.0 == this->equatorial_radius)
+    this->equatorial_radius =
+      this->polar_radius / sqrt(1.0 - this->eccentricity * this->eccentricity);
+
+  /*
+   *	try to make educated guess at defaults
+   *    for map eccentricity and equatorial radius
+   */
+  if (streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR")) {
+    if (999 == this->eccentricity) {
+      this->eccentricity = mapx_eccentricity_wgs84;
+      if (mapx_verbose)
+	fprintf(stderr,"> using default eccentricity %lf\n",
+		this->eccentricity);
+    }
+    if (0.0 == this->equatorial_radius) {
+      this->equatorial_radius = mapx_equatorial_radius_wgs84_m;
+      if (mapx_verbose)
+	fprintf(stderr,"> using default equatorial radius %lfm\n",
+		this->equatorial_radius);
+    }
+  } else if (streq(this->projection_name, "INTEGERIZEDSINUSOIDAL")) {
+    if (0.0 == this->equatorial_radius) {
+      this->equatorial_radius = mapx_equatorial_radius_isin_m;
+      if (mapx_verbose)
+	fprintf(stderr,"> using default equatorial radius %lfm\n",
+		this->equatorial_radius);
+    }
+  }
+  else if (strstr(this->projection_name, "ELLIPSOID")) {
     if (999 == this->eccentricity) {
       this->eccentricity = mapx_eccentricity;
-      if (mapx_verbose) fprintf(stderr,"> using default eccentricity %f\n", this->eccentricity);
+      if (mapx_verbose)
+	fprintf(stderr,"> using default eccentricity %lf\n",
+		this->eccentricity);
     }
     if (0.0 == this->equatorial_radius) {
       this->equatorial_radius = mapx_equatorial_radius_km;
-      if (mapx_verbose) fprintf(stderr,"> using default equatorial radius %fkm\n", this->equatorial_radius);
+      if (mapx_verbose)
+	fprintf(stderr,"> using default equatorial radius %lfkm\n",
+		this->equatorial_radius);
     }
   } else {
     if (0.0 == this->equatorial_radius) {
       this->equatorial_radius = mapx_Re_km;
-      if (mapx_verbose) fprintf(stderr,"> using default equatorial radius %fkm\n", this->equatorial_radius);
+      if (mapx_verbose)
+	fprintf(stderr,"> using default equatorial radius %lfkm\n",
+		this->equatorial_radius);
     }
     if (999 == this->eccentricity) {
       this->eccentricity = 0.0;
@@ -517,9 +717,11 @@ error_return:
  *------------------------------------------------------------------------*/
 static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
 {
-  float f1, f2, f3, f4;
+  double f1, f2, f3, f4;
   int i1, i2, i3, ios;
   char projection[MAX_STRING], readln[MAX_STRING], original_name[MAX_STRING];
+  double default_value;
+  double default_eccentricity, default_equatorial_radius;
 
   /*
    *	get projection parameters
@@ -528,44 +730,78 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
   strcpy(original_name, readln);
   strcpy(projection, standard_name(original_name));
   this->projection_name = strdup(projection);
+
+  /*
+   *    set default values for equatorial radius and eccentricity
+   *    based on the map projection
+   */
+  if (streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR")) {
+    default_equatorial_radius = mapx_equatorial_radius_wgs84_m;
+    default_eccentricity = mapx_eccentricity_wgs84;
+  } else if (streq(this->projection_name, "INTEGERIZEDSINUSOIDAL")) {
+    default_equatorial_radius = mapx_equatorial_radius_isin_m;
+  } else {
+    default_equatorial_radius = mapx_Re_km;
+    default_eccentricity = mapx_eccentricity;
+  }
+
+  /*
+   *    set unsupported parameters to default values
+   */
+  this->x0 = KEYVAL_UNINITIALIZED;
+  this->y0 = KEYVAL_UNINITIALIZED;
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    KEYVAL_UNINITIALIZED : 0.0;
+  this->false_easting = default_value;
+  this->false_northing = default_value;
+  default_value =
+    streq(this->projection_name, "UNIVERSALTRANSVERSEMERCATOR") ?
+    0.9996 : 1.0;
+  this->center_scale = default_value;
+  this->utm_zone = 0;
+  this->isin_nzone = 86400;
+  this->isin_justify = 1;
+  this->e2 = 999;
+  this->polar_radius = 0.0;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f %f %f", &f1, &f2, &f3, &f4);
+  ios = sscanf (readln, "%lf %lf %lf %lf", &f1, &f2, &f3, &f4);
   this->lat0 = (ios >= 1) ? f1 : 0.0;
   this->lon0 = (ios >= 2) ? f2 : 0.0;
   this->lat1 = (ios >= 3) ? f3 : 999;
   this->lon1 = (ios >= 4) ? f4 : 999;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f", &f1);
+  ios = sscanf (readln, "%lf", &f1);
   this->rotation = (ios >= 1) ? f1 : 0.0;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f", &f1);
+  ios = sscanf (readln, "%lf", &f1);
   this->scale = (ios >= 1) ? f1 : 1.0;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f", &f1, &f2);
+  ios = sscanf (readln, "%lf %lf", &f1, &f2);
   this->center_lat = (ios >= 1) ? f1 : 0.0;
   this->center_lon = (ios >= 2) ? f2 : 0.0;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f", &f1, &f2);
+  ios = sscanf (readln, "%lf %lf", &f1, &f2);
   this->south = (ios >= 1) ? f1 : -90.;
   this->north = (ios >= 2) ? f2 :  90.;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f", &f1, &f2);
+  ios = sscanf (readln, "%lf %lf", &f1, &f2);
   this->west = (ios >= 1) ? f1 : -180.;
   this->east = (ios >= 2) ? f2 :  180.;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f", &f1, &f2);
+  ios = sscanf (readln, "%lf %lf", &f1, &f2);
   this->lat_interval = (ios >= 1) ? f1 : 30.;
   this->lon_interval = (ios >= 2) ? f2 : 30.;
   
   if ((label = next_line_from_buffer(label, readln)) == NULL) goto error_return;
-  ios = sscanf (readln, "%f %f", &f1, &f2);
+  ios = sscanf (readln, "%lf %lf", &f1, &f2);
   this->label_lat = (ios >= 1) ? f1 : 0.0;
   this->label_lon = (ios >= 2) ? f2 : 0.0;
   
@@ -580,19 +816,19 @@ static bool old_fixed_format_decode_mpp(mapx_class *this, char *label)
    */
   label = next_line_from_buffer(label, readln);
   if (NULL == label) 
-  { this->equatorial_radius = mapx_Re_km;
-    this->eccentricity = mapx_eccentricity;
+  { this->equatorial_radius = default_equatorial_radius;
+    this->eccentricity = default_eccentricity;
   }
   else
-  { ios = sscanf (readln, "%f", &f1);           
-    this->equatorial_radius = (ios >= 1) ? f1 : mapx_Re_km;
+  { ios = sscanf (readln, "%lf", &f1);           
+    this->equatorial_radius = (ios >= 1) ? f1 : default_equatorial_radius;
     
     label = next_line_from_buffer(label, readln);
     if (NULL == label)
-      this->eccentricity = mapx_eccentricity;
+      this->eccentricity = default_eccentricity;
     else
-    { ios = sscanf (readln, "%f", &f1);            
-      this->eccentricity = (ios >= 1) ? f1 : mapx_eccentricity;
+    { ios = sscanf (readln, "%lf", &f1);            
+      this->eccentricity = (ios >= 1) ? f1 : default_eccentricity;
     }
   }
   
@@ -614,31 +850,43 @@ error_return:
  *
  *	result: pointer to next line in buffer or NULL if buffer is empty
  *
+ *      NOTE: Ignore lines beginning with # or ;
+ *
  *------------------------------------------------------------------------*/
-static char *next_line_from_buffer(char *bufptr, char *readln)
+char *next_line_from_buffer(char *bufptr, char *readln)
 {
   char *next_line;
   int line_length;
+  bool got_comment;
 
   if (NULL == bufptr) return NULL;
 
-/*
- *	get length of field and pointer to next line
- */
-  line_length = strcspn(bufptr, "\n");
-  if (0 != line_length) {
-    next_line = bufptr + line_length + 1;
-  } else {
-    line_length = strlen(bufptr);
-    if (0 == line_length) return NULL;
-    next_line = bufptr + line_length;
-  }
+  /*
+   *  Keep looping until we don't get a comment or
+   *  we reach the end of the buffer
+   */
+  do {
 
-/*
- *	copy value field to new buffer
- */
-  strncpy(readln, bufptr, line_length);
-  readln[line_length] = '\0';
+    /*
+     *	get length of field and pointer to next line
+     */
+    line_length = strcspn(bufptr, "\n");
+    if (0 != line_length) {
+      next_line = bufptr + line_length + 1;
+    } else {
+      line_length = strlen(bufptr);
+      if (0 == line_length) return NULL;
+      next_line = bufptr + line_length;
+    }
+
+    /*
+     *	copy value field to new buffer
+     */
+    strncpy(readln, bufptr, line_length);
+    readln[line_length] = '\0';
+    got_comment = (*bufptr == '#' || *bufptr == ';') ? TRUE : FALSE;
+    bufptr = next_line;
+  } while (got_comment);
 
   return next_line;
 }
@@ -672,21 +920,21 @@ void close_mapx (mapx_class *this)
  *
  *------------------------------------------------------------------------*/
 int reinit_mapx (mapx_class *this)
-{ float theta, u, v;
+{ double theta;
   
   /*
    *	check map bounds
    */
   if (this->east < -180 || this->east > 360 
       || this->west < -180 || this->west > 360)
-  { fprintf(stderr,"mapx: illegal bounds: west=%f, east=%f\n",
+  { fprintf(stderr,"mapx: illegal bounds: west=%lf, east=%lf\n",
 	    this->west, this->east);
     fprintf(stderr,"           should be >= -180 and <= 360\n");
     return -1;
   }
   
   if (fabs(this->east - this->west) > 360)
-  { fprintf(stderr,"mapx: illegal bounds: west=%f, east=%f\n",
+  { fprintf(stderr,"mapx: illegal bounds: west=%lf, east=%lf\n",
 	    this->west, this->east);
     fprintf(stderr,"           bounds cannot span > 360 degrees.\n");
     return -1;
@@ -715,7 +963,11 @@ int reinit_mapx (mapx_class *this)
   this->e4 = (this->e2) * (this->e2);
   this->e6 = (this->e4) * (this->e2); 
   this->e8 = (this->e4) * (this->e4);
-  
+
+  /*
+   *    set the polar radius
+   */
+  this->polar_radius = this->equatorial_radius * sqrt(1.0 - this->e2);
 
   /*
    *	set scaled radius for spherical projections
@@ -736,14 +988,24 @@ int reinit_mapx (mapx_class *this)
   this->T01 =  sin(theta);
   this->T10 = -sin(theta);
   this->T11 =  cos(theta);
-  
+
+  if (KEYVAL_UNINITIALIZED == this->x0) {
+
+    /*
+     *  convert center_lat and center_lon to x0 and y0
+     */
+
+    forward_xy_mapx(this, this->center_lat, this->center_lon,
+		    &(this->x0), &(this->y0));
+  }
+
   /*
-   *	get the offset from the projection origin (lat0,lon0)
-   *	to this map's origin (center_lat, center_lon)
+   *  rotate x0, y0 into u0, v0.
+   *  x0, y0 will be the center of the rotation.
    */
-  forward_mapx (this, this->center_lat, this->center_lon, &u, &v);
-  this->u0 += u;
-  this->v0 += v;
+
+  this->u0 = this->T00 * this->x0 + this->T01 * this->y0;
+  this->v0 = this->T10 * this->x0 + this->T11 * this->y0;
   
   return 0;
 }
@@ -757,7 +1019,7 @@ int reinit_mapx (mapx_class *this)
  *	result: TRUE iff lat,lon are within specified mapx min,max
  *
  *------------------------------------------------------------------------*/
-int within_mapx (mapx_class *this, float lat, float lon)
+int within_mapx (mapx_class *this, double lat, double lon)
 {
   if (lat < this->south || lat > this->north) return FALSE;
   
@@ -781,14 +1043,18 @@ int within_mapx (mapx_class *this, float lat, float lon)
  *	input : this - pointer to map data structure (returned by new_mapx)
  *		lat,lon - geographic coordinates in decimal degrees
  *
- *	output: u,v - map coordinates in map units
+ *	output: u,v - rotated and translated map coordinates in map units
  *
  *------------------------------------------------------------------------*/
-int forward_mapx (mapx_class *this, float lat, float lon, float *u, float *v)
+int forward_mapx (mapx_class *this, double lat, double lon, double *u, double *v)
 {
   int status;
+  double x, y;
+
   errno = 0;
-  status = (*(this->geo_to_map))(this, lat, lon, u, v);
+  status = (*(this->geo_to_map))(this, lat, lon, &x, &y);
+  *u = this->T00 * x + this->T01 * y - this->u0;
+  *v = this->T10 * x + this->T11 * y - this->v0;
   if (errno != 0) 
     return -1; 
   else
@@ -799,16 +1065,64 @@ int forward_mapx (mapx_class *this, float lat, float lon, float *u, float *v)
  * inverse_mapx - inverse map transformation
  *
  *	input : this - pointer to map data structure (returned by new_mapx)
- *		u,v - map coordinates in map units
+ *		u,v - rotated and translated map coordinates in map units
  *
  *	output: lat,lon - geographic coordinates in decimal degrees
  *
  *------------------------------------------------------------------------*/
-int inverse_mapx (mapx_class *this, float u, float v, float *lat, float *lon)
+int inverse_mapx (mapx_class *this, double u, double v, double *lat, double *lon)
 {
   int status;
+  double x, y;
+
+  u += this->u0;
+  v += this->v0;
+  x =  this->T00 * u - this->T01 * v;
+  y = -this->T10 * u + this->T11 * v;
+  status = (*(this->map_to_geo))(this, x, y, lat, lon);
+  if (errno != 0) 
+    return -1; 
+  else
+    return status;
+}
+/*------------------------------------------------------------------------
+ * forward_xy_mapx - forward map transformation
+ *
+ *	input : this - pointer to map data structure (returned by new_mapx)
+ *		lat,lon - geographic coordinates in decimal degrees
+ *
+ *	output: x,y - original map coordinates in map units
+ *
+ *------------------------------------------------------------------------*/
+int forward_xy_mapx (mapx_class *this, double lat, double lon,
+		     double *x, double *y)
+{
+  int status;
+
   errno = 0;
-  status = (*(this->map_to_geo))(this, u, v, lat, lon);
+  status = (*(this->geo_to_map))(this, lat, lon, x, y);
+  if (errno != 0) 
+    return -1; 
+  else
+    return status;
+}
+
+/*------------------------------------------------------------------------
+ * inverse_xy_mapx - inverse map transformation
+ *
+ *	input : this - pointer to map data structure (returned by new_mapx)
+ *		x,y - original map coordinates in map units
+ *
+ *	output: lat,lon - geographic coordinates in decimal degrees
+ *
+ *------------------------------------------------------------------------*/
+int inverse_xy_mapx (mapx_class *this, double x, double y,
+		     double *lat, double *lon)
+{
+  int status;
+
+  errno = 0;
+  status = (*(this->map_to_geo))(this, x, y, lat, lon);
   if (errno != 0) 
     return -1; 
   else
@@ -888,8 +1202,12 @@ static char *standard_name(char *original_name)
 	   streq(new_name, "GOODEHOMOLOSINEEQUALAREA") ||
 	   streq(new_name, "GOODESHOMOLOSINEEQUALAREA") ||
 	   streq(new_name, "INTERUPTEDHOMOLOSINE") ||
-	   streq(new_name, "GOODEINTERUPTEDHOMOLOSINE") ||
-	   streq(new_name, "GOODEHOMOLOSINE") ||
+	   streq(new_name, "GOODEINTERRUPTEDHOMOLOSINE") ||
+	   streq(new_name, "INTERRUPTEDHOMOLOSINEEQUALAREA") ||
+	   streq(new_name, "GOODESINTERRUPTEDHOMOLOSINE") ||
+	   streq(new_name, "INTERRUPTEDHOMOLOSINE") ||
+	   streq(new_name, "GOODEINTERRUPTEDHOMOLOSINE") ||
+streq(new_name, "GOODEHOMOLOSINE") ||
 	   streq(new_name, "GOODESHOMOLOSINE"))
   { strcpy(new_name, "INTERUPTEDHOMOLOSINEEQUALAREA");
   }
@@ -916,28 +1234,57 @@ static char *standard_name(char *original_name)
       streq(new_name, "ISINUS"))
   { strcpy(new_name,"INTEGERIZEDSINUSOIDAL");
   }
+  else if (streq(new_name, "TRANSVERSEMERCATOR") ||
+	   streq(new_name, "MERCATORTRANSVERSE"))
+    { strcpy(new_name,"TRANSVERSEMERCATOR");
+    }
+  else if (streq(new_name, "TRANSVERSEMERCATORELLIPSOID") ||
+           streq(new_name, "ELLIPSOIDTRANSVERSEMERCATOR") ||
+	   streq(new_name, "MERCATORTRANSVERSEELLIPSOID") ||
+	   streq(new_name, "ELLIPSOIDMERCATORTRANSVERSE"))
+    { strcpy(new_name,"TRANSVERSEMERCATORELLIPSOID");
+    }
+  else if (streq(new_name, "UNIVERSALTRANSVERSEMERCATOR") ||
+	   streq(new_name, "UNIVERSALMERCATORTRANSVERSE") ||
+           streq(new_name, "UTM") ||
+	   streq(new_name, "UNIVERSALTRANSVERSEMERCATORELLIPSOID") ||
+           streq(new_name, "ELLIPSOIDUNIVERSALTRANSVERSEMERCATOR") ||
+	   streq(new_name, "UNIVERSALMERCATORTRANSVERSEELLIPSOID") ||
+	   streq(new_name, "ELLIPSOIDUNIVERSALMERCATORTRANSVERSE") ||
+	   streq(new_name, "UTMELLIPSOID") ||
+	   streq(new_name, "ELLIPSOIDUTM"))
+    { strcpy(new_name,"UNIVERSALTRANSVERSEMERCATOR");
+    }
   
   return new_name;
 }
 
-#ifdef MTEST
+#ifdef XYTEST
 /*------------------------------------------------------------------------
- * mtest - interactive test for mapx routines
+ * xytest - interactive test for mapx routines
  *------------------------------------------------------------------------*/
 main(int argc, char *argv[])
 {
-  float lat, lon, u, v;
-  char readln[80];
-  mapx_class *the_map;
+  double lat, lon, x, y;
   int status;
+  char readln[FILENAME_MAX];
+  mapx_class *the_map;
 
   mapx_verbose = 1;
 
   for (;;)
-  { printf("\nenter .mpp file name - ");
-    gets(readln);
-    if (feof(stdin)) { printf("\n"); exit(0);}
-    if (*readln == '\0') break;
+  { 
+    if (argc > 1) {
+      --argc; ++argv;
+      strcpy(readln, *argv);
+    }
+    else {
+      printf("\nenter .mpp file name - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+    }
+
     the_map = init_mapx(readln);
     if (the_map == NULL) continue;
     
@@ -947,12 +1294,76 @@ main(int argc, char *argv[])
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
-      sscanf(readln, "%f %f", &lat, &lon);
+      sscanf(readln, "%lf %lf", &lat, &lon);
+      status = forward_xy_mapx(the_map, lat, lon, &x, &y);
+      printf("x,y = %17.7lf %17.7lf     %s\n", x, y, 
+	     status == 0 ? "valid" : "invalid");
+      status = inverse_xy_mapx(the_map, x, y, &lat, &lon);
+      printf("lat,lon = %11.7lf %12.7lf     %s\n", lat, lon, 
+	     status == 0 ? "valid" : "invalid");
+    }
+    
+    printf("\ninverse_mapx:\n");
+    for (;;)
+    { printf("enter x y - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%lf %lf", &x, &y);
+      status = inverse_xy_mapx(the_map, x, y, &lat, &lon);
+      printf("lat,lon = %11.7lf %#12.7lf    %s\n", lat, lon, 
+	     status == 0 ? "valid" : "invalid");
+      status = forward_xy_mapx(the_map, lat, lon, &x, &y);
+      printf("x,y = %17.7lf %#17.7lf    %s\n", x, y, 
+	     status == 0 ? "valid" : "invalid");
+    }
+    
+    close_mapx(the_map);
+  }
+}
+#endif
+
+#ifdef MTEST
+/*------------------------------------------------------------------------
+ * mtest - interactive test for mapx routines
+ *------------------------------------------------------------------------*/
+main(int argc, char *argv[])
+{
+  double lat, lon, u, v;
+  int status;
+  char readln[FILENAME_MAX];
+  mapx_class *the_map;
+
+  mapx_verbose = 1;
+
+  for (;;)
+  { 
+    if (argc > 1) {
+      --argc; ++argv;
+      strcpy(readln, *argv);
+    }
+    else {
+      printf("\nenter .mpp file name - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+    }
+
+    the_map = init_mapx(readln);
+    if (the_map == NULL) continue;
+    
+    printf("\nforward_mapx:\n");
+    for (;;)
+    { printf("enter lat lon - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%lf %lf", &lat, &lon);
       status = forward_mapx(the_map, lat, lon, &u, &v);
-      printf("u,v = %f %f    %s\n", u, v, 
+      printf("u,v = %lf %lf    %s\n", u, v, 
 	     status == 0 ? "valid" : "invalid");
       status = inverse_mapx(the_map, u, v, &lat, &lon);
-      printf("lat,lon = %f %f     %s\n", lat, lon, 
+      printf("lat,lon = %lf %lf     %s\n", lat, lon, 
 	     status == 0 ? "valid" : "invalid");
     }
     
@@ -962,12 +1373,12 @@ main(int argc, char *argv[])
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
-      sscanf(readln, "%f %f", &u, &v);
+      sscanf(readln, "%lf %lf", &u, &v);
       status = inverse_mapx(the_map, u, v, &lat, &lon);
-      printf("lat,lon = %f %f    %s\n", lat, lon, 
+      printf("lat,lon = %lf %lf    %s\n", lat, lon, 
 	     status == 0 ? "valid" : "invalid");
       status = forward_mapx(the_map, lat, lon, &u, &v);
-      printf("u,v = %f %f    %s\n", u, v, 
+      printf("u,v = %lf %lf    %s\n", u, v, 
 	     status == 0 ? "valid" : "invalid");
     }
     printf("\nwithin_mapx:\n");
@@ -976,7 +1387,7 @@ main(int argc, char *argv[])
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
-      sscanf(readln, "%f %f", &lat, &lon);
+      sscanf(readln, "%lf %lf", &lat, &lon);
       printf("%s\n", within_mapx(the_map, lat, lon) ? "INSIDE" : "OUTSIDE");
     }
     
@@ -991,8 +1402,8 @@ main(int argc, char *argv[])
  * macct - accuracy test mapx routines
  *------------------------------------------------------------------------*/
 #define MPMON
-static float dist_km(float lat1, float lon1, float lat2, float lon2)
-{ register float phi1, lam1, phi2, lam2, beta;
+static double dist_km(double lat1, double lon1, double lat2, double lon2)
+{ register double phi1, lam1, phi2, lam2, beta;
   phi1 = radians(lat1);
   lam1 = radians(lon1);
   phi2 = radians(lat2);
@@ -1014,11 +1425,11 @@ main(int argc, char *argv[])
   register int i_lat, i_lon, npts = 0, bad_pts = 0;
   int status1, status2;
   int ii, its = 1, pts_lat = 319, pts_lon = 319;
-  register float lat, lon, dlat, dlon;
-  float latx, lonx, u, v;
+  register double lat, lon, dlat, dlon;
+  double latx, lonx, u, v;
   mapx_class *the_map;
 #ifdef MACCT
-  float err=0, sum=0, sum2=0, stdv=0, max_err=0, lat_max=0, lon_max=0;
+  double err=0, sum=0, sum2=0, stdv=0, max_err=-1, lat_max=0, lon_max=0;
 #endif
   
   if (argc < 2)
@@ -1055,9 +1466,9 @@ main(int argc, char *argv[])
   
   for (ii = 1; ii <= its; ii++)
   { for (i_lat = 0; i_lat <= pts_lat; i_lat++)
-    { lat = (float)i_lat/pts_lat * dlat + the_map->south;
+    { lat = (double)i_lat/pts_lat * dlat + the_map->south;
       for (i_lon = 0; i_lon <= pts_lon; i_lon++)
-      { lon = (float)i_lon/pts_lon * dlon + the_map->west;
+      { lon = (double)i_lon/pts_lon * dlon + the_map->west;
 	status1 = forward_mapx(the_map, lat, lon, &u, &v);
 	status2 = inverse_mapx(the_map, u, v, &latx, &lonx);
 	if ((status1 | status2) != 0) ++bad_pts;
@@ -1079,10 +1490,10 @@ main(int argc, char *argv[])
   { err = sum/npts;
     stdv = sqrt((sum2 - npts*err*err)/(npts-1));
   }
-  fprintf(stderr,"average error = %10.4e km\n", err);
-  fprintf(stderr,"std dev error = %10.4e km\n", stdv);
-  fprintf(stderr,"maximum error = %10.4e km\n", max_err);
-  fprintf(stderr,"max error was at %4.2f%c %4.2f%c\n",
+  fprintf(stderr,"average error = %10.4le km\n", err);
+  fprintf(stderr,"std dev error = %10.4le km\n", stdv);
+  fprintf(stderr,"maximum error = %10.4le km\n", max_err);
+  fprintf(stderr,"max error was at %4.2lf%c %4.2lf%c\n",
 	  fabs(lat_max), lat_max >= 0 ? 'N' : 'S',
 	  fabs(lon_max), lon_max >= 0 ? 'E' : 'W');
 #endif
