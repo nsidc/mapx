@@ -1,15 +1,15 @@
 /*========================================================================
  * grids - grid coordinate system definition and transformations
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.7 1993-10-27 08:18:18 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.8 1993-11-17 13:03:34 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <define.h>
-#include <maps.h>
-#include <mapx.h>
-#include <grids.h>
+#include "define.h"
+#include "maps.h"
+#include "mapx.h"
+#include "grids.h"
 
 /*----------------------------------------------------------------------
  * init_grid - initialize grid coordinate system

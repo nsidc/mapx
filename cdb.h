@@ -5,9 +5,9 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.8 1993-11-08 17:22:02 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.9 1993-11-17 13:03:24 knowles Exp $";
 
-#include <define.h>
+#include "define.h"
 
  
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

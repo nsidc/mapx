@@ -6,9 +6,9 @@
 #ifndef grids_h_
 #define grids_h_
 
-static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.4 1993-05-27 15:24:46 knowles Exp $";
+static const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.5 1993-11-17 13:03:37 knowles Exp $";
 
-#include <mapx.h>
+#include "mapx.h"
 
 /* 
  * useful macros
