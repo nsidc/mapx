@@ -4,7 +4,7 @@
  * 19-Mar-1998 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.4 2002-05-16 19:52:29 knowlesk Exp $";
+static const char resamp_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/resamp.c,v 1.5 2003-06-24 23:04:00 haran Exp $";
 
 #include "define.h"
 #include "grids.h"
@@ -63,7 +63,7 @@ static int reduction(grid_class *from_grid, grid_class *to_grid,
 static int distribution(grid_class *from_grid, grid_class *to_grid, 
 		 grid_io_class *from_data, grid_io_class *to_data);
 
-static float normalized_grid_scale(grid_class *this);
+static double normalized_grid_scale(grid_class *this);
 
 static int (*method_function[])()  = { nearest_neighbor, 
 				       drop_in_the_bucket, 
@@ -77,6 +77,11 @@ static int fill, mask, mask2, temp, verbose;
 static int report_interval = 100; /* rows */
 
 #define INTERCHANGE(x, y) (temp = x, x = y, y = temp)
+
+char *id_resamp(void)
+{
+  return((char *)resamp_c_rcsid);
+}
 
 main (int argc, char *argv[])
 { int mfactor, status, nitems, npts;
@@ -317,7 +322,7 @@ main (int argc, char *argv[])
 static int distribution(grid_class *from_grid, grid_class *to_grid, 
 		     grid_io_class *from_data, grid_io_class *to_data)
 { int i, j, col, row, bin, nbins;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   int npts=0, status;
   char *basename=NULL, *extension=NULL, filename[FILENAME_MAX];
   grid_io_class *total=NULL, **count, *original;
@@ -371,7 +376,7 @@ static int distribution(grid_class *from_grid, grid_class *to_grid,
 /*
  *	project from_grid location into to_grid
  */
-      status = inverse_grid(from_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(from_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       if (!within_mapx(to_grid->mapx, lat, lon)
@@ -478,7 +483,7 @@ static int distribution(grid_class *from_grid, grid_class *to_grid,
 static int drop_in_the_bucket(grid_class *from_grid, grid_class *to_grid, 
 			      grid_io_class *from_data, grid_io_class *to_data)
 { int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   int npts=0, status;
   grid_io_class *pitb=NULL, *restore=NULL;
   double from_cell, to_cell, pitb_cell, avg_cell;
@@ -534,7 +539,7 @@ static int drop_in_the_bucket(grid_class *from_grid, grid_class *to_grid,
 /*
  *	project from_grid location into to_grid
  */
-      status = inverse_grid(from_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(from_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       if (!within_mapx(to_grid->mapx, lat, lon)
@@ -606,7 +611,7 @@ static int drop_in_the_bucket(grid_class *from_grid, grid_class *to_grid,
 static int bilinear(grid_class *from_grid, grid_class *to_grid, 
 		    grid_io_class *from_data, grid_io_class *to_data)
 { int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   double dr, ds, norm, sum, weight;
   int npts=0, status;
   double from_cell, to_cell;
@@ -623,7 +628,7 @@ static int bilinear(grid_class *from_grid, grid_class *to_grid,
 
     for (j = 0; j < to_grid->cols; j++)
     {
-      status = inverse_grid(to_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(to_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       if (!within_mapx(to_grid->mapx, lat, lon)
@@ -683,7 +688,7 @@ static int bilinear(grid_class *from_grid, grid_class *to_grid,
 static int nearest_neighbor(grid_class *from_grid, grid_class *to_grid, 
 			    grid_io_class *from_data, grid_io_class *to_data)
 { int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   int npts=0, status;
   double from_cell, to_cell;
 
@@ -699,7 +704,7 @@ static int nearest_neighbor(grid_class *from_grid, grid_class *to_grid,
 
     for (j = 0; j < to_grid->cols; j++)
     {
-      status = inverse_grid(to_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(to_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       if (!within_mapx(to_grid->mapx, lat, lon)
@@ -860,9 +865,9 @@ static int reduction(grid_class *from_grid, grid_class *to_grid,
  * normalized_grid_scale - radians per grid cell
  *
  *------------------------------------------------------------------------*/
-static float normalized_grid_scale(grid_class *this)
+static double normalized_grid_scale(grid_class *this)
 {
-  float col_scale, row_scale, scale;
+  double col_scale, row_scale, scale;
 
   col_scale = this->mapx->scale/this->cols_per_map_unit;
   row_scale = this->mapx->scale/this->rows_per_map_unit;
