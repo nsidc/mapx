@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.17 1993-11-03 11:41:45 swick Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.18 1993-11-03 11:50:10 swick Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1148,7 +1148,7 @@ static int init_orthographic(void)
 static int orthographic (float lat, float lon, float *u, float *v)
 {
   float x, y;
-  float phi, lam, sin_phi, cos_phi, sin_lam, cos_lam;
+  float phi, lam, sin_phi, cos_phi, sin_lam, cos_lam, cos_beta;
   
   phi = RADIANS (lat);
   lam = RADIANS (lon - current->lon0);
@@ -1156,6 +1156,11 @@ static int orthographic (float lat, float lon, float *u, float *v)
   sin_phi = sin(phi);
   cos_phi = cos(phi);
   cos_lam = cos(lam);
+  
+  cos_beta = current->sin_phi1 * sin_phi
+    + current->cos_phi1 * cos_phi * cos_lam;
+  
+  if (cos_beta < 0.0) return(-1);
   
   sin_lam = sin(lam);
   x = current->Rg * cos_phi * sin_lam;
