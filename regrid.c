@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.10 1999-06-29 21:55:17 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.11 1999-07-14 21:20:34 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.10 $\n"                                                             \
+"$Revision: 1.11 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -373,15 +373,6 @@ main (int argc, char *argv[])
       }
     }
   }
-  else
-  { for (i = 0; i < to_grid->rows; i++)
-    { for (j = 0; j < to_grid->cols; j++)
-      { to_data[i][j] = fill;
-      }
-    }
-  }
-
-
 
 /*
  *	resample data from input grid into output grid
@@ -422,6 +413,17 @@ main (int argc, char *argv[])
 	if (to_beta[i][j] != 0) 
 	{ to_data[i][j] /= to_beta[i][j];
 	}
+	else
+	{ to_data[i][j] = fill;
+	}
+      }
+    }
+  }
+  else /* for nearest-neighbor */
+  { for (i = 0; i < to_grid->rows; i++)
+    { for (j = 0; j < to_grid->cols; j++)
+      { 
+	if (0 == to_beta[i][j]) to_data[i][j] = fill;
       }
     }
   }
