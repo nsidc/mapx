@@ -5,15 +5,14 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.7 1993-10-25 14:42:05 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.8 1993-10-27 11:11:25 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <math.h>
-#include <define.h>
-#include <maps.h>
-#include <cdb.h>
+#include "define.h"
+#include "maps.h"
+#include "cdb.h"
 
 static cdb_seg_data *cdb_read_disk(cdb_class *this);
 static cdb_seg_data *cdb_read_memory(cdb_class *this);
@@ -26,7 +25,7 @@ static cdb_seg_data *cdb_read_memory(cdb_class *this);
  *--------------------------------------------------------------------*/
 cdb_class *new_cdb(void)
 {
-  cdb_class *this = (cdb_class *) malloc(sizeof(cdb_class));
+  cdb_class *this = (cdb_class *) calloc(1, sizeof(cdb_class));
   if (this == NULL) { perror("new_cdb"); return NULL; }
   this->filename = NULL;
   this->fp = NULL;
@@ -68,31 +67,29 @@ cdb_class *init_cdb(const char *cdb_filename)
  *	create new cdb_class instance
  */
   this = new_cdb();
-  assert(this != NULL);
+  if (NULL == this) { return (cdb_class *)NULL; }
 
 /*
  *	open cdb file
  */
   this->filename = (char *)realloc(this->filename, (size_t)MAX_STRING);
-  if (this->filename == NULL)
-  { perror("init_cdb");
-    free_cdb(this);
-    return NULL;
-  }
+  if (NULL == this->filename)
+  { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
   strncpy(this->filename, cdb_filename, MAX_STRING);
   this->fp = search_path_fopen(this->filename, "PATHCDB", "r");
-  if (this->fp == NULL)
+  if (NULL == this->fp)
   { fprintf(stderr,"init_cdb: error openning data file.\n");
     perror(cdb_filename);
     free_cdb(this);
-    return (cdb_class *) NULL;
+    return (cdb_class *)NULL;
   }
 
 /*
  *	read in cdb file header and check magic number
  */
-  this->header = (cdb_file_header *) malloc(sizeof(cdb_file_header));
-  assert(this->header != NULL);
+  this->header = (cdb_file_header *) calloc(1, sizeof(cdb_file_header));
+  if (NULL == this->header) 
+  { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
 
   fread(this->header, 1, CDB_FILE_HEADER_SIZE, this->fp);
 
@@ -100,7 +97,7 @@ cdb_class *init_cdb(const char *cdb_filename)
   { fprintf(stderr,"<%s> is not a cdb file, code number 0x%08x != 0x%08x\n",
 	    this->filename, this->header->code_number, CDB_MAGIC_NUMBER);
     free_cdb(this);
-    return (cdb_class *) NULL;
+    return (cdb_class *)NULL;
   }
 
 /*
@@ -109,15 +106,17 @@ cdb_class *init_cdb(const char *cdb_filename)
   if (this->header->index_size == 0)
   { free_cdb(this);
     fprintf(stderr,"init_cdb: <%s> has no index\n", this->filename);
-    return NULL;
+    return (cdb_class *)NULL;
   }
-  this->index = (cdb_index_entry *) malloc(this->header->index_size);
-  assert(this->index != NULL);
+  this->index = (cdb_index_entry *) calloc(this->header->index_size, 1);
+  if (NULL == this->index)
+  { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
   this->segment = this->index;
   this->seg_count = this->header->index_size/sizeof(cdb_index_entry);
   this->index_order = this->header->index_order;
-  this->data_buffer = (cdb_seg_data *) malloc(this->header->max_seg_size);
-  assert(this->data_buffer != NULL);
+  this->data_buffer = (cdb_seg_data *) calloc(this->header->max_seg_size, 1);
+  if (NULL == this->data_buffer)
+  { perror("init_cdb"); free_cdb(this); return (cdb_class *)NULL; }
   this->data_buffer_size = this->header->max_seg_size;
   this->data_ptr = this->data_buffer;
   this->npoints = 0;
@@ -197,8 +196,8 @@ cdb_class *copy_of_cdb(cdb_class *this)
 /*
  *	get new storage area for header and index and copy verbatim
  */
-  copy->header = (cdb_file_header *) malloc(sizeof(cdb_file_header));
-  copy->index = (cdb_index_entry *) malloc(this->header->index_size);
+  copy->header = (cdb_file_header *) calloc(1, sizeof(cdb_file_header));
+  copy->index = (cdb_index_entry *) calloc(this->header->index_size, 1);
   if (copy->header == NULL || copy->index == NULL)
   { fprintf(stderr,"copy_of_cdb: unable to allocate header and index.\n");
     perror("malloc");
@@ -217,7 +216,7 @@ cdb_class *copy_of_cdb(cdb_class *this)
 /*
  *	get new data buffer
  */
-  copy->data_buffer = (cdb_seg_data *) malloc(copy->data_buffer_size);
+  copy->data_buffer = (cdb_seg_data *) calloc(copy->data_buffer_size, 1);
   if (this->data_buffer == NULL)
   { fprintf(stderr,"copy_of_cdb: unable to allocate new data buffer.\n");
     perror("malloc");
@@ -250,15 +249,20 @@ void load_all_seg_data_cdb(cdb_class *this)
  *	re-allocate data buffer
  */
   this->data_buffer_size = this->header->index_addr - CDB_FILE_HEADER_SIZE;
-  this->data_buffer = (cdb_seg_data *) realloc(this->data_buffer, this->data_buffer_size);
+  this->data_buffer = (cdb_seg_data *)realloc(this->data_buffer, 
+					      this->data_buffer_size);
   if (this->data_buffer == NULL)
   { fprintf(stderr,"load_all_seg_data_cdb: unable to allocate %d byte buffer.\n",
 	    this->data_buffer_size);
     perror("realloc");
     this->data_buffer_size = this->header->max_seg_size;
-    this->data_buffer = (cdb_seg_data *) realloc(this->data_buffer, 
-						 this->data_buffer_size);
-    assert(this->data_buffer != NULL);
+    this->data_buffer = (cdb_seg_data *)realloc(this->data_buffer, 
+						this->data_buffer_size);
+    if (this->data_buffer != NULL)
+    { fprintf(stderr,"load_all_seg_data_cdb: segment data buffer corrupted.\n");
+      fprintf(stderr,"cdb: fatal error exiting...\n");
+      exit(ABORT);
+    }
     return;
   }
 
@@ -306,8 +310,9 @@ static cdb_seg_data *cdb_read_disk(cdb_class *this)
   if (this->segment->size > this->data_buffer_size)
   { fprintf(stderr,"cdb_read_disk: segment needs %d bytes; buffer max = %d.\n",
 	    this->segment->size, this->data_buffer_size);
-    this->data_buffer = (cdb_seg_data *) realloc(this->data_buffer, this->segment->size);
-    assert(this->data_buffer != NULL);
+    this->data_buffer = (cdb_seg_data *) realloc(this->data_buffer, 
+						 this->segment->size);
+    if (NULL == this->data_buffer) { return (cdb_seg_data *)NULL; }
     this->data_buffer_size = this->segment->size;
   }
 
