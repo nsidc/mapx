@@ -4,7 +4,7 @@
  * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.1 1996-10-24 20:14:33 knowles Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.2 1996-10-25 20:38:39 knowles Exp $";
 
 #include <ctype.h>
 #include "define.h"
@@ -18,6 +18,8 @@ static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.
  *		fp - FILE pointer or NULL
  *		  if fp is non-NULL then it should point to an open file
  *		  otherwise filename is used to open the file
+ *		label_length - length of label in bytes or 0
+ *		  if 0 then read entire file
  *
  *	result: pointer to label buffer or NULL on error
  *		space for buffer is obtained with malloc
@@ -28,9 +30,8 @@ static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.
  * newline. Each "keyword: value" pair describes a single parameter.
  *
  *------------------------------------------------------------------------*/
-char *get_label_keyval(const char *filename, FILE *fp)
+char *get_label_keyval(const char *filename, FILE *fp, int label_length)
 { char *label;
-  int label_length;
 
   assert(fp != NULL || filename != NULL);
 
@@ -45,9 +46,13 @@ char *get_label_keyval(const char *filename, FILE *fp)
 /*
  *	get length of label string and allocate buffer
  */
-  fseek(fp, 0L, SEEK_END);
-  label_length = ftell(fp);
-  fseek(fp, 0L, SEEK_SET);
+  if (0 == label_length)
+  { long offset;
+    offset = ftell(fp);
+    fseek(fp, 0L, SEEK_END);
+    label_length = ftell(fp);
+    fseek(fp, offset, SEEK_SET);
+  }
 
   label = (char *)malloc(label_length+1);
   if (NULL == label) { perror("get_label_keyval"); return NULL; }
