@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.21 1994-04-07 16:16:33 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.22 1994-05-09 10:41:57 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -225,7 +225,7 @@ mapx_class *init_mapx (char *map_filename)
    *	look for optional parameters
    */
   fgets (readln, sizeof(readln), this->mpp_file);
-  if feof(this->mpp_file)
+  if (feof(this->mpp_file))
   { this->equatorial_radius = mapx_Re_km;
     this->eccentricity = 0.082271673;
   }
@@ -234,7 +234,7 @@ mapx_class *init_mapx (char *map_filename)
     this->equatorial_radius = (ios >= 1) ? f1 : mapx_Re_km;
     
     fgets (readln, sizeof(readln), this->mpp_file);      
-    if feof(this->mpp_file)
+    if (feof(this->mpp_file))
       this->eccentricity = 0.082271673;
     else
     { ios = sscanf (readln, "%f", &f1);            
@@ -242,7 +242,7 @@ mapx_class *init_mapx (char *map_filename)
     }
   }
   
-  if ferror(this->mpp_file)
+  if (ferror(this->mpp_file))
   { fprintf (stderr, "init_mapx: error reading parameters file.\n");
     perror(map_filename);
     close_mapx(this);
@@ -545,48 +545,48 @@ static char *standard_name(char *s)
   
   *p = '\0';
   
-  if ((streq(new_name, "AZIMUTHALEQUALAREA") != NULL) || 
-      (streq(new_name, "AZIMUTHALEQUALAREASPHERE") != NULL) || 
-      (streq(new_name, "EQUALAREAAZIMUTHALSPHERE") != NULL) || 
-      (streq(new_name, "SPHEREAZIMUTHALEQUALAREA") != NULL) || 
-      (streq(new_name, "SPHEREEQUALAREAAZIMUTHAL") != NULL) || 
-      (streq(new_name, "EQUALAREAAZIMUTHAL") != NULL) )
+  if (streq(new_name, "AZIMUTHALEQUALAREA") || 
+      streq(new_name, "AZIMUTHALEQUALAREASPHERE") || 
+      streq(new_name, "EQUALAREAAZIMUTHALSPHERE") || 
+      streq(new_name, "SPHEREAZIMUTHALEQUALAREA") || 
+      streq(new_name, "SPHEREEQUALAREAAZIMUTHAL") || 
+      streq(new_name, "EQUALAREAAZIMUTHAL"))
   { strcpy(new_name,"AZIMUTHALEQUALAREA");
   }
-  else if ((streq(new_name, "EQUALAREACYLINDRICAL") != NULL) || 
-	   (streq(new_name, "CYLINDRICALEQUALAREA") != NULL) ) 
+  else if (streq(new_name, "EQUALAREACYLINDRICAL") || 
+	   streq(new_name, "CYLINDRICALEQUALAREA") ) 
   { strcpy(new_name,"CYLINDRICALEQUALAREA");
   }
-  else if ((streq(new_name, "CYLINDRICALEQUIDISTANT") != NULL) || 
-	   (streq(new_name, "EQUIDISTANTCYLINDRICAL") != NULL) )
+  else if (streq(new_name, "CYLINDRICALEQUIDISTANT") || 
+	   streq(new_name, "EQUIDISTANTCYLINDRICAL"))
   { strcpy(new_name, "CYLINDRICALEQUIDISTANT");
   }
-  else if ((streq(new_name, "POLARSTEREOGRAPHIC") != NULL) || 
-	   (streq(new_name, "STEREOGRAPHICPOLAR") != NULL))
+  else if (streq(new_name, "POLARSTEREOGRAPHIC") || 
+	   streq(new_name, "STEREOGRAPHICPOLAR"))
   { strcpy(new_name, "POLARSTEREOGRAPHIC");
   }
-  else if ((streq(new_name, "POLARSTEREOGRAPHICELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDPOLARSTEREOGRAPHIC") != NULL) ||
-	   (streq(new_name, "STEREOGRAPHICPOLARELLIPSOID") != NULL) ||
-	   (streq(new_name, "ELLIPSOIDSTEREOGRAPHICPOLAR") != NULL))
+  else if (streq(new_name, "POLARSTEREOGRAPHICELLIPSOID") || 
+	   streq(new_name, "ELLIPSOIDPOLARSTEREOGRAPHIC") ||
+	   streq(new_name, "STEREOGRAPHICPOLARELLIPSOID") ||
+	   streq(new_name, "ELLIPSOIDSTEREOGRAPHICPOLAR"))
   { strcpy(new_name, "POLARSTEREOGRAPHICELLIPSOID");
   }
-  else if ((streq(new_name, "AZIMUTHALEQUALAREAELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDAZIMUTHALEQUALAREA") != NULL) || 
-	   (streq(new_name, "EQUALAREAAZIMUTHALELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDEQUALAREAAZIMUTHAL") != NULL) )
+  else if (streq(new_name, "AZIMUTHALEQUALAREAELLIPSOID") || 
+	   streq(new_name, "ELLIPSOIDAZIMUTHALEQUALAREA") || 
+	   streq(new_name, "EQUALAREAAZIMUTHALELLIPSOID") || 
+	   streq(new_name, "ELLIPSOIDEQUALAREAAZIMUTHAL"))
   { strcpy(new_name, "AZIMUTHALEQUALAREAELLIPSOID");
   }
-  else if ((streq(new_name, "CYLINDRICALEQUALAREAELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDCYLINDRICALEQUALAREA") != NULL) || 
-	   (streq(new_name, "EQUALAREACYLINDRICALELLIPSOID") != NULL) || 
-	   (streq(new_name, "ELLIPSOIDEQUALAREACYLINDRICAL") != NULL) )
+  else if (streq(new_name, "CYLINDRICALEQUALAREAELLIPSOID") || 
+	   streq(new_name, "ELLIPSOIDCYLINDRICALEQUALAREA") || 
+	   streq(new_name, "EQUALAREACYLINDRICALELLIPSOID") || 
+	   streq(new_name, "ELLIPSOIDEQUALAREACYLINDRICAL") )
   { strcpy(new_name,  "CYLINDRICALEQUALAREAELLIPSOID");
   }
-  else if ((streq(new_name, "LAMBERTCONICCONFORMALELLIPSOID") != NULL) ||
-	   (streq(new_name, "LAMBERTCONFORMALCONICELLIPSOID") != NULL) ||
-	   (streq(new_name, "ELLIPSOIDLAMBERTCONICCONFORMAL") != NULL) ||
-	   (streq(new_name, "ELLIPSOIDLAMBERTCONFORMALCONIC") != NULL) )
+  else if (streq(new_name, "LAMBERTCONICCONFORMALELLIPSOID") ||
+	   streq(new_name, "LAMBERTCONFORMALCONICELLIPSOID") ||
+	   streq(new_name, "ELLIPSOIDLAMBERTCONICCONFORMAL") ||
+	   streq(new_name, "ELLIPSOIDLAMBERTCONFORMALCONIC"))
   { strcpy(new_name, "LAMBERTCONICCONFORMALELLIPSOID");
   }
   
