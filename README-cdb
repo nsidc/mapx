@@ -1,0 +1,154 @@
+========================================================================
+ README file for coastlines database directory
+
+ 11-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
+ National Snow & Ice Data Center, University of Colorado, Boulder
+========================================================================
+This sub-directory contains data files for map overlays. The data were
+derived from three sources. All cil, bdy, and riv files were produced
+from Brian Reid's (Decwrl) compressed binary data version of the CIA's
+World Data Bank II (WDBII). The wdb files were produced using WDBII
+data from the National Geophysical Data Center's (NGDC) "Global Relief
+Data" CD-ROM.  The wvs files were produced from the Defense Mapping
+Agency's World Vector Shoreline, also available on the NGDC CD-ROM.
+All files were clipped, joined, thinned, sorted, and reformatted for
+use with the cdb (coastlines database) package developed at the
+National Snow & Ice Data Center. The file name reflects the source of
+the data, the level of detail, and the thinned resolution.
+
+This directory should be set in the PATHCDB environment variable.
+for example: 
+	setenv PATHCDB $HOME/dmsp/cdb
+Database file names should be set in the applications default files
+or in the user's .Xdefaults file.
+for example: 
+	Popview.coastlinesFilename: cil1-50km.cdb
+	Popview.boundariesFilename: bdy1-50km.cdb
+
+
+------------------------------------------------------------------------
+Here's the database_info file from Brian Reid for cil, bdy, and riv data:
+------------------------------------------------------------------------
+The CIA World Bank II master information is a series of COBOL records, 
+specifying 5,719,617 individual vectors, which occupies about 130
+megabytes of disk space. The "cbd" files here are compressed binary
+encodings of it, collectively occupying about 15 megabytes of disk space.
+These "cbd" files were produced from the original ASCII database by
+Brian Reid at Decwrl.
+
+The original database is available from the U.S. Government and is in the
+public domain. The map database is divided into continents (North America,
+South America, Europe, Africa, and Asia), and within continents it is
+divided into "Coastlines, Islands, and Lakes" (cil files), "Rivers"
+(riv files), "International political boundaries" (bdy files) and
+"National political boundaries" (pby files). Each file is divided into
+several thousand "segments", and each segment is divided into some number
+of "strokes". The .cbd encoding of the database encodes each continent into
+a directory and each division into a file.
+
+The "rank" of segments within a file is an indication of what the segment
+depicts:
+
+In "Boundary" files (bdy):
+	01	Demarcated or delimited boundary
+	02	Indefinite or in Dispute
+	03	Other line of separation of sovreignty on land
+
+In "Coast, Islands and Lakes" files (cil)
+	01	Coast, islands and lakes that appear on all maps
+	02	Additional major islands and lakes
+	03	Intermediate islands and lakes
+	04	Minor islands and lakes
+	06	Intermittent major lakes
+	07	Intermittent minor lakes
+	08	Reefs
+	09	Salt pans -- major
+	10	Salt pans -- minor
+	13	Ice Shelves -- major
+	14	Ice Shelves -- minor
+	15	Glaciers
+
+In "Rivers" files (riv)
+	01	Permanent major rivers
+	02	Additional major rivers
+	03	Additional rivers
+	04	Minor rivers
+	05	Double lined rivers
+	06	Intermittent rivers -- major
+	07	Intermittent rivers -- additional
+	08	Intermittent rivers -- minor
+	10	Major canals
+	11	Canals of lesser importance
+	12	Canals -- irrigation type
+
+Wrangell Island, off the coast of Siberia, seems to have been damaged
+by a bug in the data compaction program.
+
+------------------------------------------------------------------------
+Here's the wdb_wvs.doc file from the NGDC CD-ROM:
+------------------------------------------------------------------------
+World Vector Shoreline (WVS) and World Data Bank (WDB) II Binary files:
+
+Sources:
+    WVS: US Department of Defense, Defense Mapping Agency
+    WDB: US Central Intelligence Agency
+
+The World Data Bank II outline files are digitized from navigational
+charts to a working scale of approximately 1:3 Million, and represent
+the "state of the art" in the mid 1970s. There are three files
+composing the WDB-II set on this CD-ROM: coastlines, rivers and lakes,
+and political boundaries (the last becoming increasingly obsolete!).
+Some of the details contained in the original WDB files, such as
+"order" of the elements (as related to size and importance of islands
+or lakes) have been left out of these versions -- the full and
+official WDB is available from the National Technical Information
+Service, Springfield, VA.
+
+The World Vector Shoreline data sets are given at several resolutions,
+corresponding to 1:43 Million, 1:12 M, 1:3 M, 1:1M, 1:250 Thousand,
+and "full" resolution, or about 1:100 thousand. The lower-resolution
+sets have fewer points, are faster to plot, but appear more jagged.
+
+Both the WVS and WDB files have been compressed into an efficient,
+indexed binary data structure, accessible with the software included
+on this CD.
+
+Included software:
+
+Plot software for compressed coastline files using Borland Turbo C (PC)
+
+PLOT.C- main program- illustrates how to call WDBPLTC.C
+
+WDBPLTC.C- function to be called from the user's program to access
+  the coastline file, extract a geographic window of data and call
+  CURVE.C to plot each string of geographic points.  It requires the
+  memory handling functions in UTIL.C.  Modifications from the original
+  by Jan Depner include dynamic memory allocation
+  and removal of internal map projection.
+
+CURVE.C- function called from WDBPLTC.C- this function should be customized
+  for the user's application.  It typically calls a map projection to
+  convert the geocoordinates to plotting coordinates and calls a plotting
+  routine to plot them.
+
+UTIL.C- these functions are called from within WDBPLTC.C to allocate
+  and free up memory,  give the operator a chance to abort the drawing, etc.
+
+IPROJ.C- is a map projection utility that performs conversion between
+  geocoordinates and plotting coordinates.  This demo uses just the
+  Linear (lat lon linear plot).
+
+GTCLIB.C- these functions interface to the Turbo C library to perform
+  graphics functions.  Not all of these functions are used in this demo.
+
+EGAVGA.BGI- is the Turbo C graphics driver.
+
+-----------------------------------------
+
+Macintosh users:
+
+The data access schemes in these subroutines work with Macintosh C
+compilers as well, but the graphics calls in CURVE.C must be replaced
+with the appropriate Mac toolbox calls. The Macintosh partition of
+this CD-ROM includes compiled examples for extraction and display of
+data from the WDB and WVS files.
