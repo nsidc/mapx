@@ -4,7 +4,7 @@
  * 27-Apr-1999 Derek van Westrum vanwestr@ingrid.colorado.edu 303-492-1846
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.5 2003-04-11 20:36:03 savoie Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.6 2003-06-24 22:17:44 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.5 $\n"                                                      \
+"$Revision: 1.6 $\n"                                                      \
 "usage: irregrid [-wcnv -i value -k kernel"                                \
 " -p value -r value -z beta_file -o outputfile] \n"                        \
 "              from_data to.gpd \n"			                   \
@@ -52,38 +52,43 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 static float fill;
 static int fill_specified, verbose, preload_data, min_in_pts;
 static double shell_radius;
-static float inv_dist_power;
+static double inv_dist_power;
 
 /* 
  * weighted_average is a pointer to one the various weighted average
  * routines (whose prototypes follow...
  */ 
 static int (*init_grids)(grid_class*,float **,float **);
-static int (*weighted_average)(float,float,float,float,float,int *,grid_class *,
-			       float **,float **,int **);
+static int (*weighted_average)(double,double,double,double,float,int *,
+			       grid_class *,float **,float **,int **);
 static int (*normalize_result)(grid_class *,float **,float **,int **);
 
 static int init_cressman(grid_class *,float **,float **);
-static int cressman(float,float,float,float,float,int *,grid_class *,float **,
-		    float **,int **);
+static int cressman(double,double,double,double,float,int *,
+		    grid_class *,float **,float **,int **);
 static int normalize_cressman(grid_class *,float **, float **, int **);
 
 static int init_inv_dist(grid_class *,float **,float **);
-static int inv_dist(float,float,float,float,float,int *,grid_class *,float **,
-		    float **,int **);
+static int inv_dist(double,double,double,double,float,int *,
+		    grid_class *,float **,float **,int **);
 static int normalize_inv_dist(grid_class *,float **, float **, int **);
 
 static int init_near_neighbor(grid_class *,float **,float **);
-static int near_neighbor(float,float,float,float,float,int *,grid_class *,
-			 float **,
-			 float **,int **);
+static int near_neighbor(double,double,double,double,float,int *,
+			 grid_class *,float **,float **,int **);
 static int normalize_near_neighbor(grid_class *,float **, float **, int **);
+
+char *id_irregrid(void)
+{
+  return((char *)irregrid_c_rcsid);
+}
 
 main(int argc, char *argv[]) { 
   int i, status;
-  float from_lat, from_lon, from_dat;
+  double from_lat, from_lon;
+  float from_dat;
   int r_width, s_width,nearest_r, nearest_s;
-  float from_r, from_s;
+  double from_r, from_s;
   int shell_range[4];
   float **to_data, **to_data_beta;
   grid_class *to_grid;
@@ -127,7 +132,7 @@ main(int argc, char *argv[]) {
 	  break;
 	case 'p':
 	  ++argv; --argc;
-	  if (sscanf(*argv, "%f", &inv_dist_power) != 1) error_exit(usage);
+	  if (sscanf(*argv, "%lf", &inv_dist_power) != 1) error_exit(usage);
 	  break;
 	case 'c':
 	  weighted_average = cressman;
@@ -251,7 +256,7 @@ main(int argc, char *argv[]) {
   while (fgets(input_line, MAXLINELENGTH, from_file) != NULL) {
     if (feof(from_file)) break;
     lines_processed++;
-    status = sscanf(input_line,"%f%f%f",&from_lat,&from_lon,&from_dat);
+    status = sscanf(input_line,"%lf%lf%f",&from_lat,&from_lon,&from_dat);
     if (3!=status) {
       fprintf(stderr,"> Problem reading data at line %i\n",lines_processed);
     }
@@ -351,12 +356,12 @@ int init_cressman(grid_class *to_grid,float **to_data,float **to_data_beta)
  *	result: number of valid points resampled
  *
  *------------------------------------------------------------------------*/
-int cressman(float from_r,float from_s,float from_lat, float from_lon,
+int cressman(double from_r,double from_s,double from_lat, double from_lon,
 	     float from_dat,int shell_range[],
 	     grid_class *to_grid,float **to_data,float **to_data_beta,
 	     int **to_data_num_pts)
 { int r, s;
-  float dist;
+  double dist;
   double weight;
   int npts=0;
 
@@ -467,12 +472,12 @@ int init_inv_dist(grid_class *to_grid,float **to_data,float **to_data_beta)
  *	result: number of valid points resampled
  *
  *------------------------------------------------------------------------*/
-int inv_dist(float from_r,float from_s,float from_lat, float from_lon,
+int inv_dist(double from_r,double from_s,double from_lat, double from_lon,
 	     float from_dat,int shell_range[],
 	     grid_class *to_grid,float **to_data,float **to_data_beta,
 	     int **to_data_num_pts)
 { int r, s;
-  float dist;
+  double dist;
   double weight;
   int npts=0;
 
@@ -584,12 +589,12 @@ int init_near_neighbor(grid_class *to_grid,float **to_data,float **to_data_beta)
  *	result: number of valid points resampled
  *
  *------------------------------------------------------------------------*/
-int near_neighbor(float from_r,float from_s,float from_lat, float from_lon,
+int near_neighbor(double from_r,double from_s,double from_lat, double from_lon,
 		  float from_dat,int shell_range[],
 		  grid_class *to_grid,float **to_data,float **to_data_beta,
 		  int **to_data_num_pts)
 { int r, s;
-  float dist;
+  double dist;
   int npts=0;
 
 /*
