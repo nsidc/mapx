@@ -4,15 +4,17 @@
  * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.1 1998-05-21 17:05:08 knowles Exp $";
+static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.2 1998-06-11 22:31:25 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
 #include "grid_io.h"
 
-#define MAX_ROW_BUFFER_SIZE (3*1024*1024)
+#define MAX_ROW_BUFFER_SIZE (256*1024)
 
-static bool exchange_row_buffer(grid_io_class *this, int row);
+#ifdef DEBUG
+static int x_rdpix=-1, y_rdpix=-1, test_rdpix=0;
+#endif
 
 /*------------------------------------------------------------------------
  * init_grid_io - creat and initialize new grid_io_class
@@ -123,7 +125,7 @@ grid_io_class *init_grid_io(int width, int height, int datum_size,
 void close_grid_io(grid_io_class *this)
 {
   if (!this) return;
-  if (this->fp && this->data) exchange_row_buffer(this, this->start_row);
+  if (this->fp && this->data) buffer_swap_grid_io(this, this->start_row);
   if (this->data) free(this->data);
   if (this->fp) fclose(this->fp);
   if (this->filename) free(this->filename);
@@ -196,7 +198,7 @@ bool fill_grid_io(grid_io_class *this, double fill_value)
  *	copy the pattern into each row of the grid
  */
   for (row = 0; row < this->height; row += this->row_buffer_increment)
-  { success = exchange_row_buffer(this, row);
+  { success = buffer_swap_grid_io(this, row);
     if (!success) { free(pattern); return FALSE; }
     for (sub = 0; sub < this->num_rows; sub++)
     { memcpy(this->data[sub], pattern, this->width*this->datum_size);
@@ -222,6 +224,11 @@ bool get_element_grid_io(grid_io_class *this, int row, int col, double *value)
 { bool success;
   byte1 *bufp;
 
+#ifdef DEBUG
+  if (col == x_rdpix && row == y_rdpix)
+    ++test_rdpix;
+#endif
+
 /*
  *	bounds check
  */
@@ -232,7 +239,7 @@ bool get_element_grid_io(grid_io_class *this, int row, int col, double *value)
  *	swap check
  */
   if (row < this->start_row || row > this->final_row)
-  { success = exchange_row_buffer(this, row);
+  { success = buffer_swap_grid_io(this, row);
     if (!success) return FALSE;
   }
 
@@ -277,7 +284,7 @@ bool put_element_grid_io(grid_io_class *this, int row, int col, double value)
  *	swap check
  */
   if (row < this->start_row || row > this->final_row)
-  { success = exchange_row_buffer(this, row);
+  { success = buffer_swap_grid_io(this, row);
     if (!success) return FALSE;
   }
 
@@ -299,7 +306,7 @@ bool put_element_grid_io(grid_io_class *this, int row, int col, double value)
 }
 
 /*------------------------------------------------------------------------
- * exchange_row_buffer - update current grid data buffer
+ * buffer_swap_grid_io - update current grid data buffer
  *
  *	input : this - grid_io_class
  *		row - new row to be within buffer
@@ -309,7 +316,7 @@ bool put_element_grid_io(grid_io_class *this, int row, int col, double value)
  *		depending on mode data is written to file
  *
  *------------------------------------------------------------------------*/
-static bool exchange_row_buffer(grid_io_class *this, int row)
+bool buffer_swap_grid_io(grid_io_class *this, int row)
 { long offset;
 
   assert(0 <= row && row < this->height);
@@ -326,24 +333,28 @@ static bool exchange_row_buffer(grid_io_class *this, int row)
     if (ferror(this->fp)) { perror(this->filename); return FALSE;}
   }
 
-  if (this->start_row <= row && row <= this->final_row) return TRUE;
+/*  if (this->start_row <= row && row <= this->final_row) return TRUE; */
 
 /*
  *	adjust row offset to whole buffer increment
  */
-  row = (row / this->row_buffer_increment) * this->row_buffer_increment;
+/*  row = (row / this->row_buffer_increment) * this->row_buffer_increment; */
+  
 
 /*
  *	don't let the row buffer run off the end of the grid
  */
-  this->num_rows = this->height - row;
-  if (this->num_rows > this->row_buffer_increment)
-  { this->num_rows = this->row_buffer_increment;
+  if (row > this->height - this->row_buffer_increment)
+  { row = this->height - this->row_buffer_increment;
   }
+
+  this->num_rows = this->row_buffer_increment;
 
 /*
  *	read new buffer
  */
+  if (this->start_row == row) return TRUE;
+
   offset = this->datum_size * this->width * row;
   fseek(this->fp, offset, SEEK_SET);
 
