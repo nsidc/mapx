@@ -4,7 +4,7 @@
  * 27-Apr-1999 Derek van Westrum vanwestr@ingrid.colorado.edu 303-492-1846
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.1 2001-08-20 21:51:00 knowles Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.2 2001-08-20 21:58:23 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.1 $\n"                                                      \
+"$Revision: 1.2 $\n"                                                      \
 "usage: irregrid [-wcnv -i value -k kernel"                                \
 " -p value -r value -z beta_file -o outputfile] \n"                        \
 "              from_data to.gpd \n"			                   \
@@ -79,9 +79,8 @@ static int near_neighbor(float,float,float,float,float,int *,grid_class *,
 			 float **,int **);
 static int normalize_near_neighbor(grid_class *,float **, float **, int **);
 
-main(int argc, char *argv[])
-{ register int i, j;
-  int data_bytes, nparams, row_bytes, status, total_bytes;
+main(int argc, char *argv[]) { 
+  int i, status;
   float from_lat, from_lon, from_dat;
   int r_width, s_width,nearest_r, nearest_s;
   float from_r, from_s;
@@ -91,7 +90,6 @@ main(int argc, char *argv[])
   int **to_data_num_pts;
   char *option;
   char input_line[MAXLINELENGTH];
-  char *line_val = NULL;
   char from_filename[FILENAME_MAX], to_filename[FILENAME_MAX];
   bool algo_specified;
   char *algo_string;
@@ -359,10 +357,8 @@ int cressman(float from_r,float from_s,float from_lat, float from_lon,
 	     int **to_data_num_pts)
 { int r, s;
   float dist;
-  float test_lat, test_lon;
   double weight;
   int npts=0;
-  int status;
 
 /*
  *	find the distance from each grid location within the shell range
@@ -477,10 +473,8 @@ int inv_dist(float from_r,float from_s,float from_lat, float from_lon,
 	     int **to_data_num_pts)
 { int r, s;
   float dist;
-  float test_lat, test_lon;
   double weight;
   int npts=0;
-  int status;
 
 /*
  *	find the distance from each grid location within the shell range
@@ -594,7 +588,7 @@ int near_neighbor(float from_r,float from_s,float from_lat, float from_lon,
 		  float from_dat,int shell_range[],
 		  grid_class *to_grid,float **to_data,float **to_data_beta,
 		  int **to_data_num_pts)
-{ int i, j, k, r, s;
+{ int r, s;
   float dist;
   int npts=0;
 
