@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.15 2003-05-07 21:16:13 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.16 2003-05-08 16:34:23 haran Exp $
 #
 
 #
@@ -403,13 +403,6 @@ foreach $file_in (@files_in) {
 	}
 
 	#
-	#  Write actual results to output file as necessary
-	#
-	if ($tagout) {
-	    print FILE_OUT "#   $target_out = $act1 $act2 $comment\n";
-	}
-
-	#
 	#  Compare expected and actual values
 	#
 	my $forinv_ok = ($exp1 eq $act1 and $exp2 eq $act2);
@@ -432,6 +425,17 @@ foreach $file_in (@files_in) {
 	    print STDERR ("  Expected results match actual results\n");
 	}
 	system("rm -f $tmpfile");
+
+	#
+	#  Write actual results to output file as necessary
+	#
+	if ($tagout) {
+	    if (!$comment) {
+		$comment = ".vs $exp1 $exp2 in $tagin";
+	    }
+	    print FILE_OUT "#   $target_out = $act1 $act2 $comment\n";
+	}
+
 	$got_result = 1;
 	if (!$forinv_ok) {
 	    $test_ok = 0;
