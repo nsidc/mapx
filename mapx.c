@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.27 1999-04-19 21:20:41 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.28 1999-05-11 20:28:15 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -330,7 +330,7 @@ mapx_class *init_mapx (char *map_filename)
     this->geo_to_map = interupted_homolosine_equal_area;
     this->map_to_geo = inverse_interupted_homolosine_equal_area;
   }
-  if (strcmp (projection, "ALBERSCONICEQUALAREA") == 0)     
+  else if (strcmp (projection, "ALBERSCONICEQUALAREA") == 0)     
   { this->initialize = init_albers_conic_equal_area; 
     this->geo_to_map = albers_conic_equal_area;
     this->map_to_geo = inverse_albers_conic_equal_area;
