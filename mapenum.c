@@ -3,7 +3,7 @@
  *
  * 4-Mar-1993 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *========================================================================*/
-static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.1 1993-08-19 10:26:41 knowles Exp $";
+static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 1.2 1993-11-08 17:20:47 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,8 +33,8 @@ static const char mapenum_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapenum.c,v 
 static grid_class *grid;
 static cdb_class *cdb;
 static int pen_style = MAP_STYLE_DEFAULT;
-static void move_pu(float,float);
-static void draw_pd(float,float);
+static int move_pu(float,float);
+static int draw_pd(float,float);
 
 /*------------------------------------------------------------------------
  * mapenum [-d cdb_file -s map_style -g grat_style] gpd_file
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
 }
 
-static float x1, y1, x2, y2;
+static float pen_x1, pen_y1, pen_x2, pen_y2;
 
 /*------------------------------------------------------------------------
  * move_pu
@@ -114,9 +114,10 @@ static float x1, y1, x2, y2;
  *	input : lat, lon
  *
  *------------------------------------------------------------------------*/
-static void move_pu(float lat, float lon)
+static int move_pu(float lat, float lon)
 {
-  (void) forward_grid(grid, lat, lon, &x1, &y1);
+  (void) forward_grid(grid, lat, lon, &pen_x1, &pen_y1);
+  return 0;
 }
 
 /*------------------------------------------------------------------------
@@ -125,13 +126,15 @@ static void move_pu(float lat, float lon)
  *	input : lat, lon
  *
  *------------------------------------------------------------------------*/
-static void draw_pd(float lat, float lon)
+static int draw_pd(float lat, float lon)
 { int on_grid;
 
-  on_grid = forward_grid(grid, lat, lon, &x2, &y2);
+  on_grid = forward_grid(grid, lat, lon, &pen_x2, &pen_y2);
   if (on_grid) 
-  { printf("%d %f %f %f %f\n", pen_style, x1, y1, x2, y2);
+  { printf("%d %f %f %f %f\n", pen_style, pen_x1, pen_y1, pen_x2, pen_y2);
   }
-  x1 = x2;
-  y1 = y2;
+  pen_x1 = pen_x2;
+  pen_y1 = pen_y2;
+
+  return 0;
 }
