@@ -7,7 +7,7 @@
 #ifndef maps_h_
 #define maps_h_
 
-#include <math.h>
+#include "define.h"
 #include "mapx.h"
 
 #define LAT_DESIGNATORS "NSns"
@@ -33,12 +33,27 @@
 void draw_graticule(mapx_class *mapx, int (*move_pu)(float lat, float lon),
 		    int (*draw_pd)(float lat, float lon),
 		    int (*label)(char *string, float lat, float lon));
+
 float arc_length_km (float lat1, float lon1, float lat2, float lon2);
+
 float west_azimuth(float lat1, float lon1, float lat2, float lon2);
-int bisect(float lat1, float lon1, float lat2, float lon2, 
-	   float *lat, float *lon);
+
+bool bisect(float lat1, float lon1, float lat2, float lon2, 
+	    float *lat, float *lon);
+
 int sscanf_lat_lon(char *readln, float *lat, float *lon);
+
 int lat_lon_decode(const char *readln, const char *designators, float *value);
 
 FILE *search_path_fopen(char *filename, const char *pathvar, const char *mode);
+
+double ellipsoid_radius(double sin_phig, double cos_phig, 
+			double Ae2, double Be2);
+
+void geo_to_rectangular(double r[3], float lat, float lon, 
+			double Ae2, double Be2);
+
+bool point_within_box(float lat_pt, float lon_pt, 
+		      float lat_box[4], float lon_box[4]);
+
 #endif
