@@ -5,7 +5,7 @@
  *========================================================================*/
 #ifndef cdb_h_
 #define cdb_h_
-static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.3 1993-02-24 10:20:38 knowles Exp $";
+static const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.4 1993-04-15 14:32:18 knowles Exp $";
 
 #include <define.h>
 
@@ -115,8 +115,6 @@ typedef struct
   int npoints;			/* number of data points in current segment */
   int is_loaded;		/* if TRUE all data is loaded in memory */
   cdb_seg_data *(*get_data)();	/* read segment data function */
-  void (*move_pu)(float,float);	/* move pen up function */
-  void (*draw_pd)(float,float);	/* draw pen down function */
 } cdb_class;
 
 /*
@@ -175,15 +173,14 @@ typedef struct
  */
 
 cdb_class *new_cdb(void);
-cdb_class *init_cdb(const char *cdb_filename, 
-		    void (*move_pu)(float lat, float lon), 
-		    void (*draw_pd)(float lat, float lon));
+cdb_class *init_cdb(const char *cdb_filename); 
 void free_cdb(cdb_class *this);
 cdb_class *copy_of_cdb(cdb_class *this);
 void load_all_seg_data_cdb(cdb_class *this);
 cdb_seg_data *load_current_seg_data_cdb(cdb_class *this);
 int get_current_seg_cdb(cdb_class *this, float *lat, float *lon, int max_pts);
-int draw_current_seg_cdb(cdb_class *this);
+int draw_current_seg_cdb(cdb_class *this, void (*move_pu)(float,float),
+			 void (*draw_pd)(float,float));
 void list_cdb(cdb_class *this, int verbose);
 void sort_index_cdb(cdb_class *this, cdb_index_sort order);
 cdb_index_entry *find_segment_cdb(cdb_class *this, float key_value);
@@ -191,7 +188,7 @@ int index_limit_test_cdb(cdb_class *this, float lower_bound,
 			 float upper_bound);
 int segment_bounds_test_cdb(cdb_class *this, float south, float north,
 			    float west, float east);
-void draw_cdb(cdb_class *this, float start, float stop, 
-	      cdb_index_sort order);
+void draw_cdb(cdb_class *this, float start, float stop, cdb_index_sort order,
+	      void (*move_pu)(float,float), void (*draw_pd)(float,float));
 
 #endif
