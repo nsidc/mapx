@@ -23,7 +23,7 @@ SOURCES = mapx.c grids.c cdb.c maps.c
 HEADERS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
 OBJECTS = mapx.o grids.o cdb.o maps.o
 
-all : libmaps.a install clean
+all : libmaps.a install
 
 libmaps.a : $(HEADERS) $(OBJECTS)
 	$(AR) ruv libmaps.a $(OBJECTS)
