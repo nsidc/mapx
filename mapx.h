@@ -6,7 +6,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.9 1993-10-27 15:02:39 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.10 1994-03-18 13:41:44 knowles Exp $";
 
 /* 
  * useful macros
@@ -49,7 +49,7 @@ typedef struct {
   double rho0, n, F, m0, m1, t0, t1;
   int (*geo_to_map)(float, float, float *, float *);
   int (*map_to_geo)(float, float, float *, float *);
-  int (*initialize)(void);
+  void (*initialize)(void);
   char *projection_name;
   FILE *mpp_file;
   char *mpp_filename;
@@ -60,7 +60,7 @@ typedef struct {
  */
 mapx_class *init_mapx(char *map_filename);
 void close_mapx(mapx_class *this);
-int reinit_mapx(mapx_class *this);
+void reinit_mapx(mapx_class *this);
 int within_mapx(mapx_class *this, float lat, float lon);
 int forward_mapx(mapx_class *this, float lat, float lon, float *u, float *v);
 int inverse_mapx(mapx_class *this, float u, float v, float *lat, float *lon);
