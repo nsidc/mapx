@@ -1,5 +1,5 @@
 Readme for mapx library UTM update
-Terry Haran 04/23/03
+Terry Haran 04/24/03
 
 This document describes a set of changes to the mapx library implemented
 in the course of adding the Transverse Mercator and Universal Transverse
@@ -66,26 +66,27 @@ In addition to the changes mentioned in 1-4, the following changes were
 also made:
 
 5) ppgc.html:
-   a) Added the use of pound sign (#) to denote comments.
-   b) Added statement that all text following a semi-colon or pound sign
+   a) Added statement that keywords and their values are not case sensitive.
+   b) Added the use of pound sign (#) to denote comments.
+   c) Added statement that all text following a semi-colon or pound sign
       on a particular line is ignored.
-   c) Provided expanded description of map eccentricity and radius.
-   d) Added explanation that a negative value of eccentricity is used
+   d) Provided expanded description of map eccentricity and radius.
+   e) Added explanation that a negative value of eccentricity is used
       to specify eccentricity squared.
-   e) Added keywords Map Origin X and Y.
-   f) Modified keywords Map False Easting and Northing.
-   g) Added keyword Map Center Scale.
-   h) Fixed the spelling of Interrupted Homolosine Equal-Area. The
+   f) Added keywords Map Origin X and Y.
+   g) Modified keywords Map False Easting and Northing.
+   k) Added keyword Map Center Scale.
+   i) Fixed the spelling of Interrupted Homolosine Equal-Area. The
       mispelled form is still supported in the code.
-   i) Added the following map projection names:
+   j) Added the following map projection names:
       i)   Polar Stereographic (ellipsoid)
       ii)  Transverse Mercator
       iii) Transverse Mercator (ellipsoid)
       iv)  Universal Transverse Mercator
-   j) Added a separate table and explanation of map parameters for ISin:
+   k) Added a separate table and explanation of map parameters for ISin:
       i)  Moved Map Isin Justify to separate ISin table.
       ii) Added Map Isin NZone parameter.
-   k) Added a separate table and explanation of map parameters for UTM.
+   l) Added a separate table and explanation of map parameters for UTM.
 
 6) Makefile:
    a) Changed TOPDIR from HOME to ../.. (temporary changed to aid in
@@ -255,11 +256,14 @@ also made:
 
 17) keyval.c:
     a) In get_label_keyval(), added feature such that for each line,
-       any characters following a semi-colon or a pound sign are
-       replaced with blanks.
-    b) In get_value_keyval(), added feature such that if default_string is
+       all lowercase characters are converted to uppercase, and any
+       characters following a semi-colon or a pound sign are replaced
+       with blanks.
+    b) In get_field_keyval(), added feature such that keyword is
+       converted to uppercase before the search is performed.
+    c) In get_value_keyval(), added feature such that if default_string is
        "KEYVAL_UNINITIALIZED" and format is "%f" or "%lf", and the keyword
-       is not found, then the value KEYWORD_UNINITIALIZED is returned.
+       is not found, then the value KEYVAL_UNINITIALIZED is returned.
 
 18) keyval.h:
     a) Added definition of KEYVAL_UNINITIALIZED to be FLT_MAX, if FLT_MAX
