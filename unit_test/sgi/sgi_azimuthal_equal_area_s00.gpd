@@ -21,9 +21,9 @@ Grid Map Origin Row:            299.5
 #   max error was at 73.07S 176.61W
 #
 # gacct
-#   90000 points,  27 bad points
-#   average error = 8.2145e-14 pixels
-#   std dev error = 8.1267e-14 pixels
+#   90000 points,  21 bad points
+#   average error = 8.2257e-14 pixels
+#   std dev error = 8.2641e-14 pixels
 #   maximum error = 4.4233e-12 pixels
 #   max error was at col: 299  row: 123   lat: 89.674854  lon: -122.378136
 #
