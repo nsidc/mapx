@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.11 1999-07-14 21:20:34 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.12 1999-11-19 16:55:05 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.11 $\n"                                                             \
+"$Revision: 1.12 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -77,6 +77,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 
 static int fill, k_cols, k_rows;
 static int ignore_fill, verbose, preload_data;
+static bool modified_option;
 static double power;
 
 int inv_dist(grid_class *, float **, grid_class *, float **, float **);
@@ -201,6 +202,7 @@ main (int argc, char *argv[])
   forward_resample = FALSE;
   weighted_sum = FALSE;
   wide_weighted = FALSE;
+  modified_option = FALSE;
   data_bytes = 1;
   signed_data = TRUE;
   k_rows = k_cols = 0;
@@ -223,6 +225,9 @@ main (int argc, char *argv[])
 	case 'w':
 	  if (weighted_sum) wide_weighted = TRUE;
 	  weighted_sum = TRUE;
+	  break;
+	case 'm':
+	  modified_option = TRUE;
 	  break;
 	case 'k':
 	  ++argv; --argc;
@@ -565,9 +570,16 @@ int ditb_avg(grid_class *from_grid, float **from_data,
  */
       row = (int)(s + 0.5); 
       col = (int)(r + 0.5);
-      if (row >= 0 && row < to_grid->rows && col >= 0 && col < to_grid->cols)
-      { to_data[row][col] += from_data[i][j];
-	to_beta[row][col] += 1;
+      if (row >= 0 && row < to_grid->rows && col >= 0 && col < to_grid->cols) {
+	if (modified_option) {
+	  if (from_data[i][j] > to_data[row][col]) {
+	    to_data[row][col] = from_data[i][j];
+	    to_beta[row][col] = 1;
+	  }
+	} else {
+	  to_data[row][col] += from_data[i][j];
+	  to_beta[row][col] += 1;
+	}
       }
 
       ++npts;
