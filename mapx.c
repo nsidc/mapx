@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.30 1999-07-28 22:23:48 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.31 1999-08-02 16:57:38 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,10 +14,15 @@ static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.30 1
 #include <ctype.h>
 #include <math.h>
 #include "define.h"
-#include "maps.h"
+#include "keyval.h"
+#define MAPX_C_
 #include "mapx.h"
+#include "maps.h"
 
-
+static bool old_fixed_format_decode_mpp(mapx_class *this);
+static bool decode_mpp(mapx_class *this);
+static char *standard_name(char *);
+
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
  * projections 
  *
@@ -92,13 +97,37 @@ int inverse_interupted_homolosine_equal_area(void *, float, float, float *, floa
 int init_albers_conic_equal_area(void *);
 int albers_conic_equal_area(void *, float, float, float *, float *);
 int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
-static char *standard_name(char *);
 
 /*----------------------------------------------------------------------
  * init_mapx - initialize map projection 
  *
- *	input : map_filename - map parameters file name
- *			format as follows:
+ *	input : mpp_filename - map parameters file name
+ *			file must have following fields:
+ *			 Map Projection: see below
+ *			 Map Reference Latitude: lat0
+ *			 Map Reference Longitude: lon0
+ *			may also contain optional fields:
+ *			 Map Second Reference Latitude: lat1
+ *			 Map Second Reference Longitude: lon1
+ *			 Map Rotation: counter-clockwise
+ *			 Map Scale: scale (radius units per map unit)
+ *			 Map Origin Latitude: center_lat
+ *			 Map Origin Longitude: center_lon
+ *			 Map Southern Bound: southernmost lat
+ *			 Map Northern Bound: northernmost lat
+ *			 Map Western Bound: westernmost longitude
+ *			 Map Eastern Bound: easternmost longitude
+ *			 Map Graticule Latitude Interval: default 30
+ *			 Map Graticule Longitude Interval: default 30
+ *			 Map Graticule Label Latitude: default 0N
+ *			 Map Graticule Label Longitude: default 0E
+ *			 Map CIL Detail Level: default 1
+ *			 Map BDY Detail Level: default 0
+ *			 Map RIV Detail Level: default 0
+ *			 Map Eccentricity: default Clark 1866
+ *			 Map Equatorial Radius: default Clark 1866 for ellipsoid, authalic for sphere
+
+ *			old fixed format was as follows:
  *			 Map_Projection_Name
  *			 lat0 lon0 [lat1 lon1] (decimal degrees)
  *			 rotation (portrait=0, landscape=90)
@@ -152,12 +181,8 @@ static char *standard_name(char *);
  *		normalized -180 to 180.
  *
  *----------------------------------------------------------------------*/
-mapx_class *init_mapx (char *map_filename)
+mapx_class *init_mapx (char *mpp_filename)
 {
-  double theta;
-  float f1, f2, f3, f4;
-  int i1, i2, i3, ios;
-  char projection[80], readln[80], original_name[80];
   mapx_class *this;
   
   /*
@@ -178,15 +203,268 @@ mapx_class *init_mapx (char *map_filename)
     close_mapx(this);
     return NULL;
   }
-  strncpy(this->mpp_filename, map_filename, MAX_STRING);
+  strncpy(this->mpp_filename, mpp_filename, MAX_STRING);
   this->mpp_file = search_path_fopen(this->mpp_filename, mapx_PATH, "r");
   if (this->mpp_file == NULL)
   { fprintf (stderr,"init_mapx: error opening parameters file.\n");
-    perror(map_filename);
+    perror(mpp_filename);
+    close_mapx(this);
+    return NULL;
+  }
+
+  /*
+   *	decode map projection parameters
+   */
+  if (!decode_mpp(this)) {
     close_mapx(this);
     return NULL;
   }
   
+  /*
+   *	match projection name and initialize remaining parameters
+   */
+  if (strcmp (this->projection_name, "AZIMUTHALEQUALAREA") == 0)     
+  { this->initialize = init_azimuthal_equal_area; 
+    this->geo_to_map = azimuthal_equal_area;
+    this->map_to_geo = inverse_azimuthal_equal_area;
+  }
+  else if (strcmp (this->projection_name, "CYLINDRICALEQUALAREA") == 0)
+  { this->initialize = init_cylindrical_equal_area;
+    this->geo_to_map = cylindrical_equal_area;
+    this->map_to_geo = inverse_cylindrical_equal_area;
+  }
+  else if (strcmp (this->projection_name, "MERCATOR") == 0)
+  { this->initialize = init_mercator;
+    this->geo_to_map = mercator;
+    this->map_to_geo = inverse_mercator;
+  }
+  else if (strcmp (this->projection_name, "MOLLWEIDE") == 0)
+  { this->initialize = init_mollweide;
+    this->geo_to_map = mollweide;
+    this->map_to_geo = inverse_mollweide;
+  }
+  else if (strcmp (this->projection_name, "ORTHOGRAPHIC") == 0)
+  { this->initialize = init_orthographic;
+    this->geo_to_map = orthographic;
+    this->map_to_geo = inverse_orthographic;
+  }
+  else if (strcmp (this->projection_name, "SINUSOIDAL") == 0)
+  { this->initialize = init_sinusoidal;
+    this->geo_to_map = sinusoidal;
+    this->map_to_geo = inverse_sinusoidal;
+  }
+  else if (strcmp (this->projection_name, "CYLINDRICALEQUIDISTANT") == 0)
+  { this->initialize = init_cylindrical_equidistant;
+    this->geo_to_map = cylindrical_equidistant;
+    this->map_to_geo = inverse_cylindrical_equidistant;
+  }
+  else if (strcmp (this->projection_name, "POLARSTEREOGRAPHIC") == 0)
+  { this->initialize = init_polar_stereographic;
+    this->geo_to_map = polar_stereographic;
+    this->map_to_geo = inverse_polar_stereographic;
+  }
+  
+  else if (strcmp (this->projection_name, "POLARSTEREOGRAPHICELLIPSOID") == 0)
+  { this->initialize = init_polar_stereographic_ellipsoid;
+    this->geo_to_map = polar_stereographic_ellipsoid;
+    this->map_to_geo = inverse_polar_stereographic_ellipsoid;
+  }
+  
+  else if (strcmp (this->projection_name, "AZIMUTHALEQUALAREAELLIPSOID") == 0) 
+  { this->initialize = init_azimuthal_equal_area_ellipsoid;
+    this->geo_to_map = azimuthal_equal_area_ellipsoid;
+    this->map_to_geo = inverse_azimuthal_equal_area_ellipsoid;
+  }
+  
+  else if (strcmp (this->projection_name, "CYLINDRICALEQUALAREAELLIPSOID") == 0) 
+  { this->initialize = init_cylindrical_equal_area_ellipsoid;
+    this->geo_to_map = cylindrical_equal_area_ellipsoid;
+    this->map_to_geo = inverse_cylindrical_equal_area_ellipsoid;
+  }
+  
+  else if (strcmp (this->projection_name, "LAMBERTCONICCONFORMALELLIPSOID") == 0) 
+  { this->initialize =init_lambert_conic_conformal_ellipsoid;
+    this->geo_to_map = lambert_conic_conformal_ellipsoid;
+    this->map_to_geo = inverse_lambert_conic_conformal_ellipsoid;
+  }
+  else if (strcmp (this->projection_name, "INTERUPTEDHOMOLOSINEEQUALAREA") == 0) 
+  { this->initialize =init_interupted_homolosine_equal_area;
+    this->geo_to_map = interupted_homolosine_equal_area;
+    this->map_to_geo = inverse_interupted_homolosine_equal_area;
+  }
+  else if (strcmp (this->projection_name, "ALBERSCONICEQUALAREA") == 0)     
+  { this->initialize = init_albers_conic_equal_area; 
+    this->geo_to_map = albers_conic_equal_area;
+    this->map_to_geo = inverse_albers_conic_equal_area;
+  }
+  else
+  { fprintf (stderr, "init_mapx: unknown projection %s\n", this->projection_name);
+    fprintf (stderr, "valid types are:\n");
+    fprintf (stderr, " Albers Conic Equal-Area\n");
+    fprintf (stderr, " Azimuthal Equal-Area\n");
+    fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
+    fprintf (stderr, " Cylindrical Equal-Area\n");
+    fprintf (stderr, " Cylindrical Equal-Area Ellipsoid\n");
+    fprintf (stderr, " Cylindrical Equidistant\n");
+    fprintf (stderr, " Interupted Homolosine Equal-Area\n");
+    fprintf (stderr, " Lambert Conic Conformal Ellipsoid\n");
+    fprintf (stderr, " Mercator\n");
+    fprintf (stderr, " Mollweide\n");
+    fprintf (stderr, " Orthographic\n");
+    fprintf (stderr, " Polar Stereographic\n");
+    fprintf (stderr, " Polar Stereographic Ellipsoid\n");
+    fprintf (stderr, " Sinusoidal\n");
+    close_mapx (this);
+    return NULL;
+  }
+  
+  /*
+   *	initialize map projection constants
+   */
+  if (0 != reinit_mapx(this))
+  { close_mapx(this);
+    return NULL;
+  }
+  
+  return this;
+}
+
+
+/*------------------------------------------------------------------------
+ * decode_mpp - parse information in map projection parameters file
+ *
+ *	input : this - pointer to map data structure (returned by init_mapx)
+ *
+ *	result: TRUE iff success
+ *
+ *	effect: fills map data structure with values read from mpp_file
+ *
+ *------------------------------------------------------------------------*/
+static bool decode_mpp(mapx_class *this)
+{
+  bool success;
+  char *label=NULL, *projection_name=NULL;
+
+  if ((label = get_label_keyval(this->mpp_filename, this->mpp_file, 0)) == NULL)
+    goto error_return;
+
+  /*
+   *	if Map Projection tag present then interpret as new keyval format
+   *  	otherwise try for old fixed format
+   */
+  projection_name = get_field_keyval(label, "Map Projection", NULL);
+
+  if (!projection_name) {
+    fprintf(stderr,"init_mapx: assuming %s is old style fixed format file\n", this->mpp_filename);
+    free(label);
+    fseek(this->mpp_file, 0L, SEEK_SET);
+    return old_fixed_format_decode_mpp(this);
+  }
+
+  this->projection_name = strdup(standard_name(projection_name));
+  free(projection_name); projection_name = NULL;
+
+  /*
+   *	get required fields
+   */
+  success = get_value_keyval(label, "Map Reference Latitude", "%lat", &(this->lat0), NULL);
+  if (!success) {
+    fprintf(stderr,"init_mapx: Map Reference Latitude is a required field\n");
+    goto error_return;
+  }
+  success = get_value_keyval(label, "Map Reference Longitude", "%lon", &(this->lon0), NULL);
+  if (!success) {
+    fprintf(stderr,"init_mapx: Map Reference Longitude is a required field\n");
+    goto error_return;
+  }
+
+  /*
+   *	get optional fields
+   */
+  get_value_keyval(label, "Map Second Reference Latitude", "%lat", &(this->lat1), "999");
+  get_value_keyval(label, "Map Second Reference Longitude", "%lon", &(this->lon1), "999");
+
+  get_value_keyval(label, "Map Rotation", "%f", &(this->rotation), "0.0");
+  get_value_keyval(label, "Map Scale", "%f", &(this->scale), "1.0");
+
+  get_value_keyval(label, "Map Origin Latitude", "%lat", &(this->center_lat), "999");
+  if (999 == this->center_lat) {
+    if (mapx_verbose) fprintf(stderr,"> assuming map origin lat is same as ref. lat %f\n", this->lat0);
+    this->center_lat = this->lat0;
+  }
+  get_value_keyval(label, "Map Origin Longitude", "%lon", &(this->center_lon), "999");
+  if (999 == this->center_lat) {
+    if (mapx_verbose) fprintf(stderr,"> assuming map origin lon is same as ref. lon %f\n", this->lon0);
+    this->center_lon = this->lon0;
+  }
+
+  get_value_keyval(label, "Map Southern Bound", "%lat", &(this->south), "90S");
+  get_value_keyval(label, "Map Northern Bound", "%lat", &(this->north), "90N");
+  get_value_keyval(label, "Map Western Bound", "%lon", &(this->west), "180W");
+  get_value_keyval(label, "Map Eastern Bound", "%lon", &(this->east), "180E");
+
+  get_value_keyval(label, "Map Graticule Latitude Interval", "%f", &(this->lat_interval), "30.");
+  get_value_keyval(label, "Map Graticule Longitude Interval", "%f", &(this->lon_interval), "30.");
+  get_value_keyval(label, "Map Graticule Label Latitude", "%lat", &(this->label_lat), "0.0");
+  get_value_keyval(label, "Map Graticule Label Longitude", "%lon", &(this->label_lon), "0.0");
+
+  get_value_keyval(label, "Map CIL Detail Level", "%d", &(this->cil_detail), "1");
+  get_value_keyval(label, "Map BDY Detail Level", "%d", &(this->bdy_detail), "0");
+  get_value_keyval(label, "Map RIV Detail Level", "%d", &(this->riv_detail), "0");
+
+  get_value_keyval(label, "Map Equatorial Radius", "%lf", &(this->equatorial_radius), "0.0");
+  get_value_keyval(label, "Map Eccentricity", "%lf", &(this->eccentricity), "999");
+
+  /*
+   *	try to make educated guess at defaults for map eccentricity and equatorial radius
+   */
+  if (strstr(this->projection_name, "ELLIPSOID")) {
+    if (999 == this->eccentricity) {
+      this->eccentricity = mapx_eccentricity;
+      if (mapx_verbose) fprintf(stderr,"> using default eccentricity %f\n", this->eccentricity);
+    }
+    if (0.0 == this->equatorial_radius) {
+      this->equatorial_radius = mapx_equatorial_radius_km;
+      if (mapx_verbose) fprintf(stderr,"> using default equatorial radius %fkm\n", this->equatorial_radius);
+    }
+  } else {
+    if (0.0 == this->equatorial_radius) {
+      this->equatorial_radius = mapx_Re_km;
+      if (mapx_verbose) fprintf(stderr,"> using default equatorial radius %fkm\n", this->equatorial_radius);
+    }
+    if (999 != this->eccentricity && 0 != this->eccentricity) {
+      fprintf(stderr,"init_mapx: eccentricity specified with spherical map projection\n"
+	      "           use Ellipsoid version of projection name\n");
+      goto error_return;
+    }
+  }
+
+  return TRUE;
+
+error_return:
+  if (label) free(label);
+  if (projection_name) free(projection_name);
+  fseek(this->mpp_file, 0L, SEEK_SET);
+  return FALSE;
+
+}
+
+/*------------------------------------------------------------------------
+ * old_fixed_format_decode_mpp
+ *
+ *	input : this - pointer to map data structure (returned by init_mapx)
+ *
+ *	result: TRUE iff success
+ *
+ *	effect: fills map data structure with values read from mpp_file
+ *
+ *------------------------------------------------------------------------*/
+static bool old_fixed_format_decode_mpp(mapx_class *this)
+{
+  float f1, f2, f3, f4;
+  int i1, i2, i3, ios;
+  char projection[80], readln[80], original_name[80];
+
   /*
    *	read in projection parameters
    */
@@ -247,13 +525,12 @@ mapx_class *init_mapx (char *map_filename)
   if (ferror(this->mpp_file) || feof(this->mpp_file))
   { fprintf (stderr,"init_mapx: error reading parameters file.\n");
     if (feof(this->mpp_file))
-      fprintf(stderr,"%s: unexpected end of file.\n", map_filename);
+      fprintf(stderr,"%s: unexpected end of file.\n", this->mpp_filename);
     else
-      perror(map_filename);
-    close_mapx(this);
-    return NULL;
+      perror(this->mpp_filename);
+    return FALSE;
   }
-  
+
   /*
    *	look for optional parameters
    */
@@ -277,121 +554,13 @@ mapx_class *init_mapx (char *map_filename)
   
   if (ferror(this->mpp_file))
   { fprintf (stderr, "init_mapx: error reading parameters file.\n");
-    perror(map_filename);
-    close_mapx(this);
-    return NULL;
+    perror(this->mpp_filename);
+    return FALSE;
   }
-  
-  
-  /*
-   *	match projection name and initialize remaining parameters
-   */
-  if (strcmp (projection, "AZIMUTHALEQUALAREA") == 0)     
-  { this->initialize = init_azimuthal_equal_area; 
-    this->geo_to_map = azimuthal_equal_area;
-    this->map_to_geo = inverse_azimuthal_equal_area;
-  }
-  else if (strcmp (projection, "CYLINDRICALEQUALAREA") == 0)
-  { this->initialize = init_cylindrical_equal_area;
-    this->geo_to_map = cylindrical_equal_area;
-    this->map_to_geo = inverse_cylindrical_equal_area;
-  }
-  else if (strcmp (projection, "MERCATOR") == 0)
-  { this->initialize = init_mercator;
-    this->geo_to_map = mercator;
-    this->map_to_geo = inverse_mercator;
-  }
-  else if (strcmp (projection, "MOLLWEIDE") == 0)
-  { this->initialize = init_mollweide;
-    this->geo_to_map = mollweide;
-    this->map_to_geo = inverse_mollweide;
-  }
-  else if (strcmp (projection, "ORTHOGRAPHIC") == 0)
-  { this->initialize = init_orthographic;
-    this->geo_to_map = orthographic;
-    this->map_to_geo = inverse_orthographic;
-  }
-  else if (strcmp (projection, "SINUSOIDAL") == 0)
-  { this->initialize = init_sinusoidal;
-    this->geo_to_map = sinusoidal;
-    this->map_to_geo = inverse_sinusoidal;
-  }
-  else if (strcmp (projection, "CYLINDRICALEQUIDISTANT") == 0)
-  { this->initialize = init_cylindrical_equidistant;
-    this->geo_to_map = cylindrical_equidistant;
-    this->map_to_geo = inverse_cylindrical_equidistant;
-  }
-  else if (strcmp (projection, "POLARSTEREOGRAPHIC") == 0)
-  { this->initialize = init_polar_stereographic;
-    this->geo_to_map = polar_stereographic;
-    this->map_to_geo = inverse_polar_stereographic;
-  }
-  
-  else if (strcmp (projection, "POLARSTEREOGRAPHICELLIPSOID") == 0)
-  { this->initialize = init_polar_stereographic_ellipsoid;
-    this->geo_to_map = polar_stereographic_ellipsoid;
-    this->map_to_geo = inverse_polar_stereographic_ellipsoid;
-  }
-  
-  else if (strcmp (projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) 
-  { this->initialize = init_azimuthal_equal_area_ellipsoid;
-    this->geo_to_map = azimuthal_equal_area_ellipsoid;
-    this->map_to_geo = inverse_azimuthal_equal_area_ellipsoid;
-  }
-  
-  else if (strcmp (projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) 
-  { this->initialize = init_cylindrical_equal_area_ellipsoid;
-    this->geo_to_map = cylindrical_equal_area_ellipsoid;
-    this->map_to_geo = inverse_cylindrical_equal_area_ellipsoid;
-  }
-  
-  else if (strcmp (projection, "LAMBERTCONICCONFORMALELLIPSOID") == 0) 
-  { this->initialize =init_lambert_conic_conformal_ellipsoid;
-    this->geo_to_map = lambert_conic_conformal_ellipsoid;
-    this->map_to_geo = inverse_lambert_conic_conformal_ellipsoid;
-  }
-  else if (strcmp (projection, "INTERUPTEDHOMOLOSINEEQUALAREA") == 0) 
-  { this->initialize =init_interupted_homolosine_equal_area;
-    this->geo_to_map = interupted_homolosine_equal_area;
-    this->map_to_geo = inverse_interupted_homolosine_equal_area;
-  }
-  else if (strcmp (projection, "ALBERSCONICEQUALAREA") == 0)     
-  { this->initialize = init_albers_conic_equal_area; 
-    this->geo_to_map = albers_conic_equal_area;
-    this->map_to_geo = inverse_albers_conic_equal_area;
-  }
-  else
-  { fprintf (stderr, "init_mapx: unknown projection %s\n", original_name);
-    fprintf (stderr, "valid types are:\n");
-    fprintf (stderr, " Albers Conic Equal-Area\n");
-    fprintf (stderr, " Azimuthal Equal-Area\n");
-    fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
-    fprintf (stderr, " Cylindrical Equal-Area\n");
-    fprintf (stderr, " Cylindrical Equal-Area Ellipsoid\n");
-    fprintf (stderr, " Cylindrical Equidistant\n");
-    fprintf (stderr, " Interupted Homolosine Equal-Area\n");
-    fprintf (stderr, " Lambert Conic Conformal Ellipsoid\n");
-    fprintf (stderr, " Mercator\n");
-    fprintf (stderr, " Mollweide\n");
-    fprintf (stderr, " Orthographic\n");
-    fprintf (stderr, " Polar Stereographic\n");
-    fprintf (stderr, " Polar Stereographic Ellipsoid\n");
-    fprintf (stderr, " Sinusoidal\n");
-    close_mapx (this);
-    return NULL;
-  }
-  
-  /*
-   *	initialize map projection constants
-   */
-  if (0 != reinit_mapx(this))
-  { close_mapx(this);
-    return NULL;
-  }
-  
-  return this;
-}
 
+  return TRUE;
+}
+
 /*------------------------------------------------------------------------
  * close_mapx - free resources associated with active mapx struct
  *
@@ -567,17 +736,17 @@ int inverse_mapx (mapx_class *this, float u, float v, float *lat, float *lon)
 /*--------------------------------------------------------------------------
  * standard_name - standardize projection name
  *
- *	input : s - original projection name string
+ *	input : original_name - original projection name string
  *
  *	result: a valid projection name or ""
  *
  *-------------------------------------------------------------------------*/
-static char *standard_name(char *s)
+static char *standard_name(char *original_name)
 {
   static char new_name[80];
-  char *p = new_name;
+  char *p = new_name, *s;
   
-  for(; *s != '\n' && *s != '\0'; ++s)
+  for(s = original_name; *s != '\n' && *s != '\0'; ++s)
   {
     if ((*s == '_') || (*s == ' ') || (*s == '-') 
 	|| (*s == '(') || (*s == ')'))
@@ -650,6 +819,9 @@ static char *standard_name(char *s)
       streq(new_name, "ALBERSCONIC") || 
       streq(new_name, "ALBERSEQUALAREA"))
   { strcpy(new_name,"ALBERSCONICEQUALAREA");
+  }
+  else
+  { return original_name;
   }
   
   return new_name;
