@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * cylindrical_equidistant
  *------------------------------------------------------------------------*/
+static const char cylindrical_equidistant_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equidistant.c,v 1.2 2003-06-23 15:55:01 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_cylindrical_equidistant(void)
+{
+  return((char *)cylindrical_equidistant_c_rcsid);
+}
 
 int init_cylindrical_equidistant(mapx_class *current)
 { 
@@ -12,9 +19,10 @@ int init_cylindrical_equidistant(mapx_class *current)
   return 0;
 }
 
-int cylindrical_equidistant (mapx_class *current, float lat, float lon, float *u, float *v)
+int cylindrical_equidistant (mapx_class *current,
+			     double lat, double lon, double *x, double *y)
 {
-  float x, y, dlon;
+  double dlon;
   double phi, lam;
   
   dlon = lon - current->lon0;
@@ -23,22 +31,24 @@ int cylindrical_equidistant (mapx_class *current, float lat, float lon, float *u
   phi = RADIANS (lat);
   lam = RADIANS (dlon);
   
-  x =  current->Rg * lam * current->cos_phi1;
-  y =  current->Rg * phi;
+  *x =  current->Rg * lam * current->cos_phi1;
+  *y =  current->Rg * phi;
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_cylindrical_equidistant (mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_cylindrical_equidistant (mapx_class *current,
+				     double x, double y,
+				     double *lat, double *lon)
 {
-  double phi, lam, x, y;
+  double phi, lam;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   phi = y/current->Rg;
   lam = x/(current->Rg*current->cos_phi1);
   
