@@ -1,19 +1,12 @@
 /*========================================================================
  * maps - map utility functions
- *
- * 18-Aug-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
- * $Log: not supported by cvs2svn $
- * Revision 1.1  93/02/25  11:48:55  knowles
- * Initial revision
- * 
- * Revision 1.1  93/02/18  16:13:51  knowles
- * Initial revision
- * 
  *========================================================================*/
-static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.2 1993-08-19 10:15:39 knowles Exp $";
+static const char maps_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.c,v 1.3 1993-09-24 11:17:01 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include <math.h>
 #include <define.h>
 #include <maps.h>
@@ -164,7 +157,7 @@ void bisect(float lat1, float lon1, float lat2, float lon2,
  *		[+/-]dd.dd [N/S] [+/-]dd.dd [E/W] => decimal degrees
  *
  *------------------------------------------------------------------------*/
-int sscanf_lat_lon(char *readln, double *lat, double *lon)
+int sscanf_lat_lon(char *readln, float *lat, float *lon)
 { float dlat, dlon, mlat, mlon;
   char ns[2], ew[2];
   
@@ -204,6 +197,120 @@ int sscanf_lat_lon(char *readln, double *lat, double *lon)
     *lon = dlon;
     return 2;
   }
+  else if (lat_lon_decode(readln, LAT_DESIGNATORS, &dlat)
+	   && lat_lon_decode(readln, LON_DESIGNATORS, &dlon))
+  { *lat = dlat;
+    *lon = dlon;
+    return 2;
+  }
   else
     return 0;
+}
+
+/*------------------------------------------------------------------------
+ * lat_lon_decode - decode lat or lon (decimal degrees) from buffer
+ *
+ *	input : readln - pointer to buffer
+ *		designators - string of possible hemisphere designators
+ *			for example "EWew" to extract a longitude
+ *
+ *	output: value - latitude or longitude in decimal degrees
+ *
+ *	result: 1 - success
+ *		0 - error scanning string
+ *
+ *	format: dd.dd[optional white space]designator
+ *		this function will attempt to extract the value from
+ *		anywhere in the buffer up to the first newline
+ *
+ *------------------------------------------------------------------------*/
+int lat_lon_decode(const char *readln, const char *designators, float *value)
+{ const char *end, *pos;
+  char hemi, number[80];
+  int len;
+
+  end = strchr(readln, '\n');
+  if (NULL == end) end = readln + strlen(readln);
+
+  pos = strpbrk(readln, designators);
+  if (NULL == pos || pos > end) return 0;
+
+  hemi = toupper(*pos);
+
+  while (pos > readln && isspace(*--pos));
+
+  while (pos > readln && NULL != strchr("0123456789.+-", *--pos));
+
+  if (NULL == strchr("0123456789.+-", *pos)) ++pos;
+
+  len = strspn(pos, "0123456789.+-");
+  if (len <= 0) return 0;
+  strncpy(number, pos, len);
+  number[len] = '\0';
+
+  if (sscanf(number, "%f", value) != 1) return 0;
+
+  if ('W' == hemi || 'S' == hemi) *value = -(*value);
+
+  return 1;
+}
+
+/*------------------------------------------------------------------------
+ * search_path_fopen - search for file in colon separated list of directories
+ *
+ *	input : filename - name of file to try first
+ *		pathvar - environment variable containing path
+ *		mode - same as fopen modes ("r", "w", etc.)
+ *
+ *	output: filename - name of file successfully openned
+ *
+ *	result: file pointer of openned file or NULL on failure
+ *
+ *	note  : directories are searched in order
+ *		if first attempt to open file fails then the directory
+ *		information preceeding the filename is stripped before
+ *		searching the directory path
+ *
+ *------------------------------------------------------------------------*/
+FILE *search_path_fopen(char *filename, const char *pathvar, const char *mode)
+{ const char *envpointer;
+  char *basename = NULL, *directory, *pathvalue = NULL;
+  FILE *fp = NULL;
+
+/*
+ *	try to open original name
+ */
+  fp = fopen(filename, mode);
+
+/* 
+ *	failing that, get path information
+ */
+  if (fp == NULL)
+  { envpointer = getenv(pathvar);
+
+/*
+ *	strip off directory name
+ */
+    if (envpointer != NULL)
+    { pathvalue = strdup(envpointer);
+      basename = strrchr(filename,'/');
+      basename = (basename != NULL) ? strdup(basename+1) : strdup(filename);
+      if (basename == NULL) return NULL;
+
+/*
+ *	try each directory in turn
+ */
+      directory = strtok(pathvalue, ": ");
+      while (directory != NULL)
+      {	strcat(strcat(strcpy(filename, directory), "/"), basename);
+	fp = fopen(filename, mode);
+	if (fp != NULL) break;
+	directory = strtok(NULL, ": ");
+      }
+    }
+  }
+  if (basename != NULL) free(basename);
+  if (pathvalue != NULL) free(pathvalue);
+
+  return fp;
 }
