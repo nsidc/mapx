@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.10 1993-11-11 16:43:17 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.11 1994-03-18 13:37:57 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -374,11 +374,11 @@ static cdb_seg_data *cdb_read_disk(cdb_class *this)
  */
 static cdb_seg_data *cdb_read_memory(cdb_class *this)
 {
-  register byte *offset;
+  register byte1 *offset;
 /*
  *	get byte offset in data buffer
  */
-  offset = (byte *)(this->data_buffer) + this->segment->addr - CDB_FILE_HEADER_SIZE;
+  offset = (byte1 *)(this->data_buffer) + this->segment->addr - CDB_FILE_HEADER_SIZE;
   return (cdb_seg_data *)offset;
 }
 
