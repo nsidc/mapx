@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1999-2004 University of Colorado
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.7 2004-01-19 00:57:22 knowlesk Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.8 2004-02-26 21:37:23 knowlesk Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -14,29 +14,31 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "grids.h"
 #include "maps.h"
 
-#define usage								   \
-"$Revision: 1.7 $\n"                                                      \
-"usage: irregrid [-wcnv -i value -k kernel"                                \
-" -p value -r value -z beta_file -o outputfile] \n"                        \
-"              from_data to.gpd \n"			                   \
-"\n"									   \
-" input : from_data - original ASCII data file (lat lon value)\n"	   \
-"         to.gpd    - new grid parameters definition file\n"		   \
-"         [to_data] - if -z option then use as initial values\n"	   \
-"\n"									   \
-" output: grid values (float) by row to stdout or optional outputfile\n"   \
-"\n"									   \
-" options:c - Cressman weighting\n"					   \
-"         w - inverse distance weighted sum\n"				   \
-"                 -p the power of the distance weight\n"                   \
-"         n - nearest neightbor weighted sum\n"				   \
-"         r - specify the search radius (units: grid cells)\n"      \
-"         i value - ignore fill value.  Output is filled with this value\n"\
-"                   If not specified, then filled with zero.\n"            \
-"         z beta_file - not yet implemented! save/restore intermediate\n"  \
-"                       results\n"                          		   \
-"         v - verbose (can be repeated)\n"				   \
-"\n"									   \
+#define usage									\
+"$Revision: 1.8 $\n"								\
+"usage: irregrid [-wcnv -i value -k kernel\n"					\
+" -p value -r value -z beta_file -o outputfile\n"				\
+" -t total_pts_file]  from_data to.gpd \n"					\
+"\n"										\
+" input : from_data - original ASCII data file (lat lon value)\n"		\
+"         to.gpd    - new grid parameters definition file\n"			\
+"         [to_data] - if -z option then use as initial values\n"		\
+"\n"										\
+" output: grid values (float) by row to stdout or optional outputfile\n"	\
+"\n"										\
+" options:c - Cressman weighting\n"						\
+"         w - inverse distance weighted sum\n"					\
+"                 -p the power of the distance weight\n"			\
+"         n - nearest neightbor weighted sum\n"					\
+"         r - specify the search radius (units: grid cells)\n"			\
+"         i value - ignore fill value.  Output is filled with this value\n"	\
+"                   If not specified, then filled with zero.\n"			\
+"         z beta_file - not yet implemented! save/restore intermediate\n"	\
+"                       results\n"						\
+"         t total_pts_file - name of file to write number of input\n"		\
+"                            data points contributing to each grid cell\n"	\
+"         v - verbose (can be repeated)\n"					\
+"\n"										\
 "\n"
 
 /*------------------------------------------------------------------------
@@ -93,16 +95,19 @@ main(int argc, char *argv[]) {
   char *option;
   char input_line[MAXLINELENGTH];
   char from_filename[FILENAME_MAX], to_filename[FILENAME_MAX];
+  char npts_filename[FILENAME_MAX];
   bool algo_specified;
   char *algo_string;
   char beta_filename[FILENAME_MAX];
-  FILE *from_file, *to_file, *beta_file;
+  FILE *from_file, *to_file, *beta_file, *npts_file;
   int lines_processed;
 
 /*
- * set defaults */
+ * set defaults
+ */
   to_file = stdout;
   beta_file = NULL;
+  npts_file = NULL;
   preload_data = FALSE;
   algo_specified = FALSE;
   weighted_average = cressman;
@@ -114,6 +119,7 @@ main(int argc, char *argv[]) {
   shell_radius = 0.;
   inv_dist_power = 2.;
   algo_string = "Cressman weighting";
+
 /* 
  *	get command line options
  */
@@ -170,6 +176,13 @@ main(int argc, char *argv[]) {
 	    beta_file = fopen(beta_filename, "w");
 	    if (!beta_file) { perror(beta_filename); error_exit(usage); }
 	  }
+	  break;
+	case 't':
+	  ++argv; --argc;
+	  strcpy(npts_filename, *argv);
+	  npts_file = fopen(npts_filename, "w");
+	  if (!npts_file) { perror(npts_filename); error_exit(usage); }
+	  break;
 	case 'i':
 	  ++argv; --argc;
 	  if (sscanf(*argv, "%f", &fill) != 1) error_exit(usage);
@@ -301,17 +314,29 @@ main(int argc, char *argv[]) {
 /*
  *	write out result
  */
-
   for (i = 0; i < to_grid->rows; i++){
     status = fwrite(to_data[i],sizeof(float),to_grid->cols,to_file);
     if (status < to_grid->cols) {
-      fprintf(stderr,"> Problem writing data to file: \t\t%s\n",
-	      to_filename);
-      exit(ABORT);
+      perror(to_filename);
+      error_exit("irregrid: error writing grid data: ABORTING\n");
     }
   }
   fclose(to_file);
   
+/*
+ *	write out total points file
+ */
+  if (npts_file) {
+    for (i = 0; i < to_grid->rows; i++){
+      status = fwrite(to_data_num_pts[i], sizeof(int), to_grid->cols, npts_file);
+      if (status < to_grid->cols) {
+	perror(npts_filename);
+	error_exit("irregrid: error writing total points data: ABORTING\n");
+      }
+    }
+    fclose(to_file);
+  }
+
   exit(EXIT_SUCCESS);
 }  /*  end of main */
 
