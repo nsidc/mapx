@@ -5,7 +5,7 @@
  *
  * 8-Jul-1992 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  *===========================================================================*/
-static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.2 1993-02-24 10:19:13 knowles Exp $";
+static const char rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.c,v 1.3 1993-03-04 16:00:54 knowles Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +84,7 @@ cdb_class *init_cdb(const char *cdb_filename,
   this->filename = (char *)realloc(this->filename, (size_t)MAX_STRING);
   if (this->filename == NULL)
   { perror("init_cdb");
-    close_cdb(this);
+    free_cdb(this);
     return NULL;
   }
   strncpy(this->filename, cdb_filename, MAX_STRING);
