@@ -4,7 +4,7 @@
  * 3/18/98 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.6 1999-08-31 20:29:32 knowles Exp $";
+static const char grid_io_c_RCSID[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.7 1999-11-19 16:57:42 knowles Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -88,7 +88,11 @@ grid_io_class *init_grid_io(int width, int height, int datum_size,
       if (!this->fp) this->fp = fopen(filename, "wb+");
       break;
     case grid_io_TEMPORARY:
-      this->fp = tmpfile();
+      filename = tempnam(".", "");
+      if (!filename) break;
+      this->fp = fopen(filename, "w+");
+      unlink(filename);
+      free(filename);
       break;
     default: 
       assert(NEVER);
