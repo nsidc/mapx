@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * mollweide
  *------------------------------------------------------------------------*/
+static const char mollweide_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mollweide.c,v 1.2 2003-06-24 22:56:37 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_mollweide(void)
+{
+  return((char *)mollweide_c_rcsid);
+}
 
 int init_mollweide(mapx_class *current)
 {
@@ -10,11 +17,12 @@ int init_mollweide(mapx_class *current)
   return 0;
 }
 
-int mollweide(mapx_class *current, float lat, float lon, float *u, float *v)
+int mollweide(mapx_class *current, double lat, double lon,
+	      double *x, double *y)
 {
-  float x, y, dlon;
+  double dlon;
   double phi, lam, theta, delta;
-  double sin_theta, cos_theta, psi, epsilon=.0025;
+  double sin_theta, cos_theta, psi, epsilon=1e-6;
   int it, maxit=10;
   
   dlon = lon - current->lon0;
@@ -42,22 +50,23 @@ int mollweide(mapx_class *current, float lat, float lon, float *u, float *v)
     cos_theta = cos(theta);
   }
   
-  x =  2*SQRT2/PI * current->Rg * lam * cos_theta;
-  y =  SQRT2 * current->Rg * sin_theta;
+  *x =  2*SQRT2/PI * current->Rg * lam * cos_theta;
+  *y =  SQRT2 * current->Rg * sin_theta;
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_mollweide (mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_mollweide (mapx_class *current, double x, double y,
+		       double *lat, double *lon)
 {
-  double phi, lam, theta, cos_theta, x, y;
+  double phi, lam, theta, cos_theta;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   theta = asin( y / (SQRT2*current->Rg) );
   phi = asin( (2*theta + sin(2*theta)) / PI);
   cos_theta = cos(theta);
