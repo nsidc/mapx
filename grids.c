@@ -4,7 +4,7 @@
  * 26-Dec-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.13 1996-03-20 20:42:14 knowles Exp $";
+static const char grids_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.c,v 1.14 1999-03-22 17:44:02 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -199,21 +199,32 @@ main(int argc, char* argv[])
 {
   float lat, lon, r, s;
   int status;
-  char readln[80];
+  char readln[FILENAME_MAX];
   grid_class *the_grid = NULL;
 
   for (;;)
-  { printf("\nenter .gpd file name - ");
-    gets(readln);
-    if (feof(stdin)) { printf("\n"); exit(0);}
-    if (*readln == '\0') break;
+  { 
+    if (argc > 1) {
+      --argc; ++argv;
+      strcpy(readln, *argv);
+    }
+    else {
+      printf("\nenter .gpd file name: ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+    }
+
     close_grid(the_grid);
     the_grid = init_grid(readln);
     if (the_grid == NULL) continue;
 
+    printf("\ngpd: %s\n", the_grid->gpd_filename);
+    printf("mpp:%s\n", the_grid->mapx->mpp_filename);
+
     printf("\nforward_grid:\n");
     for (;;)
-    { printf("enter lat lon - ");
+    { printf("enter lat lon: ");
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
@@ -226,7 +237,7 @@ main(int argc, char* argv[])
 
     printf("\ninverse_grid:\n");
     for (;;)
-    { printf("enter r s - ");
+    { printf("enter r s: ");
       gets(readln);
       if (feof(stdin)) { printf("\n"); exit(0);}
       if (*readln == '\0') break;
