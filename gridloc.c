@@ -4,7 +4,7 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.5 2001-06-26 17:02:03 knowles Exp $";
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.6 2002-01-08 21:30:37 knowles Exp $";
 
 #include <stdio.h>
 #include <math.h>
@@ -35,7 +35,7 @@ static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 
 
 #define UNDEFINED -999
 
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   register int i, j, k;
   int band[2], nbands;
@@ -158,4 +158,5 @@ main (int argc, char *argv[])
   if (verbose) fprintf(stderr,"> wrote %d bytes to %s\n", 
 		       total_bytes, output_filename);
 
+    exit(EXIT_SUCCESS);
 }
