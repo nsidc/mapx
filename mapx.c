@@ -1071,3 +1071,170 @@ char *change(char *s)
   return new_projection;
 }
 
+#ifdef MTEST
+/*========================================================================
+ * mtest - interactive test for mapx routines
+ *========================================================================*/
+main(int argc, char *argv[])
+{
+  float lat, lon, u, v;
+  char readln[80];
+  mapx_class *the_map;
+  int status;
+
+  for (;;)
+  { printf("\nenter .mpp file name - ");
+    gets(readln);
+    if (feof(stdin)) { printf("\n"); exit(0);}
+    if (*readln == '\0') break;
+    the_map = init_mapx(readln);
+    if (the_map == NULL) continue;
+    
+    printf("\nforward_mapx:\n");
+    for (;;)
+    { printf("enter lat lon - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%f %f", &lat, &lon);
+      status = forward_mapx(the_map, lat, lon, &u, &v);
+      printf("u,v = %f %f    %s\n", u, v, 
+	     status == 0 ? "valid" : "invalid");
+      status = inverse_mapx(the_map, u, v, &lat, &lon);
+      printf("lat,lon = %f %f     %s\n", lat, lon, 
+	     status == 0 ? "valid" : "invalid");
+    }
+
+    printf("\ninverse_mapx:\n");
+    for (;;)
+    { int temp;
+      printf("enter u v - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%f %f", &u, &v);
+      status = inverse_mapx(the_map, u, v, &lat, &lon);
+      printf("lat,lon = %f %f    %s\n", lat, lon, 
+	     status == 0 ? "valid" : "invalid");
+      status = forward_mapx(the_map, lat, lon, &u, &v);
+      printf("u,v = %f %f    %s\n", u, v, 
+	     status == 0 ? "valid" : "invalid");
+    }
+    printf("\nwithin_mapx:\n");
+    for (;;)
+    { printf("enter lat lon - ");
+      gets(readln);
+      if (feof(stdin)) { printf("\n"); exit(0);}
+      if (*readln == '\0') break;
+      sscanf(readln, "%f %f", &lat, &lon);
+      printf("%s\n", within_mapx(the_map, lat, lon) ? "INSIDE" : "OUTSIDE");
+    }
+    
+    close_mapx(the_map);
+  }
+}
+#endif
+
+#ifdef MACCT
+#define usage "usage: macct mpp_file"
+/*========================================================================
+ * macct - accuracy test mapx routines
+ *========================================================================*/
+#define MPMON
+static float dist_km(float lat1, float lon1, float lat2, float lon2)
+{ register float phi1, lam1, phi2, lam2, beta;
+  phi1 = radians(lat1);
+  lam1 = radians(lon1);
+  phi2 = radians(lat2);
+  lam2 = radians(lon2);
+  beta = acos(cos(phi1)*cos(phi2)*cos(lam1-lam2) + sin(phi1)*sin(phi2));
+  return beta*Re;
+}
+#endif
+
+#ifdef MPMON
+#ifndef usage
+#define usage "usage: mpmon mpp_file [num_its]"
+#endif
+/*========================================================================
+ * mpmon - performance test mapx routines
+ *========================================================================*/
+main(int argc, char *argv[])
+{
+  register int i_lat, i_lon, npts = 0, bad_pts = 0;
+  int status1, status2;
+  int ii, its = 1, pts_lat = 319, pts_lon = 319;
+  register float lat, lon, dlat, dlon;
+  float latx, lonx, u, v;
+  mapx_class *the_map;
+#ifdef MACCT
+  float err=0, sum=0, sum2=0, stdv=0, max_err=0, lat_max=0, lon_max=0;
+#endif
+
+  if (argc < 2) 
+#ifdef MACCT
+  { fprintf(stderr,"#\tmacct can be used to test the accuracy\n");
+    fprintf(stderr,"#\tof the mapx routines. It runs the forward and\n");
+    fprintf(stderr,"#\tinverse transforms at ~100K points over the whole\n");
+    fprintf(stderr,"#\tmap. Error statistics are accumulated in kilometers.\n");
+    fprintf(stderr,"#\To run the test type:\n");
+    fprintf(stderr,"#\t\tmacct test.mpp\n");
+    fprintf(stderr,"\n");
+    error_exit(usage);
+  }
+#else
+  { fprintf(stderr,"#\tmpmon can be used to monitor the performance\n");
+    fprintf(stderr,"#\tof the mapx routines. It runs the forward and\n");
+    fprintf(stderr,"#\tinverse transforms at ~100K points over the whole\n");
+    fprintf(stderr,"#\tmap. The optional parameter num_its specifies how\n");
+    fprintf(stderr,"#\tmany times to run through the entire map, (the\n");
+    fprintf(stderr,"#\tdefault is 1). To run the test type:\n");
+    fprintf(stderr,"#\t\tmpmon test.mpp\n");
+    fprintf(stderr,"#\t\tprof mpmon\n");
+    fprintf(stderr,"\n");
+    error_exit(usage);
+  }
+#endif
+
+  the_map = init_mapx(argv[1]);
+  if (the_map == NULL) error_exit(usage);
+  if (argc < 3 || sscanf(argv[2],"%d",&its) != 1) its = 1;
+
+  dlat = the_map->north - the_map->south;
+  dlon = the_map->east - the_map->west;
+
+  for (ii = 1; ii <= its; ii++)
+  { for (i_lat = 0; i_lat <= pts_lat; i_lat++)
+    { lat = (float)i_lat/pts_lat * dlat + the_map->south;
+      for (i_lon = 0; i_lon <= pts_lon; i_lon++)
+      { lon = (float)i_lon/pts_lon * dlon + the_map->west;
+	status1 = forward_mapx(the_map, lat, lon, &u, &v);
+	status2 = inverse_mapx(the_map, u, v, &latx, &lonx);
+	if ((status1 | status2) != 0) ++bad_pts;
+	++npts;
+#ifdef MACCT
+	if ((status1 | status2) == 0)
+	{ err = dist_km(lat, lon, latx, lonx);
+	  if (err > 0) { sum += err; sum2 += err*err; }
+	  if (err > max_err) { max_err=err; lat_max=lat; lon_max=lon; }
+	}
+#endif
+      }
+    }
+  }
+  fprintf(stderr,"%d points,  %d bad points\n", npts, bad_pts);
+#ifdef MACCT
+  npts -= bad_pts;
+  if (npts > 0)
+  { err = sum/npts;
+    stdv = sqrt((sum2 - npts*err*err)/(npts-1));
+  }
+  fprintf(stderr,"average error = %10.4e km\n", err);
+  fprintf(stderr,"std dev error = %10.4e km\n", stdv);
+  fprintf(stderr,"maximum error = %10.4e km\n", max_err);
+  fprintf(stderr,"max error was at %4.2f%c %4.2f%c\n",
+	  fabs(lat_max), lat_max >= 0 ? 'N' : 'S',
+	  fabs(lon_max), lon_max >= 0 ? 'E' : 'W');
+#endif
+}
+#endif
