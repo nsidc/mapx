@@ -4,7 +4,7 @@
 # 11-Feb-1993 K.Knowles 303-492-0644  knowles@sastrugi.colorado.edu
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.22 1994-05-09 14:16:47 knowles Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.23 1994-05-09 14:18:38 knowles Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -54,7 +54,7 @@ SYSLIBS = -lm
 #------------------------------------------------------------------------
 
 CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
-LIBS = -L$(LIBDIR) -lmaps $(SYSLIBS)
+LIBS = -L$(LIBDIR) -lmaps -lmodels $(SYSLIBS)
 
 SRCS = mapx.c grids.c cdb.c maps.c
 HDRS = mapx.h grids.h cdb.h maps.h cdb_byteswap.h
