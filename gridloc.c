@@ -4,6 +4,8 @@
  * 20-Sep-1995 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
+static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.2 1995-09-20 20:11:00 knowles Exp $";
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -13,36 +15,42 @@
 #include "grids.h"
 
 #define usage \
-"usage: gridloc [-q -o output_name] file.gpd\n"\
+"usage: gridloc [-o output_name -p -m -q] file.gpd\n"\
 "\n"\
 " input : file.gpd  - grid parameters definition file\n"\
 "\n"\
-" output: grid of signed decimal latitudes by row\n"\
-"         followed by grid of longitudes \n"\
-"         4 byte integers scaled by 100000\n"\
+" output: grid of signed decimal latitudes and/or longitudes\n"\
+"         4 byte integers * 100000 by row\n"\
 "\n"\
-" option: o - write data to file output_name.WIDTHxHEIGHTx2.int4\n"\
+" option: o - write data to file output_name.WIDTHxHEIGHTxNBANDS.int4\n"\
 "             otherwise output goes to stdout\n"\
-"         q - quiet (default = verbose)\n"\
+"         p - do latitudes only\n"\
+"         m - do longitudes only\n"\
+"         pm - do latitudes followed by longitudes\n"\
+"         mp - do longitudes followed by latitudes (default)\n"\
+"         q - quiet\n"\
 "\n"
 
-#define LAT_SCALE 100000
-#define LON_SCALE 100000
+#define SCALE_FACTOR 100000
 #define UNDEFINED 'U'
 
 main (int argc, char *argv[])
 {
-  register int i, j;
-  int nbytes, row_bytes, status, total_bytes, verbose;
-  float lat, lon;
+  register int i, j, k;
+  int band[2], nbands;
+  int nbytes, row_bytes, status, total_bytes;
+  int verbose;
+  float datum[2];
   int4 *data;
   char *option, *output_name, output_filename[MAX_STRING];
+  static char *datum_name[2] = {"latitude", "longitude"};
   FILE *output_file;
   grid_class *grid_def;
 
 /*
  *	set defaults
  */
+  nbands = 0;
   verbose = TRUE;
   output_name = NULL;
 
@@ -54,6 +62,18 @@ main (int argc, char *argv[])
     { switch (*option)
       { case 'q':
 	  verbose = FALSE;
+	  break;
+	case 'm':
+	  if (nbands < 2)
+	  { band[nbands] = 1;
+	    nbands++;
+	  }
+	  break;
+	case 'p':
+	  if (nbands < 2)
+	  { band[nbands] = 0;
+	    nbands++;
+	  }
 	  break;
 	case 'o':
 	  ++argv; --argc;
@@ -67,6 +87,12 @@ main (int argc, char *argv[])
     }
   }
 
+  if (0 == nbands)
+  { band[0] = 1;
+    band[1] = 0;
+    nbands = 2;
+  }
+
 /*
  *	get command line arguments
  */
@@ -77,8 +103,8 @@ main (int argc, char *argv[])
   if (verbose) fprintf(stderr,"> using %s...\n", grid_def->gpd_filename);
 
   if (NULL != output_name)
-  { sprintf(output_filename, "%s.%dx%dx2.int4", 
-	    output_name, grid_def->cols, grid_def->rows);
+  { sprintf(output_filename, "%s.%dx%dx%d.int4", 
+	    output_name, grid_def->cols, grid_def->rows, nbands);
     output_file = fopen(output_filename, "w");
     if (NULL == output_file) { perror(output_filename); error_exit(usage); }
   }
@@ -90,45 +116,29 @@ main (int argc, char *argv[])
 /*
  *	allocate storage for data grids
  */
-  if (verbose) fprintf(stderr,"> allocating data matrices...\n");
-
   data = (int4 *)calloc(grid_def->cols, sizeof(int4));
   if (NULL == data) { perror("data"); exit(ABORT); }
   row_bytes = grid_def->cols * sizeof(int4);
   total_bytes = 0;
 
 /*
- *	latitudes
+ *	write data 
  */
-  if (verbose) fprintf(stderr,"> writing latitudes...\n");
-  for (i = 0; i < grid_def->rows; i++) 
-  { memset(data, UNDEFINED, row_bytes);
-    for (j = 0; j < grid_def->cols; j++)
-    { status = inverse_grid(grid_def, (float)j, (float)i, &lat, &lon);
-      if (!status) continue;
-      data[j] = (int4)(lat * LAT_SCALE);
+  for (k = 0; k < nbands; k++)
+  { if (verbose) fprintf(stderr,"> writing %s data...\n", datum_name[band[k]]);
+    for (i = 0; i < grid_def->rows; i++) 
+    { memset(data, UNDEFINED, row_bytes);
+      for (j = 0; j < grid_def->cols; j++)
+      { status = inverse_grid(grid_def, (float)j, (float)i, 
+			      &(datum[0]), &(datum[1]));
+	if (!status) continue;
+	data[j] = (int4)(datum[band[k]] * SCALE_FACTOR);
+      }
+      nbytes = fwrite(data, 1, row_bytes, output_file);
+      if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
+      total_bytes += nbytes;
     }
-    nbytes = fwrite(data, 1, row_bytes, output_file);
-    if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
-    total_bytes += nbytes;
   }
-
-/*
- *	longitudes
- */
-  if (verbose) fprintf(stderr,"> writing longitudes...\n");
-  for (i = 0; i < grid_def->rows; i++) 
-  { memset(data, UNDEFINED, row_bytes);
-    for (j = 0; j < grid_def->cols; j++)
-    { status = inverse_grid(grid_def, (float)j, (float)i, &lat, &lon);
-      if (!status) continue;
-      data[j] = (int4)(lon * LON_SCALE);
-    }
-    nbytes = fwrite(data, 1, row_bytes, output_file);
-    if (nbytes != row_bytes) { perror (output_filename); exit(ABORT); }
-    total_bytes += nbytes;
-  }
-
   if (verbose) fprintf(stderr,"> wrote %d bytes to %s\n", 
 		       total_bytes, output_filename);
 
