@@ -1,0 +1,31 @@
+# file: sgi_NPs.mpp
+# Unit Test
+# Polar Stereographic Northern Hemisphere
+#
+Polar Stereographic Ellipsoid
+90.0 -45.0 70.0 lat0 lon0 lat1
+0.0             rotation
+100.0           scale (km/map unit)
+90.00   135.00  center lat lon
+20.00   90.00   lat min max
+-180.00 180.00  lon min max
+ 10.00 15.00    grid
+00.00   00.00   label lat lon
+1 0 0           cil bdy riv
+6378.273        Earth equatorial radius (km)
+0.081816153     eccentricity
+#
+# macct
+#   102400 points,  320 bad points
+#   average error = 1.8249e-05 km
+#   std dev error = 3.9198e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 20.00N 180.00W
+#
+# xytest forward
+#   lat,lon = 75.0 -150.0
+#   x,y = -15.7823969 4.2288805 
+#
+# xytest inverse
+#   x,y = -15.7823969 4.2288805
+#   lat,lon = 75.0000000 -150.0000000 

@@ -1,0 +1,23 @@
+# file: sgi_Sa25.gpd
+# Unit Test
+# EASE-Grid Southern Hemisphere AVHRR 25 km
+#
+sgi/sgi_S200correct.mpp map projection parameters   # AVHRR 25km EASE-Grid
+321 321         columns rows                            # Southern Hemisphere
+8               grid cells per map unit                 # 25 km
+160.0 160.0     map origin column,row                   #
+#
+# gacct
+#   103041 points,  0 bad points
+#   average error = 5.5795e-14 pixels
+#   std dev error = 4.9627e-14 pixels
+#   maximum error = 1.8190e-12 pixels
+#   max error was at col: 158  row: 160   lat: -89.549140  lon: -90.000000
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = 193.1748799 217.4605775 
+#
+# crtest inverse
+#   col,row = 193.1748799 217.4605775
+#   lat,lon = -75.0000000 150.0000000 

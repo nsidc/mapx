@@ -1,0 +1,45 @@
+# file: sgi_azimuthal_equal_area_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Lambert Azimuthal Equal-Area Ellipsoid "Oblique Aspect" pp. 333-336
+#
+Map Projection:                 Azimuthal Equal-Area Ellipsoid
+Map Equatorial Radius:          6378206.4
+Map Eccentricity:               0.0822719
+Map Reference Latitude:         40.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        15000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 1.6009e-05 km
+#   std dev error = 3.6971e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 73.07S 35.55E
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 2.5808e-12 pixels
+#   std dev error = 1.1649e-11 pixels
+#   maximum error = 7.7210e-11 pixels
+#   max error was at col: 6  row: 277   lat: 20.636187  lon: -120.564130
+#
+# xytest forward
+#   lat,lon = 30.0 -110.0
+#   x,y = -965932.1111240 -1056814.9225207  .vs -965932.1       -1056814.9 in snyder
+#
+# xytest inverse
+#   x,y = -965932.1 -1056814.9
+#   lat,lon = 30.0000002 -109.9999999  .vs 30.0000002 -109.9999999 in snyder
+#
+# crtest forward
+#   lat,lon = 30.0 -110.0
+#   col,row = 85.1045259 219.9543282 
+#
+# crtest inverse
+#   col,row = 85.1045259 219.9543282
+#   lat,lon = 30.0000000 -110.0000000 

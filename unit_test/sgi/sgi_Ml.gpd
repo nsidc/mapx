@@ -1,0 +1,32 @@
+# file: sgi_Ml25.gpd
+# Unit Test
+# EASE-Grid Global
+#
+sgi/sgi_M200correct.mpp map projection parameters   # EASE-Grid
+1383 586        columns rows                            # Modified Mercator
+8               grid cells per map unit                 # 25 km
+691.0 292.5     map origin column,row                   #
+#
+# gacct
+#   810438 points,  0 bad points
+#   average error = 1.1267e-14 pixels
+#   std dev error = 2.7274e-14 pixels
+#   maximum error = 2.3437e-13 pixels
+#   max error was at col: 1186  row: 8   lat: 75.788472  lon: 128.850322
+#
+# crtest forward
+#   lat,lon = 75.0 -150.0
+#   col,row = 114.7499865 9.0184252 
+#
+# crtest inverse
+#   col,row = 114.7499865 9.0184252
+#   lat,lon = 75.0000000 -150.0000000 
+#
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = 1267.2500135 575.9815748 
+#
+# crtest inverse
+#   col,row = 1267.2500135 575.9815748
+#   lat,lon = -75.0000000 150.0000000 

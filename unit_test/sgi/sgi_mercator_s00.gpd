@@ -1,0 +1,44 @@
+# file: sgi_mercator_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Mercator Sphere pp. 266-267
+#
+Map Projection:                 Mercator
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -180.0
+Grid Width:                     500
+Grid Height:                    200
+Grid Cells Per Map Unit:        100
+Grid Map Origin Column:         249.5
+Grid Map Origin Row:            99.5
+#
+# macct
+#   102400 points,  320 bad points
+#   average error = 1.5990e-05 km
+#   std dev error = 3.7568e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 47.12S 180.00W
+#
+# gacct
+#   100000 points,  0 bad points
+#   average error = 2.7751e-14 pixels
+#   std dev error = 2.2851e-14 pixels
+#   maximum error = 1.1099e-13 pixels
+#   max error was at col: 10  row: 12   lat: 44.741197  lon: 42.776608
+#
+# xytest forward
+#   lat,lon = 35.0 -75.0
+#   x,y = 1.8325957 0.6528366  .vs 1.8325957 0.6528366 in snyder
+#
+# xytest inverse
+#   x,y = 1.8325957 0.6528366
+#   lat,lon = 35.0000010 -75.0000008  .vs 35.0000000 -75.0000000 in snyder
+#
+# crtest forward
+#   lat,lon = 35.0 -75.0
+#   col,row = 432.7595715 34.2163420 
+#
+# crtest inverse
+#   col,row = 432.7595715 34.2163420
+#   lat,lon = 35.0000000 -75.0000000 

@@ -1,0 +1,47 @@
+# file: sgi_homolosine_s00.gpd
+# Unit Test
+# MODLAND Tile Calculator
+# http://modland.nascom.nasa.gov/developers/tilemap/tilemap.cgi
+# Goodes Homolosine
+# Pixel size                      1km
+# Mapping type                    Global map coordinates
+#
+Map Projection:                 Interrupted Homolosine
+Map Equatorial Radius:          6370997.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        0.0
+Grid Width:                     500
+Grid Height:                    200
+Grid Map Units Per Cell:        5000
+Grid Map Origin Column:         2599.5
+Grid Map Origin Row:            999.5
+#
+# macct
+#   102400 points,  64 bad points
+#   average error = 1.6828e-05 km
+#   std dev error = 3.8248e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 55.58S 180.00W
+#
+# gacct
+#   100000 points,  0 bad points
+#   average error = 1.6829e-13 pixels
+#   std dev error = 1.9267e-13 pixels
+#   maximum error = 7.2795e-13 pixels
+#   max error was at col: 0  row: 45   lat: 42.933999  lon: -122.774613
+#
+# xytest forward
+#   lat,lon = 40.0 -105.0
+#   x,y = -11545388.5062071 4447794.9713872  .vs -11545388.51      4447794.97 in tilecalc
+#
+# xytest inverse
+#   x,y = -11545388.51 4447794.97
+#   lat,lon = 40.0000000 -105.0000000  .vs 40.000000  -105.000000 in tilecalc
+#
+# crtest forward
+#   lat,lon = 40.0 -105.0
+#   col,row = 290.4222988 109.9410057 
+#
+# crtest inverse
+#   col,row = 290.4222988 109.9410057
+#   lat,lon = 40.0000000 -105.0000000 

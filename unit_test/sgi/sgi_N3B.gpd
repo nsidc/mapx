@@ -1,0 +1,23 @@
+# file: sgi_N3B.gpd
+# Unit Test
+# Polar Stereographic Northern Hemisphere SSM/I 25 km
+#
+sgi/sgi_Nps.mpp map projection parameters   # SSM/I Brightness Temp Grids
+304 448         columns rows                    # North Polar Region
+4               grid cells per map unit         # 25km
+153.5 233.5     map origin column, row          #
+#
+# gacct
+#   136192 points,  0 bad points
+#   average error = 4.8710e-11 pixels
+#   std dev error = 4.4944e-11 pixels
+#   maximum error = 1.5894e-10 pixels
+#   max error was at col: 265  row: 21   lat: 38.297060  lon: 107.313739
+#
+# crtest forward
+#   lat,lon = 75.0 -150.0
+#   col,row = 90.3704126 216.5844780 
+#
+# crtest inverse
+#   col,row = 90.3704126 216.5844780
+#   lat,lon = 75.0000000 -150.0000000 

@@ -1,0 +1,23 @@
+# file: sgi_S3B.gpd
+# Unit Test
+# Polar Stereographic Southern Hemisphere SSM/I 25 km
+#
+sgi/sgi_Sps.mpp map projection parameters   # SSM/I Brightness Temp Grids
+316 332         columns rows                    # South Polar Region
+4               grid cells per map unit         # 25km
+157.5 173.5     map origin column, row          #
+#
+# gacct
+#   104912 points,  0 bad points
+#   average error = 2.9461e-11 pixels
+#   std dev error = 2.1951e-11 pixels
+#   maximum error = 1.5690e-10 pixels
+#   max error was at col: 0  row: 0   lat: -39.364869  lon: -42.232570
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = 190.1782791 230.1004397 
+#
+# crtest inverse
+#   col,row = 190.1782791 230.1004397
+#   lat,lon = -75.0000000 150.0000000 

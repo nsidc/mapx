@@ -1,0 +1,44 @@
+# file: sgi_orthographic_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Orthographic Sphere pp. 311-312
+#
+Map Projection:                 Orthographic
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         40.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Cells Per Map Unit:        500
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   102400 points,  51177 bad points
+#   average error = 1.4313e-05 km
+#   std dev error = 3.5727e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 47.12S 112.29W
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 5.7187e-14 pixels
+#   std dev error = 3.6136e-14 pixels
+#   maximum error = 2.9296e-13 pixels
+#   max error was at col: 28  row: 8   lat: 54.408386  lon: -124.678298
+#
+# xytest forward
+#   lat,lon = 30.0 -110.0
+#   x,y = -0.1503837 -0.1651911  .vs -0.1503837 -0.1651911 in snyder
+#
+# xytest inverse
+#   x,y = -0.1503837 -0.1651911
+#   lat,lon = 30.0000004 -109.9999978  .vs 30.0000007 -109.9999964 in snyder
+#
+# crtest forward
+#   lat,lon = 30.0 -110.0
+#   col,row = 74.3081334 232.0955517 
+#
+# crtest inverse
+#   col,row = 74.3081334 232.0955517
+#   lat,lon = 30.0000000 -110.0000000 

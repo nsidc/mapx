@@ -1,0 +1,47 @@
+# file: sgi_lambert_conic_conformal_e00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Lambert Conformal Conic Ellipsoid pp. 296-298
+#
+Map Projection:                 Lambert Conic Conformal Ellipsoid
+Map Equatorial Radius:          6378206.4
+Map Eccentricity:               0.0822719
+Map Reference Latitude:         33.0
+Map Second Reference Latitude:  45.0
+Map Origin Latitude:            23.0
+Map Reference Longitude:        -96.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Map Units per Cell:        15000
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   102400 points,  640 bad points
+#   average error = 1.6946e-05 km
+#   std dev error = 3.7444e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 56.71S 89.72W
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 1.5554e-07 pixels
+#   std dev error = 4.2155e-08 pixels
+#   maximum error = 2.0647e-07 pixels
+#   max error was at col: 118  row: 174   lat: 19.712341  lon: -100.297709
+#
+# xytest forward
+#   lat,lon = 35.0 -75.0
+#   x,y = 1894410.9007363 1564649.4720957  .vs 1894410.9       1564649.5 in snyder
+#
+# xytest inverse
+#   x,y = 1894410.9 1564649.5
+#   lat,lon = 35.0000002 -74.9999999  .vs 35.0000006 -75.0000013 in snyder
+#
+# crtest forward
+#   lat,lon = 35.0 -75.0
+#   col,row = 275.7940600 45.1900352 
+#
+# crtest inverse
+#   col,row = 275.7940600 45.1900352
+#   lat,lon = 35.0000000 -75.0000000 

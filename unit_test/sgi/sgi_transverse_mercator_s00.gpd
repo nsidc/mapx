@@ -1,0 +1,45 @@
+# file: sgi_transverse_mercator_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Transverse Mercator Sphere pp. 268-269
+#
+Map Projection:                 Transverse Mercator
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -75.0
+Map Center Scale:               1.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Cells Per Map Unit:        60
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 1.5377e-05 km
+#   std dev error = 3.7148e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 73.07S 94.23E
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 1.1298e-13 pixels
+#   std dev error = 6.4505e-13 pixels
+#   maximum error = 3.9536e-11 pixels
+#   max error was at col: 292  row: 149   lat: 0.088059  lon: 4.372265
+#
+# xytest forward
+#   lat,lon = 40.5 -73.5
+#   x,y = 0.0199077 0.7070276  .vs 0.0199077 0.7070276 in snyder
+#
+# xytest inverse
+#   x,y = 0.0199077 0.7070276
+#   lat,lon = 40.4999995 -73.5000028  .vs 40.4999995 -73.5000039 in snyder
+#
+# crtest forward
+#   lat,lon = 40.5 -73.5
+#   col,row = 150.6944642 107.0783435 
+#
+# crtest inverse
+#   col,row = 150.6944642 107.0783435
+#   lat,lon = 40.5000000 -73.5000000 

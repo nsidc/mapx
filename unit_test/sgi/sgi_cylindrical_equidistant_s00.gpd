@@ -1,0 +1,43 @@
+# file: sgi_cylindrical_equidistant_s00.gpd
+# Unit Test
+# Cylindrical Equidistant
+#
+Map Projection:                 Cylindrical Equidistant
+Map Equatorial Radius:          57.2957795130823
+Map Reference Latitude:         0.0
+Map Reference Longitude:        0.0
+Grid Width:                     360
+Grid Height:                    180
+Grid Map Units per Cell:        1.0
+Grid Map Origin Column:         179.5
+Grid Map Origin Row:            89.5
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 1.5766e-05 km
+#   std dev error = 3.7594e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 73.07S 180.00W
+#
+# gacct
+#   64800 points,  0 bad points
+#   average error = 2.4006e-15 pixels
+#   std dev error = 6.3654e-15 pixels
+#   maximum error = 3.1776e-14 pixels
+#   max error was at col: 5  row: 0   lat: 89.500000  lon: -174.500000
+#
+# xytest forward
+#   lat,lon = -50.0 -75.0
+#   x,y = -75.0000000 -50.0000000  .vs -75.0000000 -50.0000000 in other
+#
+# xytest inverse
+#   x,y = -75.0 -50.0
+#   lat,lon = -50.0000000 -75.0000000  .vs -50.0000000 -75.0000000 in other
+#
+# crtest forward
+#   lat,lon = -50.0 -75.0
+#   col,row = 104.5000000 139.5000000 
+#
+# crtest inverse
+#   col,row = 104.5000000 139.5000000
+#   lat,lon = -50.0000000 -75.0000000 

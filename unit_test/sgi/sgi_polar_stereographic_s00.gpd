@@ -1,0 +1,49 @@
+# file: snyder_polar_stereographic_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A Numerical Examples
+# Stereographic Sphere "Polar Aspect" with known phi-subc not at the
+# pole
+# Adapted from
+# Stereographic Ellipsoid "Polar Aspect" with known phi-subc not at the
+# pole pp. 315-319
+#
+Map Projection:                 Polar Stereographic
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         -90.0
+Map Second Reference Latitude:  -71.0
+Map Reference Longitude:        -100.0
+Grid Width:                     300
+Grid Height:                    300
+Grid Cells Per Map Unit:        500
+Grid Map Origin Column:         149.5
+Grid Map Origin Row:            149.5
+#
+# macct
+#   102400 points,  320 bad points
+#   average error = 1.4752e-05 km
+#   std dev error = 3.6944e-05 km
+#   maximum error = 1.3426e-04 km
+#   max error was at 71.94S 180.00W
+#
+# gacct
+#   90000 points,  0 bad points
+#   average error = 1.4084e-13 pixels
+#   std dev error = 1.8401e-13 pixels
+#   maximum error = 1.7444e-11 pixels
+#   max error was at col: 149  row: 149   lat: -89.916702  lon: -145.000000
+#
+# xytest forward
+#   lat,lon = -75.0 150.0
+#   x,y = -0.2406857 -0.0876024  .vs -0.2406857 -0.0876024 in other
+#
+# xytest inverse
+#   x,y = -0.2406857 -0.0876024
+#   lat,lon = -75.0000010 150.0000064  .vs -75.0000010 150.0000064 in other
+#
+# crtest forward
+#   lat,lon = -75.0 150.0
+#   col,row = 29.1571465 193.3012166 
+#
+# crtest inverse
+#   col,row = 29.1571465 193.3012166
+#   lat,lon = -75.0000000 150.0000000 
