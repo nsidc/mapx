@@ -4,7 +4,7 @@
  * 23-Oct-1996 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
-static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.3 1996-10-25 21:44:04 knowles Exp $";
+static const char keyval_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/keyval.c,v 1.4 1996-10-25 22:00:39 knowles Exp $";
 
 #include <ctype.h>
 #include "define.h"
@@ -245,7 +245,8 @@ int boolean_keyval(const char *field_ptr, bool *value)
  *
  *	input : field_ptr - pointer to buffer
  *		designators - string of possible hemisphere designators
- *			for example "EWew" to extract a longitude
+ *			"EWew" to extract a longitude
+ *			"NSns" to extract a latitude
  *
  *	output: value - latitude or longitude in decimal degrees
  *
@@ -257,30 +258,41 @@ int boolean_keyval(const char *field_ptr, bool *value)
 int lat_lon_keyval(const char *field_ptr, const char *designators, 
 		   float *value)
 { const char *end, *pos;
-  char hemi, number[80];
+  char hemi, number[MAX_STRING];
   int len;
 
-  end = strchr(field_ptr, '\n');
-  if (NULL == end) end = field_ptr + strlen(field_ptr);
+/*
+ *	find designator in field and get hemisphere
+ */
+  end = field_ptr + strlen(field_ptr);
 
   pos = strpbrk(field_ptr, designators);
   if (NULL == pos || pos > end) return 0;
 
   hemi = toupper(*pos);
 
+/*
+ *	work backwards to start of numeric value
+ */
   while (pos > field_ptr && isspace(*--pos));
 
   while (pos > field_ptr && NULL != strchr("0123456789.+-", *--pos));
 
   if (NULL == strchr("0123456789.+-", *pos)) ++pos;
 
+/*
+ *	extract numerical value
+ */
   len = strspn(pos, "0123456789.+-");
-  if (len <= 0) return 0;
+  if (len <= 0 || len >= MAX_STRING) return 0;
   strncpy(number, pos, len);
   number[len] = '\0';
 
   if (sscanf(number, "%f", value) != 1) return 0;
 
+/*
+ *	change sign for "negative" hemispheres
+ */
   if ('W' == hemi || 'S' == hemi) *value = -(*value);
 
   return 1;
