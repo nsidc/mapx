@@ -4,7 +4,7 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.15 2002-01-08 21:30:52 knowles Exp $";
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.16 2003-06-24 23:02:49 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -13,7 +13,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.15 $\n"                                                             \
+"$Revision: 1.16 $\n"                                                             \
 "usage: regrid [-fwubslv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \
@@ -88,6 +88,11 @@ int cubiccon(grid_class *, float **, grid_class *, float **, float **);
 
 #define ROUND(x) ((x) < 0 ? (int)((x)-.5) : (int)((x)+.5))
 #define FLOAT(x) ((float)(x))
+
+char *id_regrid(void)
+{
+  return((char *)regrid_c_rcsid);
+}
 
 /*------------------------------------------------------------------------
  * read_grid_data - read file data into float matrix
@@ -478,7 +483,7 @@ int main(int argc, char *argv[])
 int inv_dist(grid_class *from_grid, float **from_data, 
 	     grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   double dr, ds, d2, dw, weight;
   int npts=0, status;
 
@@ -500,14 +505,14 @@ int inv_dist(grid_class *from_grid, float **from_data,
 /*
  *	project from_grid location into to_grid
  */
-      status = inverse_grid(from_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(from_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       status = forward_grid(to_grid, lat, lon, &r, &s);
       if (!status || !within_mapx(to_grid->mapx, lat, lon)) continue;
 
       if (verbose >= 3 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	fprintf(stderr,">>> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	fprintf(stderr,">>> %4d %4d --> %7.2lf %7.2lf --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
 /*
@@ -550,7 +555,7 @@ int inv_dist(grid_class *from_grid, float **from_data,
 int ditb_avg(grid_class *from_grid, float **from_data, 
 	     grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   int npts=0, status;
 
   if (verbose) fprintf(stderr,"> drop-in-the-bucket averaging\n");
@@ -569,14 +574,14 @@ int ditb_avg(grid_class *from_grid, float **from_data,
 /*
  *	project from_grid location into to_grid
  */
-      status = inverse_grid(from_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(from_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       status = forward_grid(to_grid, lat, lon, &r, &s);
       if (!status) continue;
 
       if (verbose >= 3 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	fprintf(stderr,">>> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	fprintf(stderr,">>> %4d %4d --> %7.2lf %7.2lf --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
 /*
@@ -619,7 +624,7 @@ int ditb_avg(grid_class *from_grid, float **from_data,
 int bilinear(grid_class *from_grid, float **from_data, 
 	      grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   double dr, ds, weight;
   int npts=0, status;
 
@@ -631,14 +636,14 @@ int bilinear(grid_class *from_grid, float **from_data,
   for (i = 0; i < to_grid->rows; i++) 
   { for (j = 0; j < to_grid->cols; j++)
     {
-      status = inverse_grid(to_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(to_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       status = forward_grid(from_grid, lat, lon, &r, &s);
       if (!status) continue;
 
       if (verbose >= 3 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	fprintf(stderr,">>> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	fprintf(stderr,">>> %4d %4d --> %7.2lf %7.2lf --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
       for (row=(int)s; row <= (int)s + 1; row++)
@@ -677,8 +682,8 @@ int bilinear(grid_class *from_grid, float **from_data,
 int nearestn(grid_class *from_grid, float **from_data, 
 	     grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
-  float lat, lon, r, s;
-  float dd, dr, ds;
+  double lat, lon, r, s;
+  double dd, dr, ds;
   int npts=0, status;
 
   if (verbose) fprintf(stderr,"> nearest-neighbor resampling\n");
@@ -689,7 +694,7 @@ int nearestn(grid_class *from_grid, float **from_data,
   for (i = 0; i < to_grid->rows; i++) 
   { for (j = 0; j < to_grid->cols; j++)
     {
-      status = inverse_grid(to_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(to_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       status = forward_grid(from_grid, lat, lon, &r, &s);
@@ -700,7 +705,7 @@ int nearestn(grid_class *from_grid, float **from_data,
       dd = sqrt(dr*dr + ds*ds);
 
       if (verbose >= 3 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	fprintf(stderr,">>> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	fprintf(stderr,">>> %4d %4d --> %7.2lf %7.2lf --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
       row = (int)(s + 0.5);
@@ -753,7 +758,7 @@ int nearestn(grid_class *from_grid, float **from_data,
 int cubiccon(grid_class *from_grid, float **from_data, 
 	     grid_class *to_grid, float **to_data, float **to_beta)
 { register int i, j, col, row;
-  float lat, lon, r, s;
+  double lat, lon, r, s;
   double ccr[4], ccs[4], ccr_col, ccs_row, dr, ds, weight;
   int npts=0, status;
 
@@ -765,14 +770,14 @@ int cubiccon(grid_class *from_grid, float **from_data,
   for (i = 0; i < to_grid->rows; i++) 
   { for (j = 0; j < to_grid->cols; j++)
     {
-      status = inverse_grid(to_grid, (float)j, (float)i, &lat, &lon);
+      status = inverse_grid(to_grid, (double)j, (double)i, &lat, &lon);
       if (!status) continue;
 
       status = forward_grid(from_grid, lat, lon, &r, &s);
       if (!status) continue;
 
       if (verbose >= 3 && 0 == i % VV_INTERVAL && 0 == j % VV_INTERVAL)
-	fprintf(stderr,">>> %4d %4d --> %7.2f %7.2f --> %4d %4d\n",
+	fprintf(stderr,">>> %4d %4d --> %7.2lf %7.2lf --> %4d %4d\n",
 		j, i, lat, lon, (int)(r + 0.5), (int)(s + 0.5));
 
 /*
