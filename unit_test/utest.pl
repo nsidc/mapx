@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Id: utest.pl,v 1.2 2003-04-11 23:31:11 haran Exp $
+# $Id: utest.pl,v 1.3 2003-04-12 00:51:33 haran Exp $
 #
 
 #
@@ -28,8 +28,12 @@ USAGE: mapx_utest.pl [-v] mppfile1 [mppfile2...]
                  xytest to test a particular map projection.
                  Each test to be performed must consist of a group
                  of three lines in mppfile of the form:
+                   # forward
                    # lat,lon = <lat_in> <lon_in>
                    # x,y = <x_expected> <y_expected>
+                 or
+                   # inverse
+                   # x,y = <x_in> <y_in>
                    # lat,lon = <lat_expected> <lon_expected>
 ";
         
@@ -70,70 +74,126 @@ foreach $mppfile (@mppfiles) {
     my $got_one_result = 0;
     my $i = 0;
     while(1) {
-    
-        #
-        # Find the next input lat,lon line
-        #
-	my ($lat_in, $lon_in);
-	my $got_latlon_in = 0;
+
+	#
+	# Find the next forward or inverse line
+	#
+	my $got_forward = 0;
+	my $got_inverse = 0;
 	while($i < scalar(@mpp)) {
 	    my $line = $mpp[$i++];
 	    chomp $line;
-	    ($lat_in, $lon_in) =
-		($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
-	    if (defined($lat_in) && defined($lon_in)) {
-		$got_latlon_in = 1;
+	    $got_forward = ($line =~ /\#\s+forward/);
+	    $got_inverse = ($line =~ /\#\s+inverse/);
+	    if ($got_forward || $got_inverse) {
 		last;
 	    }
 	}
-	if (!$got_latlon_in) {
+	if (!$got_forward && !$got_inverse) {
 	    if (!$got_one_result) {
 		print STDERR ("$script: ERROR: $mppfile:\n" .
-			      "Can't find input lat,lon in $mppfile\n");
+			      "Can't find forward or inverse in $mppfile\n");
 	    }
 	    last;
 	}
 
-        #
-        # Find the next expected x,y line
-        #
-	my ($x_expected, $y_expected);
-	my $got_xy_expected = 0;
-	while($i < scalar(@mpp)) {
-	    my $line = $mpp[$i++];
-	    chomp $line;
-	    ($x_expected, $y_expected) =
-		($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
-	    if (defined($x_expected) && defined($y_expected)) {
-		$got_xy_expected = 1;
+	my $tmpfile_string;
+	my $target;
+	my $lat_in;
+	my $lon_in;
+	my $x_in;
+	my $y_in;
+	my $x_expected;
+	my $y_expected;
+	my $lat_expected;
+	my $lon_expected;
+	if ($got_forward) {
+
+	    #
+	    # Find the next input lat,lon line
+	    #
+	    my $got_latlon_in = 0;
+	    while($i < scalar(@mpp)) {
+		my $line = $mpp[$i++];
+		chomp $line;
+		($lat_in, $lon_in) =
+		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
+		if (defined($lat_in) && defined($lon_in)) {
+		    $got_latlon_in = 1;
+		    last;
+		}
+	    }
+	    if (!$got_latlon_in) {
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't find input lat,lon in $mppfile\n");
 		last;
 	    }
-	}
-	if (!$got_xy_expected) {
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-			  "Can't find expected x,y in $mppfile\n");
-	    last;
-	}
+	    
+	    #
+	    # Find the next expected x,y line
+	    #
+	    my $got_xy_expected = 0;
+	    while($i < scalar(@mpp)) {
+		my $line = $mpp[$i++];
+		chomp $line;
+		($x_expected, $y_expected) =
+		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
+		if (defined($x_expected) && defined($y_expected)) {
+		    $got_xy_expected = 1;
+		    last;
+		}
+	    }
+	    if (!$got_xy_expected) {
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't find expected x,y in $mppfile\n");
+		last;
+	    }
+	    $tmpfile_string = "$lat_in $lon_in\n\n\n\n";
+	    $target = "x,y \=";
+
+	} else {
         
-        #
-        # Find the next expected lat,lon line
-        #
-	my ($lat_expected, $lon_expected);
-	my $got_latlon_expected = 0;
-	while($i < scalar(@mpp)) {
-	    my $line = $mpp[$i++];
-	    chomp $line;
-	    ($lat_expected, $lon_expected) =
-		($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
-	    if (defined($lat_expected) && defined($lon_expected)) {
-		$got_latlon_expected = 1;
+	    #
+	    # Find the next input x,y line
+	    #
+	    my $got_xy_in = 0;
+	    while($i < scalar(@mpp)) {
+		my $line = $mpp[$i++];
+		chomp $line;
+		($x_in, $y_in) =
+		    ($line =~ /\#\s+x\,y\s+\=\s*(\S+)\s+(\S+)/);
+		if (defined($x_in) && defined($y_in)) {
+		    $got_xy_in = 1;
+		    last;
+		}
+	    }
+	    if (!$got_xy_in) {
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't find input x,y in $mppfile\n");
 		last;
 	    }
-	}
-	if (!$got_latlon_expected) {
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-			  "Can't find expected lat,lon in $mppfile\n");
-	    last;
+	    
+	    #
+	    # Find the next expected lat,lon line
+	    #
+	    my $got_latlon_expected = 0;
+	    while($i < scalar(@mpp)) {
+		my $line = $mpp[$i++];
+		chomp $line;
+		($lat_expected, $lon_expected) =
+		    ($line =~ /\#\s+lat\,lon\s+\=\s*(\S+)\s+(\S+)/);
+		if (defined($lat_expected) && defined($lon_expected)) {
+		    $got_latlon_expected = 1;
+		    last;
+		}
+	    }
+	    if (!$got_latlon_expected) {
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't find expected lat,lon in $mppfile\n");
+		last;
+	    }
+	    $tmpfile_string = "\n$x_in $y_in\n\n\n";
+	    $target = "lat,lon \=";
 	}
 
         #
@@ -144,7 +204,7 @@ foreach $mppfile (@mppfiles) {
 			  "Can't open $tmpfile for writing\n");
 	    last;
 	}
-	print TEMP "$lat_in $lon_in\n\n\n\n";
+	print TEMP $tmpfile_string;
 	close(TEMP);
 	
 	#
@@ -165,60 +225,61 @@ foreach $mppfile (@mppfiles) {
 	}
 
 	#
-	# Find expected x,y
+	# Find expected x,y or lat,lon
 	#
-	my $target = "x,y =";
-	my @xy_actual = grep(/$target/, @xytest);
-	if (!defined(@xy_actual)) {
+	my @actual = grep(/$target/, @xytest);
+	if (!defined(@actual)) {
 	    print STDERR (@xytest);
 	    print STDERR ("$script: ERROR: $mppfile:\n" .
 			  "Can't find $target in output from $command\n");
 	    last;
 	}
-	my ($x_actual, $y_actual) =
-	    ($xy_actual[0] =~ /$target\s+(\S+)\s+(\S+)/);
-	if (!defined($x_actual) || !defined($y_actual)) {
-	    print STDERR (@xytest);
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-		"Can't parse $target in output from $command\n");
-	    last;
-	}
+
+	if ($got_forward) {
+
+	    #
+	    # Compare expected and actual x,y
+	    #
+	    my ($x_actual, $y_actual) =
+		($actual[0] =~ /$target\s+(\S+)\s+(\S+)/);
+	    if (!defined($x_actual) || !defined($y_actual)) {
+		print STDERR (@xytest);
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't parse $target in output from $command\n");
+		last;
+	    }
+	    $ok = ($x_expected eq $x_actual and
+		   $y_expected eq $y_actual);
+	    if ($verbose || !$ok) {
+		print STDERR ("**********************************************\n");
+		print STDERR ("$mppfile forward:\n");
+		print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
+		print STDERR ("  x,y expected:     $x_expected $y_expected\n");
+		print STDERR ("  x,y actual:       $x_actual $y_actual\n");
+	    }
+
+	} else {
 	
-	#
-	# Find expected lat,lon
-	#
-	$target = "lat,lon =";
-	my @latlon_actual = grep(/$target/, @xytest);
-	if (!defined(@latlon_actual)) {
-	    print STDERR (@xytest);
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-			  "Can't find $target in output from $command\n");
-	    last;
-	}
-	my ($lat_actual, $lon_actual) =
-	    ($latlon_actual[0] =~ /$target\s+(\S+)\s+(\S+)/);
-	if (!defined($lat_actual) || !defined($lon_actual)) {
-	    print STDERR (@xytest);
-	    print STDERR ("$script: ERROR: $mppfile:\n" .
-			  "Can't parse $target in output from $command\n");
-	    last;
-	}
-	
-	#
-	# Compare expected and actual results
-	#
-	$ok = ($x_expected eq $x_actual and
-	       $y_expected eq $y_actual and
-	       $lat_expected eq $lat_actual and
-	       $lon_expected eq $lon_actual);
-	if ($verbose || !$ok) {
-	    print STDERR ("**********************************************\n");
-	    print STDERR ("$mppfile:\n");
-	    print STDERR ("  lat,lon in:       $lat_in $lon_in\n");
-	    print STDERR ("  x,y expected:     $x_expected $y_expected\n");
-	    print STDERR ("  x,y actual:       $x_actual $y_actual\n");
-	    print STDERR ("  lat,lon expected: $lat_expected $lon_expected\n");
-	    print STDERR ("  lat,lon actual:   $lat_actual $lon_actual\n");
+	    #
+	    # Compare expected and actual lat,lon
+	    #
+	    my ($lat_actual, $lon_actual) =
+		($actual[0] =~ /$target\s+(\S+)\s+(\S+)/);
+	    if (!defined($lat_actual) || !defined($lon_actual)) {
+		print STDERR (@xytest);
+		print STDERR ("$script: ERROR: $mppfile:\n" .
+			      "Can't parse $target in output from $command\n");
+		last;
+	    }
+	    $ok = ($lat_expected eq $lat_actual and
+		   $lon_expected eq $lon_actual);
+	    if ($verbose || !$ok) {
+		print STDERR ("**********************************************\n");
+		print STDERR ("$mppfile inverse:\n");
+		print STDERR ("  x,y in:           $x_in $y_in\n");
+		print STDERR ("  lat,lon expected: $lat_expected $lon_expected\n");
+		print STDERR ("  lat,lon actual:   $lat_actual $lon_actual\n");
+	    }
 	}
 	if (!$ok) {
 	    print STDERR ("$script: ERROR: $mppfile:\n" .
