@@ -4,7 +4,7 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.12 1993-10-27 08:16:46 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.13 1993-10-27 15:02:11 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,37 +24,37 @@ static mapx_class *current;
 /*
  * function prototypes for map transformations
  */
-static void init_azimuthal_equal_area(void); /* one for each projection */
+static int init_azimuthal_equal_area(void); /* one for each projection */
 static int azimuthal_equal_area(float,float,float*,float*);
 static int inverse_azimuthal_equal_area(float,float,float*,float*);
-static void init_cylindrical_equidistant(void);
+static int init_cylindrical_equidistant(void);
 static int cylindrical_equidistant(float,float,float*,float*);
 static int inverse_cylindrical_equidistant(float,float,float*,float*);
-static void init_cylindrical_equal_area(void);
+static int init_cylindrical_equal_area(void);
 static int cylindrical_equal_area(float,float,float*,float*);
 static int inverse_cylindrical_equal_area(float,float,float*,float*);
-static void init_mercator(void);
+static int init_mercator(void);
 static int mercator(float,float,float*,float*);
 static int inverse_mercator(float,float,float*,float*);
-static void init_mollweide(void);
+static int init_mollweide(void);
 static int mollweide(float,float,float*,float*);
 static int inverse_mollweide(float,float,float*,float*);
-static void init_orthographic(void);
+static int init_orthographic(void);
 static int orthographic(float,float,float*,float*);
 static int inverse_orthographic(float,float,float*,float*);
-static void init_polar_stereographic(void);
+static int init_polar_stereographic(void);
 static int polar_stereographic(float,float,float*,float*);
 static int inverse_polar_stereographic(float,float,float*,float*);
-static void init_sinusoidal(void);
+static int init_sinusoidal(void);
 static int sinusoidal(float,float,float*,float*);
 static int inverse_sinusoidal(float,float,float*,float*);
-static void init_azimuthal_equal_area_ellipsoid(void);
+static int init_azimuthal_equal_area_ellipsoid(void);
 static int azimuthal_equal_area_ellipsoid(float,float,float*,float*);
 static int inverse_azimuthal_equal_area_ellipsoid(float,float,float*,float*);
-static void init_cylindrical_equal_area_ellipsoid(void);
+static int init_cylindrical_equal_area_ellipsoid(void);
 static int cylindrical_equal_area_ellipsoid(float,float,float*,float*);
 static int inverse_cylindrical_equal_area_ellipsoid(float,float,float*,float*);
-static void init_lambert_conic_conformal_ellipsoid(void);
+static int init_lambert_conic_conformal_ellipsoid(void);
 static int lambert_conic_conformal_ellipsoid(float,float,float*,float*);
 static int inverse_lambert_conic_conformal_ellipsoid(float,float,float*,float*);
 static char *standard_name(char *);
@@ -121,19 +121,19 @@ mapx_class *init_mapx (char *map_filename)
   int i1, i2, i3, ios;
   char projection[80], readln[80], original_name[80];
   mapx_class *this;
-
-/*
- *	allocate storage for projection parameters
- */
+  
+  /*
+   *	allocate storage for projection parameters
+   */
   this = (mapx_class *) calloc(1, sizeof(mapx_class));
   if (this == NULL)
   { perror("init_mapx");
     return NULL;
   }
-
-/*
- *	open .mpp file
- */
+  
+  /*
+   *	open .mpp file
+   */
   this->mpp_filename = (char *) malloc((size_t)MAX_STRING);
   if (this->mpp_filename == NULL)
   { perror("init_mapx");
@@ -148,64 +148,64 @@ mapx_class *init_mapx (char *map_filename)
     close_mapx(this);
     return NULL;
   }
-
-/*
- *	read in projection parameters
- */
+  
+  /*
+   *	read in projection parameters
+   */
   fgets (readln, sizeof(readln), this->mpp_file);
   strcpy(original_name, readln);
   strcpy(projection, standard_name(original_name));
   this->projection_name = strdup(projection);
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f %f %f", &f1, &f2, &f3, &f4);
   this->lat0 = (ios >= 1) ? f1 : 0.0;
   this->lon0 = (ios >= 2) ? f2 : 0.0;
   this->lat1 = (ios >= 3) ? f3 : 999;
   this->lon1 = (ios >= 4) ? f4 : 999;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f", &f1);
   this->rotation = (ios >= 1) ? f1 : 0.0;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f", &f1);
   this->scale = (ios >= 1) ? f1 : 1.0;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f", &f1, &f2);
   this->center_lat = (ios >= 1) ? f1 : 0.0;
   this->center_lon = (ios >= 2) ? f2 : 0.0;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f", &f1, &f2);
   this->south = (ios >= 1) ? f1 : -90.;
   this->north = (ios >= 2) ? f2 :  90.;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f", &f1, &f2);
   this->west = (ios >= 1) ? f1 : -180.;
   this->east = (ios >= 2) ? f2 :  180.;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f", &f1, &f2);
   this->lat_interval = (ios >= 1) ? f1 : 30.;
   this->lon_interval = (ios >= 2) ? f2 : 30.;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%f %f", &f1, &f2);
   this->label_lat = (ios >= 1) ? f1 : 0.0;
   this->label_lon = (ios >= 2) ? f2 : 0.0;
-
+  
   fgets (readln, sizeof(readln), this->mpp_file);
   ios = sscanf (readln, "%d %d %d", &i1, &i2, &i3);
   this->cil_detail = (ios >= 1) ? i1 : 1;
   this->bdy_detail = (ios >= 2) ? i2 : 0;
   this->riv_detail = (ios >= 3) ? i3 : 0;
-
-/*
- *	check for errors when reading
- */
+  
+  /*
+   *	check for errors when reading
+   */
   if (ferror(this->mpp_file) || feof(this->mpp_file))
   { fprintf (stderr,"init_mapx: error reading parameters file.\n");
     if (feof(this->mpp_file))
@@ -215,10 +215,10 @@ mapx_class *init_mapx (char *map_filename)
     close_mapx(this);
     return NULL;
   }
-
-/*
- *	look for optional parameters
- */
+  
+  /*
+   *	look for optional parameters
+   */
   fgets (readln, sizeof(readln), this->mpp_file);
   if feof(this->mpp_file)
   { this->equatorial_radius = mapx_Re_km;
@@ -227,7 +227,7 @@ mapx_class *init_mapx (char *map_filename)
   else
   { ios = sscanf (readln, "%f", &f1);           
     this->equatorial_radius = (ios >= 1) ? f1 : mapx_Re_km;
-   
+    
     fgets (readln, sizeof(readln), this->mpp_file);      
     if feof(this->mpp_file)
       this->eccentricity = 0.082271673;
@@ -243,11 +243,11 @@ mapx_class *init_mapx (char *map_filename)
     close_mapx(this);
     return NULL;
   }
-
-
-/*
- *	match projection name and initialize remaining parameters
- */
+  
+  
+  /*
+   *	match projection name and initialize remaining parameters
+   */
   if (strcmp (projection, "AZIMUTHALEQUALAREA") == 0)     
   { this->initialize = init_azimuthal_equal_area; 
     this->geo_to_map = azimuthal_equal_area;
@@ -288,19 +288,19 @@ mapx_class *init_mapx (char *map_filename)
     this->geo_to_map = polar_stereographic;
     this->map_to_geo = inverse_polar_stereographic;
   }
-
+  
   else if (strcmp (projection, "AZIMUTHALEQUALAREAELLIPSOID") == 0) 
   { this->initialize = init_azimuthal_equal_area_ellipsoid;
     this->geo_to_map = azimuthal_equal_area_ellipsoid;
     this->map_to_geo = inverse_azimuthal_equal_area_ellipsoid;
   }
-
+  
   else if (strcmp (projection, "CYLINDRICALEQUALAREAELLIPSOID") == 0) 
   { this->initialize = init_cylindrical_equal_area_ellipsoid;
     this->geo_to_map = cylindrical_equal_area_ellipsoid;
     this->map_to_geo = inverse_cylindrical_equal_area_ellipsoid;
   }
-
+  
   else if (strcmp (projection, "LAMBERTCONICCONFORMALELLIPSOID") == 0) 
   { this->initialize =init_lambert_conic_conformal_ellipsoid;
     this->geo_to_map = lambert_conic_conformal_ellipsoid;
@@ -323,12 +323,15 @@ mapx_class *init_mapx (char *map_filename)
     close_mapx (this);
     return NULL;
   }
-
-/*
- *	initialize map projection constants
- */
-  reinit_mapx(this);
-
+  
+  /*
+   *	initialize map projection constants
+   */
+  if (0 != reinit_mapx(this))
+  { close_mapx(this);
+    return NULL;
+  }
+  
   return this;
 }
 
@@ -356,84 +359,85 @@ void close_mapx (mapx_class *this)
  *		mapx_class struct and this routine will re-calculate
  *		the appropriate private constants for the projection
  *
+ *	result: 0 = success, -1 = error return
+ *
  *------------------------------------------------------------------------*/
-void reinit_mapx (mapx_class *this)
+int reinit_mapx (mapx_class *this)
 { float theta, u, v;
-
-/*
- *	check map bounds
- */
+  
+  /*
+   *	check map bounds
+   */
   if (this->east < -180 || this->east > 360 
       || this->west < -180 || this->west > 360)
   { fprintf(stderr,"init_mapx: illegal bounds: west=%f, east=%f\n",
 	    this->west, this->east);
     fprintf(stderr,"           should be >= -180 and <= 360\n");
-    close_mapx(this);
-    return;
+    return -1;
   }
-
+  
   if (fabs(this->east - this->west) > 360)
   { fprintf(stderr,"init_mapx: illegal bounds: west=%f, east=%f\n",
 	    this->west, this->east);
     fprintf(stderr,"           bounds cannot span > 360 degrees.\n");
-    close_mapx(this);
-    return;
+    return -1;
   }
-
+  
   if (this->east > 180 && this->west > 180)
   { this->east -=360;
     this->west -=360;
   }
-
-/*
- *	set flag for bounds checking
- */
+  
+  /*
+   *	set flag for bounds checking
+   */
   if (this->east < this->west || this->east > 180)
     this->map_stradles_180 = TRUE;
   else
     this->map_stradles_180 = FALSE;
-
+  
   NORMALIZE(this->east);
   NORMALIZE(this->west);
-
-/*
- *	set series expansion constants
- */
+  
+  /*
+   *	set series expansion constants
+   */
   this->e2 = (this->eccentricity) * (this->eccentricity);
   this->e4 = (this->e2) * (this->e2);
   this->e6 = (this->e4) * (this->e2); 
   this->e8 = (this->e4) * (this->e4);
   
-/*
- *	set projection constants
- */
+  /*
+   *	set projection constants
+   */
   current = this;
-  (*(this->initialize))();
-
-/*
- *	set scaled radius for spherical projections
- */
+  if ((*(this->initialize))()) return -1;
+  
+  /*
+   *	set scaled radius for spherical projections
+   */
   this->Rg = this->equatorial_radius / this->scale;
-
-/*
- *	create rotation matrix
- */
+  
+  /*
+   *	create rotation matrix
+   */
   theta = RADIANS(this->rotation);
-
+  
   this->T00 =  cos(theta);
   this->T01 =  sin(theta);
   this->T10 = -sin(theta);
   this->T11 =  cos(theta);
-
-/*
- *	get the offset from the projection origin (lat0,lon0)
- *	to this map's origin (center_lat, center_lon)
- */
+  
+  /*
+   *	get the offset from the projection origin (lat0,lon0)
+   *	to this map's origin (center_lat, center_lon)
+   */
   this->u0 = this->v0 = 0.0;
   forward_mapx (this, this->center_lat, this->center_lon, &u, &v);
   this->u0 = u;
   this->v0 = v;
-
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
@@ -448,9 +452,9 @@ void reinit_mapx (mapx_class *this)
 int within_mapx (mapx_class *this, float lat, float lon)
 {
   if (lat < this->south || lat > this->north) return FALSE;
-
+  
   NORMALIZE(lon);
-
+  
   if (this->map_stradles_180)
   { if (lon > this->east && lon < this->west)
       return FALSE;
@@ -459,7 +463,7 @@ int within_mapx (mapx_class *this, float lat, float lon)
   { if (lon < this->west || lon > this->east)
       return FALSE;
   }
-
+  
   return TRUE;
 }
 
@@ -517,7 +521,7 @@ static char *standard_name(char *s)
 {
   static char new_name[80];
   char *p = new_name;
-
+  
   for(; *s != '\n' && *s != '\0'; ++s)
   {
     if ((*s == '_') || (*s == ' ') || (*s == '-') 
@@ -526,9 +530,9 @@ static char *standard_name(char *s)
     else 
       *p++ = toupper(*s);
   }
-
+  
   *p = '\0';
-         
+  
   if ((streq(new_name, "AZIMUTHALEQUALAREA") != NULL) || 
       (streq(new_name, "AZIMUTHALEQUALAREASPHERE") != NULL) || 
       (streq(new_name, "EQUALAREAAZIMUTHALSPHERE") != NULL) || 
@@ -567,7 +571,7 @@ static char *standard_name(char *s)
 	   (streq(new_name, "ELLIPSOIDLAMBERTCONFORMALCONIC") != NULL) )
   { strcpy(new_name, "LAMBERTCONICCONFORMALELLIPSOID");
   }
-
+  
   return new_name;
 }
 
@@ -608,83 +612,86 @@ static char *standard_name(char *s)
 /*------------------------------------------------------------------------
  * azimuthal_equal_area
  *------------------------------------------------------------------------*/
-static void init_azimuthal_equal_area(void)
+static int init_azimuthal_equal_area(void)
 { 
   current->sin_phi1 = sin (RADIANS (current->lat0));
   current->cos_phi1 = cos (RADIANS (current->lat0));
+
+  return 0;
 }
 
 static int azimuthal_equal_area (float lat, float lon, float *u, float *v)
 {
-	float x, y;
-	double kp, phi, lam, rho;
+  float x, y;
+  double kp, phi, lam, rho;
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (lon - current->lon0);
+  
+  if (current->lat0 == 90)
+  { rho = 2*current->Rg * sin(PI/4 - phi/2);
+    x =  rho * sin(lam);
+    y = -rho * cos(lam);
+  }
+  else if (current->lat0 == -90)
+  { rho = 2*current->Rg * cos(PI/4 - phi/2);
+    x =  rho * sin(lam);
+    y =  rho * cos(lam);
+  }
+  else
+  { kp = sqrt(2./(1+current->sin_phi1*sin(phi) 
+		  + current->cos_phi1*cos(phi)*cos(lam)));
+    x = current->Rg*kp*cos(phi)*sin(lam);
+    y = current->Rg*kp*(current->cos_phi1*sin(phi) 
+			- current->sin_phi1*cos(phi)*cos(lam));
+  }
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
+}
 
-	phi = RADIANS (lat);
-	lam = RADIANS (lon - current->lon0);
-
-	if (current->lat0 == 90)
-	{ rho = 2*current->Rg * sin(PI/4 - phi/2);
-	  x =  rho * sin(lam);
-	  y = -rho * cos(lam);
-	}
-	else if (current->lat0 == -90)
-	{ rho = 2*current->Rg * cos(PI/4 - phi/2);
-	  x =  rho * sin(lam);
-	  y =  rho * cos(lam);
-	}
- 	else
-	{ kp = sqrt(2./(1+current->sin_phi1*sin(phi) 
-	    + current->cos_phi1*cos(phi)*cos(lam)));
-	  x = current->Rg*kp*cos(phi)*sin(lam);
-	  y = current->Rg*kp*(current->cos_phi1*sin(phi) 
-	    - current->sin_phi1*cos(phi)*cos(lam));
-	}
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
-      }
-
-static int inverse_azimuthal_equal_area (float u, float v, float *lat, float *lon)
+static int inverse_azimuthal_equal_area (float u, float v, 
+					 float *lat, float *lon)
 {
-	double phi, lam, rho, c, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v + current->v0);
-
-	rho = sqrt(x*x + y*y);
-
-	if (rho != 0.0)
-	{ c = 2*asin( rho/(2*current->Rg) );
-
-	  phi = asin( cos(c)*current->sin_phi1 + y*sin(c)*current->cos_phi1/rho );
-
-	  if (current->lat0 == 90)
-	    lam = atan2(x, -y);
-	  else if (current->lat0 == -90)
-	    lam = atan2(x, y);
-	  else
-	    lam = atan2(x*sin(c), rho*current->cos_phi1*cos(c)
-		 - y*current->sin_phi1*sin(c));
-	}
-	else
-	{ phi = RADIANS(current->lat0);
-	  lam = 0.0;
-	}
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-	NORMALIZE(*lon);
-
-	return(0);
-      }
+  double phi, lam, rho, c, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v + current->v0);
+  
+  rho = sqrt(x*x + y*y);
+  
+  if (rho != 0.0)
+  { c = 2*asin( rho/(2*current->Rg) );
+    
+    phi = asin( cos(c)*current->sin_phi1 + y*sin(c)*current->cos_phi1/rho );
+    
+    if (current->lat0 == 90)
+      lam = atan2(x, -y);
+    else if (current->lat0 == -90)
+      lam = atan2(x, y);
+    else
+      lam = atan2(x*sin(c), rho*current->cos_phi1*cos(c)
+		  - y*current->sin_phi1*sin(c));
+  }
+  else
+  { phi = RADIANS(current->lat0);
+    lam = 0.0;
+  }
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE(*lon);
+  
+  return 0;
+}
 
 /*-----------------------------------------------------------------------
  * Azimuthal_Equal_Area_Ellipsoid
  *------------------------------------------------------------------------*/
 
-static void init_azimuthal_equal_area_ellipsoid(void)
+static int init_azimuthal_equal_area_ellipsoid(void)
 {
   if(current->eccentricity == 0.0)
   {
@@ -694,44 +701,48 @@ static void init_azimuthal_equal_area_ellipsoid(void)
   else
   {
     current->qp = 1 - ( (1 - current->e2) / (2*current->eccentricity)
-		     * log( (1 - current->eccentricity)
-			    / (1 + current->eccentricity) ) );
+		       * log( (1 - current->eccentricity)
+			     / (1 + current->eccentricity) ) );
     current->q1 = (1 - current->e2) 
-      * ( current->sin_phi1 / (1 - current->e2 * current->sin_phi1*current->sin_phi1)
-	  - 1 / (2 * current->eccentricity) 
-	  * log( (1 - current->eccentricity * current->sin_phi1) 
-		 / (1 + current->eccentricity * current->sin_phi1) ) );
+      * ( current->sin_phi1 
+	 / (1 - current->e2 * current->sin_phi1*current->sin_phi1)
+	 - 1 / (2 * current->eccentricity) 
+	 * log( (1 - current->eccentricity * current->sin_phi1) 
+	       / (1 + current->eccentricity * current->sin_phi1) ) );
   }
   current->Rg = current->equatorial_radius / current->scale;
   current->Rq = current->Rg *(sqrt(current->qp/2));
   current->cos_phi1 = cos(RADIANS(current->lat0));
   current->sin_phi1 = sin(RADIANS(current->lat0));
   if (fabs(current->q1) >= fabs(current->qp))
-    current->beta1 = RADIANS(90)*(fabs(current->q1/current->qp)/(current->q1/current->qp));
+    current->beta1 = RADIANS(90)*(fabs(current->q1/current->qp)
+				  /(current->q1/current->qp));
   else
     current->beta1 = asin(current->q1/current->qp);
   current->sin_beta1 = sin(current->beta1); 
   current->m1 = current->cos_phi1 / sqrt(1 - current->e2 
-				   * current->sin_phi1 * current->sin_phi1);
+					 * current->sin_phi1 
+					 * current->sin_phi1);
   current->D = (current->Rg * current->m1) / (current->Rq * current->cos_beta1);
 }
 
-static int azimuthal_equal_area_ellipsoid (float lat, float lon, float *u, float *v)
+static int azimuthal_equal_area_ellipsoid (float lat, float lon, 
+					   float *u, float *v)
 {
   float x,y;
   double phi, lam, rho, beta; 
   double sin_phi,sin_beta, cos_beta, q, B;
-
+  
   phi = RADIANS(lat);
   lam = RADIANS(lon - current->lon0);
   sin_phi = sin(phi);
-
-
+  
+  
   q = (1.0 - current->e2) * ((sin_phi/(1.0 - current->e2*sin_phi * sin_phi))-
 			     (1.0/2.0 * current->eccentricity) * 
 			     log((1 - current->eccentricity * sin_phi) /
 				 (1.0 + current->eccentricity * sin_phi)));
-
+  
   if (current->lat0 == 90.00)
   {
     if (fabs(current->qp - q)<0.00000001)
@@ -750,7 +761,7 @@ static int azimuthal_equal_area_ellipsoid (float lat, float lon, float *u, float
     x = rho * sin(lam);
     y = rho * cos(lam);
   }
-
+  
   else
   {
     if(fabs(fabs(q) - fabs(current->qp))<0.00000001)
@@ -760,24 +771,24 @@ static int azimuthal_equal_area_ellipsoid (float lat, float lon, float *u, float
     sin_beta = sin(beta);
     cos_beta = cos(beta);
     B = current->Rq * sqrt(2.0/(1.0 + current->sin_beta1 * sin_beta +
-				   (current->cos_beta1 * cos_beta * 
-				    cos(lam))));
+				(current->cos_beta1 * cos_beta * 
+				 cos(lam))));
     x = B * current->D * cos_beta * sin(lam);
     y = (B/current->D) * ((current->cos_beta1 * sin_beta)-
-			    (current->sin_beta1 * cos_beta * 
-			     cos(lam)));
+			  (current->sin_beta1 * cos_beta * 
+			   cos(lam)));
   }
-
+  
   *u = current->T00*x + current->T01*y - current->u0;
   *v = current->T10*x + current->T11*y - current->v0;
-
-  return(0);
+  
+  return 0;
 }   
 
 static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat, float *lon)
 {
   double phi, lam, rho, x, y, ce, beta;
-
+  
   if (current->eccentricity == 0.0)
   {inverse_azimuthal_equal_area (u, v, lat, lon);
  }
@@ -799,7 +810,7 @@ static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat,
 	if (rho<0.00000000001)
 	  beta = asin(1.0 - 0.00000000001/(current->Rg * current->Rg *
 					   (1.0-(((1.0 - current->e2) /
-						(2.0 * current->eccentricity))) *
+						  (2.0 * current->eccentricity))) *
 					    (log((1.0 - current->eccentricity) /
 						 (1.0 + current->eccentricity))))));
 	else
@@ -870,7 +881,7 @@ static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat,
     *lon = DEGREES(lam) + current->lon0;
     NORMALIZE(*lon);
     
-    return(0);
+    return 0;
   }
 }
 
@@ -878,258 +889,267 @@ static int inverse_azimuthal_equal_area_ellipsoid (float u, float v, float *lat,
  * polar_stereographic
  *------------------------------------------------------------------------*/
 
-static void init_polar_stereographic(void)
+static int init_polar_stereographic(void)
 {
   if (current->lat1 == 999) current->lat1 = current->lat0;
   current->sin_phi1 = sin (RADIANS (current->lat1));
   if (current->lat0 != 90.00 && current->lat0 != -90.00)
-  { fprintf(stderr,"only polar aspects allowed: lat0 = %7.2f\n", current->lat0);
-    close_mapx(current);
-    return;
+  { fprintf(stderr,"mapx: only polar aspects allowed: lat0 = %7.2f\n",
+	    current->lat0);
+    return -1;
   }
+  return 0;
 }
 
 static int polar_stereographic (float lat, float lon, float *u, float *v)
 {
-	float x, y;
-	float phi, lam, rho;
-
-	phi = RADIANS (lat);
-	lam = RADIANS (lon - current->lon0);
-
-	if (current->lat0 == 90)
-	{ rho = 2*current->Rg * cos(phi) 
-		* (1 + current->sin_phi1) / (1 + sin(phi));
-	  x =  rho * sin(lam);
-	  y = -rho * cos(lam);
-	}
-	else if (current->lat0 == -90)
-	{ rho = 2*current->Rg * cos(phi) 
-		* (1 - current->sin_phi1) / (1 - sin(phi));
-	  x = rho * sin(lam);
-	  y = rho * cos(lam);
-	}
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y;
+  float phi, lam, rho;
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (lon - current->lon0);
+  
+  if (current->lat0 == 90)
+  { rho = 2*current->Rg * cos(phi) 
+      * (1 + current->sin_phi1) / (1 + sin(phi));
+    x =  rho * sin(lam);
+    y = -rho * cos(lam);
+  }
+  else if (current->lat0 == -90)
+  { rho = 2*current->Rg * cos(phi) 
+      * (1 - current->sin_phi1) / (1 - sin(phi));
+    x = rho * sin(lam);
+    y = rho * cos(lam);
+  }
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
 static int inverse_polar_stereographic (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, rho, c, q, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	rho = sqrt(x*x + y*y);
-	q = 2*current->Rg*(1 + current->sin_phi1);
-	c = 2*atan2(rho,q);
-
-	if (current->lat0 == 90)
-	{ phi = asin(cos(c));
-	  lam = atan2(x, -y);
-	}
-	else if (current->lat0 == -90)
-	{ phi = asin(-cos(c));
-	  lam = atan2(x, y);
-	}
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-	NORMALIZE(*lon);
-
-	return(0);
+  double phi, lam, rho, c, q, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v + current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  rho = sqrt(x*x + y*y);
+  q = 2*current->Rg*(1 + current->sin_phi1);
+  c = 2*atan2(rho,q);
+  
+  if (current->lat0 == 90)
+  { phi = asin(cos(c));
+    lam = atan2(x, -y);
+  }
+  else if (current->lat0 == -90)
+  { phi = asin(-cos(c));
+    lam = atan2(x, y);
+  }
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE(*lon);
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
  * orthographic
  *------------------------------------------------------------------------*/
 
-static void init_orthographic(void)
+static int init_orthographic(void)
 { 
   current->cos_phi1 = cos (RADIANS (current->lat0));
   current->sin_phi1 = sin (RADIANS (current->lat0));
+
+  return 0;
 }
 
 static int orthographic (float lat, float lon, float *u, float *v)
 {
-	float x, y;
-	float phi, lam, sin_phi, cos_phi, sin_lam, cos_lam, cos_beta;
-
-	phi = RADIANS (lat);
-	lam = RADIANS (lon - current->lon0);
-
-	sin_phi = sin(phi);
-	cos_phi = cos(phi);
-	cos_lam = cos(lam);
-
-	cos_beta = current->sin_phi1 * sin_phi
-		+ current->cos_phi1 * cos_phi * cos_lam;
-
-	if (cos_beta < 0.0) return(-1);
-
-	sin_lam = sin(lam);
-	x = current->Rg * cos_phi * sin_lam;
-	y = current->Rg * (current->cos_phi1*sin_phi 
-			- current->sin_phi1*cos_phi*cos_lam);
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y;
+  float phi, lam, sin_phi, cos_phi, sin_lam, cos_lam, cos_beta;
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (lon - current->lon0);
+  
+  sin_phi = sin(phi);
+  cos_phi = cos(phi);
+  cos_lam = cos(lam);
+  
+  cos_beta = current->sin_phi1 * sin_phi
+    + current->cos_phi1 * cos_phi * cos_lam;
+  
+  if (cos_beta < 0.0) return(-1);
+  
+  sin_lam = sin(lam);
+  x = current->Rg * cos_phi * sin_lam;
+  y = current->Rg * (current->cos_phi1*sin_phi 
+		     - current->sin_phi1*cos_phi*cos_lam);
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
 static int inverse_orthographic (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, rho, x, y, cos_beta, sin_beta;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	rho = sqrt(x*x + y*y);
-	if (rho == 0.0)
-	{ phi = RADIANS (current->lat0);
-	  lam = 0.0;
-	}
-	else
-	{ sin_beta = rho/current->Rg;
-	  cos_beta = sqrt(1 - sin_beta*sin_beta);
-	  phi = asin(cos_beta*current->sin_phi1 
-		+ y*sin_beta*current->cos_phi1/rho);
-	  if (current->lat0 == 90)
-	  { lam = atan2(x, -y);
-	  }
-	  else if (current->lat0 == -90)
-	  { lam = atan2(x, y);
-	  }
-	  else
-	  { lam = atan2(x*sin_beta, rho*current->cos_phi1*cos_beta
-					- y*current->sin_phi1*sin_beta);
-	  }
-	}
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-	NORMALIZE(*lon);
-
-	return(0);
+  double phi, lam, rho, x, y, cos_beta, sin_beta;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  rho = sqrt(x*x + y*y);
+  if (rho == 0.0)
+  { phi = RADIANS (current->lat0);
+    lam = 0.0;
+  }
+  else
+  { sin_beta = rho/current->Rg;
+    cos_beta = sqrt(1 - sin_beta*sin_beta);
+    phi = asin(cos_beta*current->sin_phi1 
+	       + y*sin_beta*current->cos_phi1/rho);
+    if (current->lat0 == 90)
+    { lam = atan2(x, -y);
+    }
+    else if (current->lat0 == -90)
+    { lam = atan2(x, y);
+    }
+    else
+    { lam = atan2(x*sin_beta, rho*current->cos_phi1*cos_beta
+		  - y*current->sin_phi1*sin_beta);
+    }
+  }
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE(*lon);
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
  * cylindrical_equal_area
  *------------------------------------------------------------------------*/
 
-static void init_cylindrical_equal_area(void)
+static int init_cylindrical_equal_area(void)
 { 
   if (current->lat1 == 999) current->lat1 = 30.00;
   current->cos_phi1 = cos (RADIANS (current->lat1));
+
+  return 0;
 }
 
 static int cylindrical_equal_area (float lat, float lon, float *u, float *v)
 {
-	float x, y, dlon;
-	double phi, lam;
-
-	dlon = lon - current->lon0;
-	NORMALIZE(dlon);
-
-	phi = RADIANS (lat);
-	lam = RADIANS (dlon);
-
-	x =  current->Rg * lam * current->cos_phi1;
-	y =  current->Rg * sin (phi) / current->cos_phi1;
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y, dlon;
+  double phi, lam;
+  
+  dlon = lon - current->lon0;
+  NORMALIZE(dlon);
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (dlon);
+  
+  x =  current->Rg * lam * current->cos_phi1;
+  y =  current->Rg * sin (phi) / current->cos_phi1;
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
-static int inverse_cylindrical_equal_area (float u, float v, float *lat, float *lon)
+static int inverse_cylindrical_equal_area (float u, float v, 
+					   float *lat, float *lon)
 {
-	double phi, lam, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	phi = asin(y*current->cos_phi1/current->Rg);
-	lam = x/current->cos_phi1/current->Rg;
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-	NORMALIZE(*lon);
-
-	return(0);
+  double phi, lam, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  phi = asin(y*current->cos_phi1/current->Rg);
+  lam = x/current->cos_phi1/current->Rg;
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  NORMALIZE(*lon);
+  
+  return 0;
 }
 
 /*--------------------------------------------------------------------------
  * cylindrical_equal_area_ellipsoid (normal aspect)
  *--------------------------------------------------------------------------*/
 
-static void init_cylindrical_equal_area_ellipsoid(void)
+static int init_cylindrical_equal_area_ellipsoid(void)
 {
   current->Rg = current->equatorial_radius / current->scale; 
   current->phis = RADIANS(current->lat0);
   current->kz = cos(current->phis)/(sqrt(1.0 - ((current->e2)*sin(current->phis)
-					  *sin(current->phis))));
+						*sin(current->phis))));
   if(current->eccentricity == 0.0)
     current->qp = 2.0;
   else 
     current->qp = (1.0 - (current->e2)) * ((1.0/(1.0 - (current->e2)))
-				     - (1.0/(2.0*(current->eccentricity))) * 
-				     log((1.0 - (current->eccentricity))
-					 / (1.0 + (current->eccentricity))));
+					   - (1.0/(2.0*(current->eccentricity))) * 
+					   log((1.0 - (current->eccentricity))
+					       / (1.0 + (current->eccentricity))));
+
+  return 0;
 }
 
-static int cylindrical_equal_area_ellipsoid (float lat, float lon, float *u, float *v)
+static int cylindrical_equal_area_ellipsoid (float lat, float lon, 
+					     float *u, float *v)
 {
   float x, y, dlon;
   double phi, lam, q, sin_phi;
-
+  
   dlon = (lon - current->lon0);
   NORMALIZE (dlon);
   
   phi = RADIANS(lat);
   lam = RADIANS(dlon);
-
+  
   sin_phi = sin(phi);
   q = (1.0 - current->e2) * ((sin_phi / (1.0 - current->e2 * sin_phi * sin_phi))
-			       - (1.0 / (2.0 * current->eccentricity)) * 
-			       log((1.0 - current->eccentricity * sin_phi)/
-				   (1.0 + current->eccentricity * sin_phi)));
-
+			     - (1.0 / (2.0 * current->eccentricity)) * 
+			     log((1.0 - current->eccentricity * sin_phi)/
+				 (1.0 + current->eccentricity * sin_phi)));
+  
   x = (current->Rg * current->kz * lam);
   y = (current->Rg * q) / (2.0 * current->kz);
-
+  
   *u = current->T00*x + current->T01*y - current->u0;
   *v = current->T10*x + current->T11*y -current->v0;
-
-  return(0);
+  
+  return 0;
 }
 
 static int inverse_cylindrical_equal_area_ellipsoid (float u, float v, float *lat, float *lon)
 {
   double phi, lam, x, y, beta;
-
+  
   x =  current->T00 * (u+current->u0) - current->T01 * (v+current->v0);
   y = -current->T10 * (u+current->u0) + current->T11 * (v+current->v0);
-
+  
   beta = asin(2.0 * y * current->kz/(current->Rg * current->qp));
-
+  
   phi = beta +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
 		((517.0/5040.0) * current->e6)) * sin(2.0*beta))+
 		  ((((23.0/360.0) * current->e4)+
 		    ((251.0/3780.0) * current->e6)) * sin(4.0*beta))+
 		      (((761.0/45360.0) * current->e6) * sin(6.0*beta));
   lam = (x/(current->Rg * current->kz));
-
+  
   *lat = DEGREES(phi);
   *lon = DEGREES(lam) + current->lon0;
   NORMALIZE(*lon);
-
-  return(0);
+  
+  return 0;
 }
 
 
@@ -1137,172 +1157,177 @@ static int inverse_cylindrical_equal_area_ellipsoid (float u, float v, float *la
  * mercator
  *------------------------------------------------------------------------*/
 
-static void init_mercator(void)
+static int init_mercator(void)
 { 
   if (current->lat1 == 999) current->lat1 = 30.00;
   current->cos_phi1 = cos (RADIANS (current->lat1));
+
+  return 0;
 }
 
 static int mercator (float lat, float lon, float *u, float *v)
 {
-	float x, y, dlon;
-	double phi, lam;
-
-	dlon = lon - current->lon0;
-	NORMALIZE(dlon);
-
-	phi = RADIANS (lat);
-	lam = RADIANS (dlon);
-
-	x =  current->Rg * lam;
-	y =  current->Rg * log (tan (PI/4 + phi/2));
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y, dlon;
+  double phi, lam;
+  
+  dlon = lon - current->lon0;
+  NORMALIZE(dlon);
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (dlon);
+  
+  x =  current->Rg * lam;
+  y =  current->Rg * log (tan (PI/4 + phi/2));
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
 static int inverse_mercator (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	phi = PI/2 - 2*atan(exp(-y/current->Rg));
-	lam = x/current->Rg;
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-
-	return(0);
+  double phi, lam, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  phi = PI/2 - 2*atan(exp(-y/current->Rg));
+  lam = x/current->Rg;
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
  * mollweide
  *------------------------------------------------------------------------*/
 
-static void init_mollweide(void)
+static int init_mollweide(void)
 {
   /* no variables require initialization */
+  return 0;
 }
 
 static int mollweide (float lat, float lon, float *u, float *v)
 {
-	float x, y, dlon;
-	double phi, lam, theta, delta;
-	double sin_theta, cos_theta, psi, epsilon=.0025;
-	int it, maxit=10;
-
-	dlon = lon - current->lon0;
-	NORMALIZE(dlon);
-
-	phi = RADIANS (lat);
-	lam = RADIANS (dlon);
-
-	delta = 0.0;
-	theta = phi;
-	sin_theta = sin(theta);
-	cos_theta = cos(theta);
-	if (fabs(cos_theta) > epsilon)
-	{ psi = PI*sin(phi);
-	  it = 0;
-	  repeat
-	  { delta = -(theta + sin_theta - psi) / (1 + cos_theta);
-	    theta += delta;
-	    sin_theta = sin(theta);
-	    cos_theta = cos(theta);
-	    if (++it >= maxit) break;
-	  } until (fabs(delta) <= epsilon);
-	  theta /= 2.0;
-	  sin_theta = sin(theta);
-	  cos_theta = cos(theta);
-	}
-
-	x =  2*SQRT2/PI * current->Rg * lam * cos_theta;
-	y =  SQRT2 * current->Rg * sin_theta;
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y, dlon;
+  double phi, lam, theta, delta;
+  double sin_theta, cos_theta, psi, epsilon=.0025;
+  int it, maxit=10;
+  
+  dlon = lon - current->lon0;
+  NORMALIZE(dlon);
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (dlon);
+  
+  delta = 0.0;
+  theta = phi;
+  sin_theta = sin(theta);
+  cos_theta = cos(theta);
+  if (fabs(cos_theta) > epsilon)
+  { psi = PI*sin(phi);
+    it = 0;
+    repeat
+    { delta = -(theta + sin_theta - psi) / (1 + cos_theta);
+      theta += delta;
+      sin_theta = sin(theta);
+      cos_theta = cos(theta);
+      if (++it >= maxit) break;
+    } until (fabs(delta) <= epsilon);
+    theta /= 2.0;
+    sin_theta = sin(theta);
+    cos_theta = cos(theta);
+  }
+  
+  x =  2*SQRT2/PI * current->Rg * lam * cos_theta;
+  y =  SQRT2 * current->Rg * sin_theta;
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
 static int inverse_mollweide (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, theta, cos_theta, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	theta = asin( y / (SQRT2*current->Rg) );
-	phi = asin( (2*theta + sin(2*theta)) / PI);
-	cos_theta = cos(theta);
-	if (cos_theta != 0.0)
-	  lam = PI*x / (2*SQRT2*current->Rg*cos_theta);
-	else
-	  lam = 0.0;
-
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-
-	return(0);
+  double phi, lam, theta, cos_theta, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  theta = asin( y / (SQRT2*current->Rg) );
+  phi = asin( (2*theta + sin(2*theta)) / PI);
+  cos_theta = cos(theta);
+  if (cos_theta != 0.0)
+    lam = PI*x / (2*SQRT2*current->Rg*cos_theta);
+  else
+    lam = 0.0;
+  
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
  * cylindrical_equidistant
  *------------------------------------------------------------------------*/
 
-static void init_cylindrical_equidistant(void)
+static int init_cylindrical_equidistant(void)
 { 
   current->cos_phi1 = cos (RADIANS (current->lat0));
+  return 0;
 }
 
 static int cylindrical_equidistant (float lat, float lon, float *u, float *v)
 {
-	float x, y, dlon;
-	double phi, lam;
-
-	dlon = lon - current->lon0;
-	NORMALIZE(dlon);
-
-	phi = RADIANS (lat);
-	lam = RADIANS (dlon);
-
-	x =  current->Rg * lam * current->cos_phi1;
-	y =  current->Rg * phi;
-
-	*u = current->T00*x + current->T01*y - current->u0;
-	*v = current->T10*x + current->T11*y - current->v0;
-
-	return(0);
+  float x, y, dlon;
+  double phi, lam;
+  
+  dlon = lon - current->lon0;
+  NORMALIZE(dlon);
+  
+  phi = RADIANS (lat);
+  lam = RADIANS (dlon);
+  
+  x =  current->Rg * lam * current->cos_phi1;
+  y =  current->Rg * phi;
+  
+  *u = current->T00*x + current->T01*y - current->u0;
+  *v = current->T10*x + current->T11*y - current->v0;
+  
+  return 0;
 }
 
 static int inverse_cylindrical_equidistant (float u, float v, float *lat, float *lon)
 {
-	double phi, lam, x, y;
-
-	x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-	y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
-	phi = y/current->Rg;
-	lam = x/(current->Rg*current->cos_phi1);
-
-	*lat = DEGREES(phi);
-	*lon = DEGREES(lam) + current->lon0;
-
-	return(0);
+  double phi, lam, x, y;
+  
+  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
+  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
+  
+  phi = y/current->Rg;
+  lam = x/(current->Rg*current->cos_phi1);
+  
+  *lat = DEGREES(phi);
+  *lon = DEGREES(lam) + current->lon0;
+  
+  return 0;
 }
 
 /*------------------------------------------------------------------------
  * sinusoidal
  *------------------------------------------------------------------------*/
 
-static void init_sinusoidal(void)
+static int init_sinusoidal(void)
 {
   /* no variables require initialization */
+  return 0;
 }
 
 static int sinusoidal (float lat, float lon, float *u, float *v)
@@ -1322,7 +1347,7 @@ static int sinusoidal (float lat, float lon, float *u, float *v)
   *u = current->T00*x + current->T01*y - current->u0;
   *v = current->T10*x + current->T11*y - current->v0;
   
-  return(0);
+  return 0;
 }
 
 static int inverse_sinusoidal (float u, float v, float *lat, float *lon)
@@ -1338,7 +1363,7 @@ static int inverse_sinusoidal (float u, float v, float *lat, float *lon)
   *lat = DEGREES(phi);
   *lon = DEGREES(lam) + current->lon0;
   
-  return(0);
+  return 0;
 }
 
 
@@ -1347,7 +1372,7 @@ static int inverse_sinusoidal (float u, float v, float *lat, float *lon)
  *--------------------------------------------------------------------------*/
 
 
-static void init_lambert_conic_conformal_ellipsoid(void)
+static int init_lambert_conic_conformal_ellipsoid(void)
 {
   current->Rg = current->equatorial_radius / current->scale;
   current->cos_phi0 = cos(RADIANS(current->lat0));
@@ -1355,21 +1380,22 @@ static void init_lambert_conic_conformal_ellipsoid(void)
   current->sin_phi0 = sin(RADIANS(current->lat0));
   current->sin_phi1 = sin(RADIANS(current->lat1));
   current->m0 = ((current->cos_phi0)/sqrt(1-(current->e2 * current->sin_phi0 
-				       * current->sin_phi0))); 
+					     * current->sin_phi0))); 
   current->m1 = ((current->cos_phi1)/sqrt(1-(current->e2 * current->sin_phi1 
-				       * current->sin_phi1)));
+					     * current->sin_phi1)));
   current->t0 = sqrt( ((1.0 - current->sin_phi0)/(1.0 + current->sin_phi0)) * 
-		   pow(((1.0 + (current->eccentricity * current->sin_phi0))/
-			(1.0 - (current->eccentricity * current->sin_phi0))),
-		       current->eccentricity) ); 
+		     pow(((1.0 + (current->eccentricity * current->sin_phi0))/
+			  (1.0 - (current->eccentricity * current->sin_phi0))),
+			 current->eccentricity) ); 
   current->t1 = sqrt( ((1.0 - current->sin_phi1)/(1.0 + current->sin_phi1)) * 
-		   pow(((1.0 +(current->eccentricity * current->sin_phi1))/
-			(1.0 - (current->eccentricity * current->sin_phi1))),
-		       current->eccentricity) ); 
+		     pow(((1.0 +(current->eccentricity * current->sin_phi1))/
+			  (1.0 - (current->eccentricity * current->sin_phi1))),
+			 current->eccentricity) ); 
   current->n = (log(current->m0) - log(current->m1)) / (log(current->t0) -log(current->t1));
   current->F = current->m0/(current->n * pow(current->t0,current->n));
   current->rho0 = current->Rg * current->F * pow(current->t0, current->n);
   
+  return 0;
 }
 
 static int lambert_conic_conformal_ellipsoid (float lat, float lon, float *u, float *v)
@@ -1381,56 +1407,56 @@ static int lambert_conic_conformal_ellipsoid (float lat, float lon, float *u, fl
   lam = RADIANS(lam);
   phi = RADIANS(lat);
   sin_phi = sin(phi);
-
+  
   t = sqrt( ((1 - sin_phi)/(1 + sin_phi)) * 
-	    pow(((1 + (current->eccentricity * sin_phi))/
-		 (1 - (current->eccentricity * sin_phi))),
-		current->eccentricity) );
+	   pow(((1 + (current->eccentricity * sin_phi))/
+		(1 - (current->eccentricity * sin_phi))),
+	       current->eccentricity) );
   rho = current->Rg * current->F * pow(t, current->n);
   theta = current->n * lam;
-
+  
   x = rho * sin(theta);
   y = current->rho0 - (rho * cos(theta));
-
+  
   *u = current->T00*x + current->T01*y - current->u0;
   *v = current->T10*x + current->T11*y - current->v0;
   
-  return(0);
+  return 0;
 }
-  
+
 static int inverse_lambert_conic_conformal_ellipsoid (float u, float v, float *lat, float *lon)
 {
   double rho, x, y, t, chi, lam, phi, theta; 
-
+  
   x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
   y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-
+  
   rho = (fabs(current->n) / current->n) * 
     sqrt((x*x) + ((current->rho0 - y) * (current->rho0 - y)));
   t = pow((rho/(current->Rg * current->F)), (1/current->n));
   chi = ((PI/2.0) - (2.0 * atan(t)));
-
+  
   if (current->n < 0.0)
     theta = atan( -x / (y - current->rho0));
   else
     theta = atan(x / (current->rho0 - y));
-
+  
   lam = (theta / current->n);
   phi = chi + (((current->e2 / 2.0) + ((5.0 / 24.0) * current->e4) +
 		(current->e6 / 12.0) + ((13.0 / 360.0) * current->e8)) * 
 	       sin(2.0 * chi)) +
 		 ((((7.0 / 48.0) * current->e4) + ((29.0 / 240.0) * current->e6) +
 		   ((811.0 / 11520.0) * current->e8)) * sin(6.0 * chi)) +
-		      ((((7.0 / 120.0) * current->e6) + 
-			((81.0 / 1120.0) * current->e8)) * sin(6.0 * chi)) +
-			  (((4279.0 / 161280.0) * current->e8) * sin(8.0 * chi));
-		  
-
+		     ((((7.0 / 120.0) * current->e6) + 
+		       ((81.0 / 1120.0) * current->e8)) * sin(6.0 * chi)) +
+			 (((4279.0 / 161280.0) * current->e8) * sin(8.0 * chi));
+  
+  
   *lat = DEGREES(phi);
   *lon = DEGREES(lam) + current->lon0;
   NORMALIZE (*lon);
   
-  return(0);
+  return 0;
 }
 
 #ifdef MTEST
@@ -1443,7 +1469,7 @@ main(int argc, char *argv[])
   char readln[80];
   mapx_class *the_map;
   int status;
-
+  
   for (;;)
   { printf("\nenter .mpp file name - ");
     gets(readln);
@@ -1466,7 +1492,7 @@ main(int argc, char *argv[])
       printf("lat,lon = %f %f     %s\n", lat, lon, 
 	     status == 0 ? "valid" : "invalid");
     }
-
+    
     printf("\ninverse_mapx:\n");
     for (;;)
     { int temp;
@@ -1532,7 +1558,7 @@ main(int argc, char *argv[])
 #ifdef MACCT
   float err=0, sum=0, sum2=0, stdv=0, max_err=0, lat_max=0, lon_max=0;
 #endif
-
+  
   if (argc < 2)
 #ifdef MACCT
   { fprintf(stderr,"#\tmacct can be used to test the accuracy\n");
@@ -1544,7 +1570,7 @@ main(int argc, char *argv[])
     fprintf(stderr,"\n");
     error_exit(usage);
   }
-else
+  else
   { fprintf(stderr,"#\tmpmon can be used to monitor the performance\n");
     fprintf(stderr,"#\tof the mapx routines. It runs the forward and\n");
     fprintf(stderr,"#\tinverse transforms at ~100K points over the whole\n");
@@ -1557,14 +1583,14 @@ else
     error_exit(usage);
   }
 #endif
-
+  
   the_map = init_mapx(argv[1]);
   if (the_map == NULL) error_exit(usage);
   if (argc < 3 || sscanf(argv[2],"%d",&its) != 1) its = 1;
-
+  
   dlat = the_map->north - the_map->south;
   dlon = the_map->east - the_map->west;
-
+  
   for (ii = 1; ii <= its; ii++)
   { for (i_lat = 0; i_lat <= pts_lat; i_lat++)
     { lat = (float)i_lat/pts_lat * dlat + the_map->south;
