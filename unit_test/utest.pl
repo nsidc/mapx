@@ -8,7 +8,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 #==============================================================================
 #
-# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.18 2003-05-09 16:07:04 haran Exp $
+# $Header: /tmp_mnt/FILES/mapx/unit_test/utest.pl,v 1.19 2003-05-09 16:45:19 haran Exp $
 #
 
 #
@@ -94,8 +94,9 @@ USAGE: utest.pl [-v] [-i tagin] [-o tagout] [-c] file1 [file2...filen]
               .vs <exp1> <exp2> in <tagin>
                 where
                   <exp1> and <exp2> are the expected values from the input file
-            to any comment on any xytest or crtest expected line. If -o is not
-            specified, then the -c option is ignored.
+            to any comment on any xytest or crtest expected line. If both
+            <exp1> and <exp2> are equal to \"dummy\", then the comment is not
+            appended to. If -o is not specified, then the -c option is ignored.
 ";
         
 #
@@ -480,7 +481,7 @@ foreach $file_in (@files_in) {
 	    #
 	    #  Append to comment as necessary
 	    #
-	    if ($append_comment) {
+	    if ($append_comment && $exp1 ne "dummy" && $exp2 ne "dummy") {
 		my $extra_blank = $comment ? "" : " ";
 		$comment .= $extra_blank . ".vs $exp1_exp2 in $tagin";
 	    }
