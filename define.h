@@ -78,4 +78,12 @@ typedef long int int4;
 #define INT2_MAX SHRT_MAX
 #define INT4_MAX LONG_MAX
 
+#define BYTE1_MIN 0
+#define BYTE2_MIN 0
+#define BYTE4_MIN 0
+
+#define INT1_MIN SCHAR_MIN
+#define INT2_MIN SHRT_MIN
+#define INT4_MIN LONG_MIN
+
 #endif
