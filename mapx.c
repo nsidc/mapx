@@ -4,16 +4,18 @@
  * 2-July-1991 K.Knowles knowles@kryos.colorado.edu 303-492-0644
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.10 1993-02-24 10:17:53 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.11 1993-09-24 11:15:35 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <define.h>
-#include <mapx.h>
 #include <errno.h>
 #include <ctype.h>
+#include <math.h>
+#include <define.h>
+#include <maps.h>
+#include <mapx.h>
+
 /*
  * local mapx parameters for map transformation functions
  */
@@ -139,7 +141,7 @@ mapx_class *init_mapx (char *map_filename)
     return NULL;
   }
   strncpy(this->mpp_filename, map_filename, MAX_STRING);
-  this->mpp_file = search_path(this->mpp_filename, "PATHMPP", "r");
+  this->mpp_file = search_path_fopen(this->mpp_filename, "PATHMPP", "r");
   if (this->mpp_file == NULL)
   { fprintf (stderr,"init_mapx: error opening parameters file.\n");
     perror(map_filename);
@@ -567,66 +569,6 @@ static char *standard_name(char *s)
   }
 
   return new_name;
-}
-
-/*------------------------------------------------------------------------
- * search_path - search for file in colon separated list of directories
- *
- *	input : filename - name of file to try first
- *		pathvar - environment variable containing path
- *		mode - same as fopen modes ("r", "w", etc.)
- *
- *	output: filename - name of file successfully openned
- *
- *	result: file pointer of openned file or NULL on failure
- *
- *	note  : directories are searched in order
- *		if first attempt to open file fails then the directory
- *		information preceeding the filename is stripped before
- *		searching the directory path
- *
- *------------------------------------------------------------------------*/
-FILE *search_path(char *filename, const char *pathvar, const char *mode)
-{ const char *envpointer;
-  char *basename = NULL, *directory, *pathvalue = NULL;
-  FILE *fp = NULL;
-
-/*
- *	try to open original name
- */
-  fp = fopen(filename, mode);
-
-/* 
- *	failing that, get path information
- */
-  if (fp == NULL)
-  { envpointer = getenv(pathvar);
-
-/*
- *	strip off directory name
- */
-    if (envpointer != NULL)
-    { pathvalue = strdup(envpointer);
-      basename = strrchr(filename,'/');
-      basename = (basename != NULL) ? strdup(basename+1) : strdup(filename);
-      if (basename == NULL) return NULL;
-
-/*
- *	try each directory in turn
- */
-      directory = strtok(pathvalue, ": ");
-      while (directory != NULL)
-      {	strcat(strcat(strcpy(filename, directory), "/"), basename);
-	fp = fopen(filename, mode);
-	if (fp != NULL) break;
-	directory = strtok(NULL, ": ");
-      }
-    }
-  }
-  if (basename != NULL) free(basename);
-  if (pathvalue != NULL) free(pathvalue);
-
-  return fp;
 }
 
 /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
