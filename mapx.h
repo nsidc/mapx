@@ -7,7 +7,7 @@
  *======================================================================*/
 #ifndef mapx_h_
 #define mapx_h_
-static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.19 1999-08-02 16:58:07 knowles Exp $";
+static const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.20 1999-08-02 20:32:05 knowles Exp $";
 
 /*
  * global verbose flag
@@ -90,7 +90,8 @@ typedef struct {
 /*
  * function prototypes
  */
-mapx_class *init_mapx(char *mpp_filename);
+mapx_class *init_mapx(char *filename);
+mapx_class *new_mapx(char *label);
 void close_mapx(mapx_class *this);
 int reinit_mapx(mapx_class *this);
 int within_mapx(mapx_class *this, float lat, float lon);
