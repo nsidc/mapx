@@ -1,8 +1,15 @@
 /*------------------------------------------------------------------------
  * cylindrical_equal_area
  *------------------------------------------------------------------------*/
+static const char cylindrical_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equal_area.c,v 1.2 2003-06-23 15:53:23 haran Exp $";
+
 #include "define.h"
 #include "mapx.h"
+
+char *id_cylindrical_equal_area(void)
+{
+  return((char *)cylindrical_equal_area_c_rcsid);
+}
 
 int init_cylindrical_equal_area(mapx_class *current)
 { 
@@ -12,9 +19,10 @@ int init_cylindrical_equal_area(mapx_class *current)
   return 0;
 }
 
-int cylindrical_equal_area(mapx_class *current, float lat, float lon, float *u, float *v)
+int cylindrical_equal_area(mapx_class *current,
+			   double lat, double lon, double *x, double *y)
 {
-  float x, y, dlon;
+  double dlon;
   double phi, lam;
   
   dlon = lon - current->lon0;
@@ -23,23 +31,23 @@ int cylindrical_equal_area(mapx_class *current, float lat, float lon, float *u, 
   phi = RADIANS (lat);
   lam = RADIANS (dlon);
   
-  x =  current->Rg * lam * current->cos_phi1;
-  y =  current->Rg * sin (phi) / current->cos_phi1;
+  *x =  current->Rg * lam * current->cos_phi1;
+  *y =  current->Rg * sin (phi) / current->cos_phi1;
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y - current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
-  return 0;
+ return 0;
 }
 
-int inverse_cylindrical_equal_area (mapx_class *current, float u, float v, 
-					   float *lat, float *lon)
+int inverse_cylindrical_equal_area (mapx_class *current, double x, double y, 
+				    double *lat, double *lon)
 {
-  double phi, lam, x, y;
+  double phi, lam;
   
-  x =  current->T00*(u+current->u0) - current->T01*(v+current->v0);
-  y = -current->T10*(u+current->u0) + current->T11*(v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   phi = asin(y*current->cos_phi1/current->Rg);
   lam = x/current->cos_phi1/current->Rg;
   
@@ -57,9 +65,10 @@ int inverse_cylindrical_equal_area (mapx_class *current, float u, float v,
 int init_cylindrical_equal_area_ellipsoid(mapx_class *current)
 {
   current->Rg = current->equatorial_radius / current->scale; 
-  current->phis = RADIANS(current->lat0);
-  current->kz = cos(current->phis)/(sqrt(1.0 - ((current->e2)*sin(current->phis)
-						*sin(current->phis))));
+  current->sin_phi1 = sin(RADIANS(current->lat1));
+  current->cos_phi1 = cos(RADIANS(current->lat1));
+  current->kz = current->cos_phi1 /
+    sqrt(1.0 - current->e2 * current->sin_phi1 * current->sin_phi1);
   if(current->eccentricity == 0.0)
     current->qp = 2.0;
   else 
@@ -71,10 +80,11 @@ int init_cylindrical_equal_area_ellipsoid(mapx_class *current)
   return 0;
 }
 
-int cylindrical_equal_area_ellipsoid(mapx_class *current, float lat, float lon, 
-					     float *u, float *v)
+int cylindrical_equal_area_ellipsoid(mapx_class *current,
+				     double lat, double lon, 
+				     double *x, double *y)
 {
-  float x, y, dlon;
+  double dlon;
   double phi, lam, q, sin_phi;
   
   dlon = (lon - current->lon0);
@@ -89,22 +99,24 @@ int cylindrical_equal_area_ellipsoid(mapx_class *current, float lat, float lon,
 			     log((1.0 - current->eccentricity * sin_phi)/
 				 (1.0 + current->eccentricity * sin_phi)));
   
-  x = (current->Rg * current->kz * lam);
-  y = (current->Rg * q) / (2.0 * current->kz);
+  *x = (current->Rg * current->kz * lam);
+  *y = (current->Rg * q) / (2.0 * current->kz);
   
-  *u = current->T00*x + current->T01*y - current->u0;
-  *v = current->T10*x + current->T11*y -current->v0;
+  *x += current->false_easting;
+  *y += current->false_northing;
   
   return 0;
 }
 
-int inverse_cylindrical_equal_area_ellipsoid(mapx_class *current, float u, float v, float *lat, float *lon)
+int inverse_cylindrical_equal_area_ellipsoid(mapx_class *current,
+					     double x, double y,
+					     double *lat, double *lon)
 {
-  double phi, lam, x, y, beta;
+  double phi, lam, beta;
   
-  x =  current->T00 * (u+current->u0) - current->T01 * (v+current->v0);
-  y = -current->T10 * (u+current->u0) + current->T11 * (v+current->v0);
-  
+  x -= current->false_easting;
+  y -= current->false_northing;
+
   beta = asin(2.0 * y * current->kz/(current->Rg * current->qp));
   
   phi = beta +(((current->e2 / 3.0) + ((31.0/180.0) * current->e4)+
