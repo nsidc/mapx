@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.33 1999-11-11 18:43:37 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.34 1999-11-29 23:02:48 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -98,6 +98,9 @@ int inverse_interupted_homolosine_equal_area(void *, float, float, float *, floa
 int init_albers_conic_equal_area(void *);
 int albers_conic_equal_area(void *, float, float, float *, float *);
 int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
+int init_albers_conic_equal_area_ellipsoid(void *);
+int albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
+int inverse_albers_conic_equal_area_ellipsoid(void *, float, float, float *, float *);
 
 /*----------------------------------------------------------------------
  * init_mapx - initialize map projection from file
@@ -158,6 +161,7 @@ int inverse_albers_conic_equal_area(void *, float, float, float *, float *);
  *                       Lambert_Conic_Conformal_Ellipsoid
  *			 Interupted_Homolosine_Equal_Area
  *                       Albers_Conic_Equal_Area
+ *                       Albers_Conic_Equal_Area_Ellipsoid
  *			or anything reasonably similar
  *
  *	The parameter lat1 is currently used for the Polar_Stereographic
@@ -329,10 +333,16 @@ mapx_class *new_mapx (char *label)
     this->geo_to_map = albers_conic_equal_area;
     this->map_to_geo = inverse_albers_conic_equal_area;
   }
+  else if (strcmp (this->projection_name, "ALBERSCONICEQUALAREAELLIPSOID") == 0)     
+  { this->initialize = init_albers_conic_equal_area_ellipsoid; 
+    this->geo_to_map = albers_conic_equal_area_ellipsoid;
+    this->map_to_geo = inverse_albers_conic_equal_area_ellipsoid;
+  }
   else
   { fprintf (stderr, "mapx: unknown projection %s\n", this->projection_name);
     fprintf (stderr, "valid types are:\n");
     fprintf (stderr, " Albers Conic Equal-Area\n");
+    fprintf (stderr, " Albers Conic Equal-Area Ellipsoid\n");
     fprintf (stderr, " Azimuthal Equal-Area\n");
     fprintf (stderr, " Azimuthal Equal-Area Ellipsoid\n");
     fprintf (stderr, " Cylindrical Equal-Area\n");
@@ -875,6 +885,15 @@ static char *standard_name(char *original_name)
       streq(new_name, "ALBERSCONIC") || 
       streq(new_name, "ALBERSEQUALAREA"))
   { strcpy(new_name,"ALBERSCONICEQUALAREA");
+  }
+  else if (streq(new_name, "ALBERSCONICEQUALAREAELLIPSOID") || 
+      streq(new_name, "ELLIPSOIDALBERSCONICEQUALAREA") || 
+      streq(new_name, "ALBERSEQUALAREACONICELLIPSOID") || 
+      streq(new_name, "CONICEQUALAREAELLIPSOID") || 
+      streq(new_name, "EQUALAREACONICELLIPSOID") || 
+      streq(new_name, "ALBERSCONICELLIPSOID") || 
+      streq(new_name, "ALBERSEQUALAREAELLIPSOID"))
+  { strcpy(new_name,"ALBERSCONICEQUALAREAELLIPSOID");
   }
   else
   { return original_name;
