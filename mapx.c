@@ -5,7 +5,7 @@
  * 10-Dec-1992 R.Swick swick@krusty.colorado.edu 303-492-1395
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.22 1994-05-09 10:41:57 knowles Exp $";
+static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.23 1996-03-20 20:41:40 knowles Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -107,7 +107,7 @@ static char *standard_name(char *);
  *		or NULL if an error occurs during initialization
  *
  *	note  : if unable to open .mpp file on first attempt then the
- *		value of the environment variable PATHMPP is prepended
+ *		value of the search path environment variable is prepended
  *		to the filename and a second attempt is made
  *
  *		Some important notes on specifying longitudes:
@@ -146,7 +146,7 @@ mapx_class *init_mapx (char *map_filename)
     return NULL;
   }
   strncpy(this->mpp_filename, map_filename, MAX_STRING);
-  this->mpp_file = search_path_fopen(this->mpp_filename, "PATHMPP", "r");
+  this->mpp_file = search_path_fopen(this->mpp_filename, mapx_PATH, "r");
   if (this->mpp_file == NULL)
   { fprintf (stderr,"init_mapx: error opening parameters file.\n");
     perror(map_filename);
