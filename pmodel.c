@@ -12,6 +12,8 @@
  * 2-Aug-1990 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *======================================================================*/
+static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.7 2003-06-24 22:59:49 haran Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -21,7 +23,10 @@
 #include "svd.h"
 #include "pmodel.h"
 
-static const char pmodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.c,v 1.6 2002-01-08 21:22:40 knowles Exp $";
+char *id_pmodel(void)
+{
+  return((char *)pmodel_c_rcsid);
+}
 
 /*----------------------------------------------------------------------
  * eval_pmodel - evaluate polynomial
