@@ -16,6 +16,8 @@
 #include "cdb.h"
 #include "cdb_byteswap.h"
 
+static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.2 1993-11-11 17:00:40 knowles Exp $";
+
 /*------------------------------------------------------------------------
  * globals
  *------------------------------------------------------------------------*/
@@ -60,7 +62,7 @@ int write_segment_data(int);
 "         s south - southern bound (default -90)\n"\
 "         e east - eastern bound (default 180)\n"\
 "         w west - western bound (default -180)\n"\
-"         l label - file header text (max 31 chars)\n"\
+"         h label - file header text (max 31 chars)\n"\
 "         v - verbose diagnostic messages (may be repeated)\n"\
 "\n"
 
@@ -115,7 +117,7 @@ main(int argc, char *argv[])
 	  argc--; argv++;
 	  if (argc <= 0 || sscanf(*argv,"%f",&west) != 1) error_exit(usage);
 	  break;
-        case 'l':
+        case 'h':
 	  argc--; argv++;
 	  strncpy(label, *argv, MAX_STRING);
 	  break;
