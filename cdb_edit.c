@@ -1,27 +1,30 @@
 /*========================================================================
- * coastlines data base decimation - decimate .cdb files sensibly
+ * cdb_edit - decimate .cdb files sensibly
  *
- *      7-Apr-1993 R.Swick swick@krusty.colorado.edu  303-
+ * assumes machine byte order is most significant byte first
+ * for least significant byte first machines compile with -DLSB1ST
+ *
+ * 7-Apr-1993 R.Swick swick@krusty.colorado.edu  303-492-6069
  *========================================================================*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <define.h>
-#include <cdb.h>
-#include <assert.h>
-#include <mapx.h>
-#include <cdb_edit.h>
 #include <errno.h>
 #include <ctype.h>
+#include <assert.h>
+#include "define.h"
+#include "cdb.h"
+#include "mapx.h"
+#include "cdb_byteswap.h"
 
 
 /*------------------------------------------------------------------------
  * globals
  *------------------------------------------------------------------------*/
 
-static char *cdb_filename;
-static FILE *cdb_file;
+static char *new_filename;
+static FILE *new_file;
 static mapx_class *map;
 static cdb_file_header header;
 static cdb_index_entry *seg_index = NULL;
@@ -29,6 +32,7 @@ static cdb_seg_data *data = NULL;
 static int seg_count = 0;
 static int npoints = 0;
 static int max_seg_size = 0;
+static int max_segment_rank = 0;
 static int ilat_extent = 0, ilon_extent = 0;
 static int max_index_entries = 0;
 static int max_data_points = 0;
@@ -36,60 +40,36 @@ static int verbose = FALSE;
 static int very_verbose = FALSE;
 static int very_very_verbose = FALSE;
 static float thin = 0.01;
+static char mpp_filename[] = "cdb_edit.mpp";
 
 /*------------------------------------------------------------------------
  * function prototypes
  *------------------------------------------------------------------------*/
-static void move_pu_dec(float lat, float lon);
-static void draw_pd_dec(float lat, float lon);
-static void write_segment_data_dec(int);
-static int parallels_min_dec(cdb_index_entry *, cdb_index_entry *);
-static int meridians_min_dec(cdb_index_entry *, cdb_index_entry *);
-static int parallels_max_dec(cdb_index_entry *, cdb_index_entry *);
-static int meridians_max_dec(cdb_index_entry *, cdb_index_entry *);
-static void thin_segment_dec(cdb_class *this);
-static void copy_segment_dec(cdb_class *this);
-static void decimate_map_dec(char *cdb_filename,  
+static int move_pu(float lat, float lon);
+static int draw_pd(float lat, float lon);
+static void write_segment_data(int);
+static int parallels_min(cdb_index_entry *, cdb_index_entry *);
+static int meridians_min(cdb_index_entry *, cdb_index_entry *);
+static int parallels_max(cdb_index_entry *, cdb_index_entry *);
+static int meridians_max(cdb_index_entry *, cdb_index_entry *);
+static void thin_segment(cdb_class *source);
+static void copy_segment(cdb_class *source);
+static void decimate_map(char *cdb_filename,  
 		 float lat_min, float lat_max, 
 		 float lon_min, float lon_max);
 
 /*------------------------------------------------------------------------
- * coastlines data base decimation - decimate .cdb files sensibly
- *
- *	input : "cdb" formatted (byte swapped) file created by cdbx
- *                   cil, riv, and bdy files in decimate.h
- *
- *	output: decimated "cdb" formatted file
- *
- *	option: t thin - thin strokes to a maximum error of t kilometers.
- *                  (default = 0.01 kilometer = no thinning)
- *		d detail - only use segments with rank <= detail (default 1)
- *                  (least detail = 1,  most detail = 5)
- *		n north - northern bound (default 90)
- *		s south - southern bound (default -90)
- *		e east - eastern bound (default 180)
- *		w west - western bound (default -180)
- *		p parallels_min - sort index by lat_min (cancels -m, -q, -l)
- *		q parallels_max - sort index by lat_max (cancels -m, -l, -p)
- *		l meridians_min - sort index by lon_min (cancels -p, -q, -m)
- *		m meridians_max - sort index by lon_max (cancels -p, -q, -l)
- *                  (default is meridians_min)
- *		c - coastlines, islands, and lakes (default)
- *		b - boundaries
- *		r - rivers      (c, b, and r are NOT mutually exclusive)
- *              v - verbose diagnostic messages
- *	        vv - very verbose
- *		vvv - very very verbose
- *
- *
- *----------------------------------------------------------------------*/
-
-#define usage \
- "usage: cdb_edit [-tdnsewpqlmcbrv] new_cdb_filename\n"\
+ * usage
+ *------------------------------------------------------------------------*/
+#define usage "\n"\
+ "usage: cdb_edit [-tnsewpqlmhv] new_cdb_file source_cdb_file ...\n"\
+ "\n"\
+ " input : source_cdb_file - file(s) to edit (may be more than one)\n"\
+ "\n"\
+ " output: new_cdb_file - edit applied to source(s)\n"\
+ "\n"\
  " option: t thin - thin strokes to a maximum error of t kilometers.\n"\
  "                (default = 0.01 kilometer = no thinning)\n"\
- "         d detail - only use segments with rank <= detail\n"\
- "                 (least detail = 1,  most detail = 5, default = 1)\n"\
  "         n north - northern bound (default 90)\n"\
  "         s south - southern bound (default -90)\n"\
  "         e east - eastern bound (default 180)\n"\
@@ -98,23 +78,25 @@ static void decimate_map_dec(char *cdb_filename,
  "         q parallels_max - sort index by lat_max (cancels -m, -l, -p)\n"\
  "         l meridians_min - sort index by lon_min (cancels -p, -q, -m)\n"\
  "         m meridians_max - sort index by lon_max (cancels -p, -q, -l)\n"\
- "                 (default is meridians_min)\n"\
- "         c - coastlines, islands, and lakes (default)\n"\
- "         b - boundaries\n"\
- "         r - rivers      (c, b, and r are NOT mutually exclusive)\n"\
- "         v - verbose diagnostic messages\n"\
- "         vv - very verbose\n"\
- "         vvv - very very verbose\n"
+ "         h label - specify header label text (31 chars max)\n"\
+ "         v - verbose diagnostic messages (may be repeated)\n"\
+ "\n"
 
 
+/*------------------------------------------------------------------------
+ * cdb_edit - decimate .cdb files sensibly
+ *
+ *	input : "cdb" formatted files
+ *
+ *	output: decimated and concatenated "cdb" formatted file
+ *
+ *----------------------------------------------------------------------*/
 main(int argc, char *argv[])
 { 
   register int i, ios, extent;
-  char *option;
-  int detail = 1;
+  char *option, label[32] = "cdb_edit";
   float north = 90.0, south = -90.0, east = 180.0, west = -180.0;
-  int sort_by_lat = FALSE, sort_by_lon = FALSE;
-  int do_cil = FALSE, do_bdy = FALSE, do_riv = FALSE;
+  int do_sort = FALSE;
   int (*compare)();
   
 /*
@@ -126,10 +108,6 @@ main(int argc, char *argv[])
     { 
       switch (*option)
       { 
-      case 'd':
-	argc--; argv++;
-	if (argc <= 0 || sscanf(*argv,"%d", &detail) != 1) error_exit(usage);
-	break;
       case 't':
 	argc--; argv++;
 	if (argc <= 0 || sscanf(*argv,"%f", &thin) != 1) error_exit(usage);
@@ -156,33 +134,24 @@ main(int argc, char *argv[])
 	verbose = TRUE;
 	break;
       case 'p':
-	sort_by_lat = TRUE;
-	compare = parallels_min_dec;
-	sort_by_lon = FALSE;
+	do_sort = TRUE;
+	compare = parallels_min;
 	break; 
       case 'q':
-	sort_by_lat = TRUE;
-	compare = parallels_max_dec;
-	sort_by_lon = FALSE;
+	do_sort = TRUE;
+	compare = parallels_max;
 	break;
       case 'l':
-	sort_by_lon = TRUE;
-	compare = meridians_min_dec;
-	sort_by_lat = FALSE;
+	do_sort = TRUE;
+	compare = meridians_min;
 	break;
       case 'm':
-	sort_by_lon = TRUE;
-	compare = meridians_max_dec;
-	sort_by_lat = FALSE;
+	do_sort = TRUE;
+	compare = meridians_max;
 	break;
-      case 'c':
-	do_cil = TRUE;
-	break;
-      case 'b':
-	do_bdy = TRUE;
-	break;
-      case 'r':
-	do_riv = TRUE;
+      case 'h':
+	argc--; argv++;
+	strncpy(label, *argv, 31);
 	break;
       default:
 	fprintf(stderr, "invalid option %c\n", *option);
@@ -191,41 +160,37 @@ main(int argc, char *argv[])
     }
   }
 
-  if (!do_cil && !do_bdy && !do_riv) do_cil = TRUE;
-
 /*
  *	get command line arguments
  */
-  if (argc != 1) error_exit(usage);
-  cdb_filename = *argv;
-  if (verbose && thin < 0.09) 
-    fprintf(stderr, ">filename: %s\n>thin: none\n>detail: %d\n",
-	    cdb_filename, detail);
-  else if (verbose) 
-    fprintf(stderr,">filename: %s\n>thin: %f Kilometer(s)\n>detail: %d\n",
-	    cdb_filename, thin, detail);
+  if (argc < 2) error_exit(usage);
+  new_filename = strdup(*argv);
+  argc--; argv++;
+  if (verbose) 
+    fprintf(stderr,">creating: %s\n>thin: %f km\n",
+	    new_filename, thin);
 
 /*
  *	open output file and reserve space for header
  */
-  cdb_file = fopen(cdb_filename, "w");
-  if (cdb_file == NULL) { perror(cdb_filename); error_exit(usage); }
-  ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, cdb_file);
+  new_file = fopen(new_filename, "w");
+  if (new_file == NULL) { perror(new_filename); error_exit(usage); }
+  ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, new_file);
   if (very_verbose) fprintf(stderr,">>wrote %d bytes for header.\n",ios);
   if (ios != CDB_FILE_HEADER_SIZE)
   { fprintf(stderr,"cdb_edit: error writing header.\n");
-    perror(cdb_filename);
+    perror(new_filename);
     exit(ABORT);
   }
 
 /*
  *      initialize .mpp file
  */
-  map = init_mapx(MPP_FILENAME);
+  map = init_mapx(mpp_filename);
   if (NULL == map) 
   { fprintf(stderr,"cdb_edit: get a copy of %s, or set the environment\n"\
 	    "          variable PATHMPP to the appropriate directory\n",
-	    MPP_FILENAME);
+	    mpp_filename);
     exit(ABORT);
   }
   map->scale = thin/3;
@@ -237,38 +202,23 @@ main(int argc, char *argv[])
  *	record segment data and create index
  */
 
-  if (do_cil)
-    { if (verbose) fprintf(stderr,">processing %s...\n", 
-			   cil_filename[detail-1]);
-      decimate_map_dec(cil_filename[detail-1], south, north, west, east);
-    }
-  
-  if (do_bdy)
-    { if (verbose) fprintf(stderr,">processing %s...\n", 
-			   bdy_filename[detail-1]);
-      decimate_map_dec(bdy_filename[detail-1], south, north, west, east);
-    }
-  
-  if (do_riv)
-    { if (verbose) fprintf(stderr,">processing %s...\n", 
-			   riv_filename[detail-1]);
-      decimate_map_dec(riv_filename[detail-1], south, north, west, east);
-    }
- 
+  for (; argc > 0; argc--, argv++)
+  { if (verbose) fprintf(stderr,">processing %s...\n", *argv);
+    decimate_map(*argv, south, north, west, east);
+  }
 
 /*
  *	flush segment data buffer
  */
-  if (npoints > 0) write_segment_data_dec(seg_count-1);
+  if (npoints > 0) write_segment_data(seg_count-1);
 
 /*
  *	sort index
  */
-  if (sort_by_lat || sort_by_lon)
+  if (do_sort)
   { if (verbose) fprintf(stderr,">sorting %d index entries...\n", seg_count);
     qsort(seg_index, seg_count, sizeof(cdb_index_entry), compare);
   }
-
 
 /*
  *	get maximum lat,lon extent 
@@ -281,72 +231,68 @@ main(int argc, char *argv[])
     if (ilon_extent < extent) ilon_extent = extent;
   }
 
-
 /*
  *	update header information
  */
-  header.code_number = (CDB_MAGIC_NUMBER);
-  header.max_seg_size = (max_seg_size);
-  header.segment_rank = (detail);
-  sprintf(header.text, "WDBII (%d:1)", thin);
-  if (do_cil) strcat(header.text," CIL");
-  if (do_bdy) strcat(header.text," BDY");
-  if (do_riv) strcat(header.text," RIV");
-  header.index_addr = (ftell(cdb_file));
-  header.index_size = (seg_count*sizeof(cdb_index_entry));
-  header.index_order = (sort_by_lat ? CDB_INDEX_LAT_MIN 
-			     : sort_by_lon ? CDB_INDEX_LON_MIN 
-			     : CDB_INDEX_SEG_ID);
-  header.ilat_max = (nint(north/CDB_LAT_SCALE));
-  header.ilon_max = (nint(east/CDB_LON_SCALE));
-  header.ilat_min = (nint(south/CDB_LAT_SCALE));
-  header.ilon_min = (nint(west/CDB_LON_SCALE));
-  header.ilat_extent = (ilat_extent);
-  header.ilon_extent = (ilon_extent);
+  header.code_number = CDB_MAGIC_NUMBER;
+  header.max_seg_size = max_seg_size;
+  header.segment_rank = max_segment_rank;
+  strcpy(header.text, label);
+  header.index_addr = ftell(new_file);
+  header.index_size = seg_count*sizeof(cdb_index_entry);
+  header.index_order = (compare == parallels_min ? CDB_INDEX_LAT_MIN :
+			compare == meridians_min ? CDB_INDEX_LON_MIN :
+			compare == parallels_max ? CDB_INDEX_LAT_MAX :
+			compare == meridians_max ? CDB_INDEX_LON_MAX :
+			CDB_INDEX_SEG_ID);
+  header.ilat_max = nint(north/CDB_LAT_SCALE);
+  header.ilon_max = nint(east/CDB_LON_SCALE);
+  header.ilat_min = nint(south/CDB_LAT_SCALE);
+  header.ilon_min = nint(west/CDB_LON_SCALE);
+  header.ilat_extent = ilat_extent;
+  header.ilon_extent = ilon_extent;
   if (verbose) fprintf(stderr,">max segment size %d bytes.\n", max_seg_size);
-
-
 
 /*
  *	output index
  */
-  ios = fwrite(seg_index, sizeof(cdb_index_entry), seg_count, cdb_file);
+  cdb_byteswap_index(seg_index, seg_count);
+  ios = fwrite(seg_index, sizeof(cdb_index_entry), seg_count, new_file);
   if (verbose) fprintf(stderr,">wrote %d index entries.\n",ios);
   if (ios != seg_count)
   { fprintf(stderr,"cdb_edit: error writing index.\n");
-    perror(cdb_filename);
+    perror(new_filename);
     exit(ABORT);
   }
 
 /*
  *	output header
  */
-  fseek(cdb_file, 0L, SEEK_SET);
-  ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, cdb_file);
+  cdb_byteswap_header(&header);
+  fseek(new_file, 0L, SEEK_SET);
+  ios = fwrite(&header, 1, CDB_FILE_HEADER_SIZE, new_file);
   if (verbose) fprintf(stderr,">wrote %d bytes of header.\n",ios);
   if (ios != CDB_FILE_HEADER_SIZE)
   { fprintf(stderr,"cdb_edit: error writing header.\n");
-    perror(cdb_filename);
+    perror(new_filename);
     exit(ABORT);
   }
 
-  fclose(cdb_file);
+  fclose(new_file);
 
-}  /* END OF MAIN */
-
-
-
+}
+
 /*------------------------------------------------------------------------
- * move_pu_dec - move pen up function for decimate_map
+ * move_pu - move pen up function for decimate_map
  *------------------------------------------------------------------------*/
-static void move_pu_dec(float lat, float lon)
+static int move_pu(float lat, float lon)
 {
   float nlon;
 
 /*
  *	write current segment
  */
-  if (npoints > 0) write_segment_data_dec(seg_count-1);
+  if (npoints > 0) write_segment_data(seg_count-1);
 
 /*
  *	make sure index is big enough
@@ -386,15 +332,13 @@ static void move_pu_dec(float lat, float lon)
   ++seg_count;
   npoints = 0;
 
+  return 0;
 }
-
-
-
-
+
 /*------------------------------------------------------------------------
- * draw_pd_dec - draw pen down function for decimate_map
+ * draw_pd - draw pen down function for decimate_map
  *------------------------------------------------------------------------*/
-static void draw_pd_dec(float lat, float lon)
+static int draw_pd(float lat, float lon)
 {
   register int ilat, ilon;
   static float lat1,lon1;
@@ -473,40 +417,42 @@ static void draw_pd_dec(float lat, float lon)
   reinit_mapx(map);
   if (very_very_verbose)fprintf(stderr,">>> recentered map to %f %f.\n",
 				lat1, lon1);
+
+  return 0;
 }
-
-
+
 /*------------------------------------------------------------------------
- * write_segment_data_dec - and get segment address and size
+ * write_segment_data - and get segment address and size
  *------------------------------------------------------------------------*/
-static void write_segment_data_dec(int seg)
+static void write_segment_data(int seg)
 {
   register int ios;
 
-  seg_index[seg].addr = ftell(cdb_file);
+  seg_index[seg].addr = ftell(new_file);
   seg_index[seg].size = npoints*sizeof(cdb_seg_data);
-  ios = fwrite(data, sizeof(cdb_seg_data), npoints, cdb_file);
+  cdb_byteswap_data_buffer(data, npoints);
+  ios = fwrite(data, sizeof(cdb_seg_data), npoints, new_file);
   if (very_verbose) fprintf(stderr,">>wrote %d points of segment %d.\n",
 	 ios+1, seg_index[seg].ID);
   if (ios != npoints)
   { fprintf(stderr,"cdb_edit: error writing data segment %d.\n",
      seg_index[seg].ID);
-    perror(cdb_filename);
+    perror(new_filename);
     exit(ABORT);
   }
 }
 
 /*------------------------------------------------------------------------
  * parallels - compare functions for qsort.
- *             parallels_min_dec -> increasing lat_min
- *             parallels_max_dec -> decreasing lat_max
+ *             parallels_min -> increasing lat_min
+ *             parallels_max -> decreasing lat_max
  *------------------------------------------------------------------------*/
-static int parallels_min_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
+static int parallels_min(cdb_index_entry *seg1, cdb_index_entry *seg2)
 {
   return (seg1->ilat_min - seg2->ilat_min);
 }
 
-static int parallels_max_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
+static int parallels_max(cdb_index_entry *seg1, cdb_index_entry *seg2)
 {
   return (seg2->ilat_max - seg1->ilat_max);
 }
@@ -514,23 +460,23 @@ static int parallels_max_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
 
 /*------------------------------------------------------------------------
  * meridians - compare functions for qsort. 
- *             meridians_min_dec -> increasing lon_min
- *             meridians_max_dec -> decreasing lon_max
+ *             meridians_min -> increasing lon_min
+ *             meridians_max -> decreasing lon_max
  *------------------------------------------------------------------------*/
 
-static int meridians_min_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
+static int meridians_min(cdb_index_entry *seg1, cdb_index_entry *seg2)
 {
   return (seg1->ilon_min - seg2->ilon_min);
 }
 
-static int meridians_max_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
+static int meridians_max(cdb_index_entry *seg1, cdb_index_entry *seg2)
 {
   return (seg2->ilon_max - seg1->ilon_max);
 }
 
 
 /*----------------------------------------------------------------------
- *    decimate_map_dec  map decimation routine
+ *    decimate_map  map decimation routine
  *
  *	input : cdb_file - cdb map file to be thinned
  *              lat_min...lon_max - furthest bounds of map, should be
@@ -557,11 +503,11 @@ static int meridians_max_dec(cdb_index_entry *seg1, cdb_index_entry *seg2)
  *	the point to a data structure or file
  *	
  *----------------------------------------------------------------------*/
-static void decimate_map_dec(char *cdb_filename,  
+static void decimate_map(char *cdb_filename,  
 		     float lat_min, float lat_max, 
 		     float lon_min, float lon_max)
 {
-  cdb_class *this;
+  cdb_class *source;
   int map_stradles_180;
   int iseg;
   
@@ -584,73 +530,75 @@ static void decimate_map_dec(char *cdb_filename,
   { map_stradles_180 = FALSE;
   }
     
-    /*
-     *	open map file
-     */
+/*
+ *	open map file
+ */
     
-  this = init_cdb(cdb_filename);
-  if(this == NULL) { perror(cdb_filename); error_exit(usage); }
-    
+  source = init_cdb(cdb_filename);
+  if(source == NULL) { perror(cdb_filename); error_exit(usage); }
+ 
+  if (source->header->segment_rank > max_segment_rank)
+    max_segment_rank = source->header->segment_rank;
 /*
  *	step thru segment dictionary entries
  */
 
-  for (iseg = 0, reset_current_seg_cdb(this); 
-       iseg < this->seg_count; iseg++, next_segment_cdb(this))
+  for (iseg = 0, reset_current_seg_cdb(source); 
+       iseg < source->seg_count; iseg++, next_segment_cdb(source))
   {
     
 /*
  *	  look at each segment and decide if we're
  *	  going to keep it or skip to the next one
  */ 
-    if (this->segment->ilat_min*CDB_LAT_SCALE > lat_max) continue;
-    if (this->segment->ilat_max*CDB_LAT_SCALE < lat_min) continue;
+    if (source->segment->ilat_min*CDB_LAT_SCALE > lat_max) continue;
+    if (source->segment->ilat_max*CDB_LAT_SCALE < lat_min) continue;
     if (map_stradles_180)
-    { if (this->segment->ilon_min < 0)  
-	this->segment->ilon_min += 360/CDB_LON_SCALE;
-      if (this->segment->ilon_max < 0)  
-	this->segment->ilon_max += 360/CDB_LON_SCALE;
+    { if (source->segment->ilon_min < 0)  
+	source->segment->ilon_min += 360/CDB_LON_SCALE;
+      if (source->segment->ilon_max < 0)  
+	source->segment->ilon_max += 360/CDB_LON_SCALE;
     }
-    if (this->segment->ilon_min*CDB_LON_SCALE > lon_max) continue;
-    if (this->segment->ilon_max*CDB_LON_SCALE < lon_min) continue;
+    if (source->segment->ilon_min*CDB_LON_SCALE > lon_max) continue;
+    if (source->segment->ilon_max*CDB_LON_SCALE < lon_min) continue;
       
 /*
  *    read and draw the segment
  */
-    load_current_seg_data_cdb(this);
+    load_current_seg_data_cdb(source);
     if(thin < 0.09)
-      copy_segment_dec(this);
+      copy_segment(source);
     else
-      thin_segment_dec(this);
+      thin_segment(source);
   }
- list_cdb(this, very_very_verbose); 
+ list_cdb(source, very_very_verbose); 
 }
   
 /*------------------------------------------------------------------------
- * thin_segment_dec - check each stroke of the current segment
+ * thin_segment - check each stroke of the current segment
  *------------------------------------------------------------------------*/ 
 
-static void thin_segment_dec(cdb_class *this)
+static void thin_segment(cdb_class *source)
 {
   int idata, ipoints;
   double lat = 0.0, lon = 0.0;
   float x1, x2, x3, y1, y2, y3;
   int next_point_ok = FALSE, inside = TRUE;
-  lat = (double)this->segment->ilat0*CDB_LAT_SCALE;
-  lon = (double)this->segment->ilon0*CDB_LON_SCALE;
+  lat = (double)source->segment->ilat0*CDB_LAT_SCALE;
+  lon = (double)source->segment->ilon0*CDB_LON_SCALE;
   
-  move_pu_dec(lat, lon);
+  move_pu(lat, lon);
   forward_mapx(map, lat, lon, &x1, &y1);
   x1 = nint(x1);
   y1 = nint(y1);
   x2 = x1;
   y2 = y1;
  
-  for (idata = 0, ipoints = 1; idata < this->npoints; 
-       idata++, this->data_ptr++)
+  for (idata = 0, ipoints = 1; idata < source->npoints; 
+       idata++, source->data_ptr++)
   {
-    lat += (double)this->data_ptr->dlat*CDB_LAT_SCALE;
-    lon += (double)this->data_ptr->dlon*CDB_LON_SCALE;
+    lat += (double)source->data_ptr->dlat*CDB_LAT_SCALE;
+    lon += (double)source->data_ptr->dlon*CDB_LON_SCALE;
     forward_mapx(map, lat, lon, &x3, &y3);
     x3 = nint(x3);
     y3 = nint(y3);
@@ -681,12 +629,12 @@ static void thin_segment_dec(cdb_class *this)
     }
     
     else
-    { lat -= (double)this->data_ptr->dlat*CDB_LAT_SCALE;
-      lon -= (double)this->data_ptr->dlon*CDB_LON_SCALE;
-      draw_pd_dec(lat, lon);
+    { lat -= (double)source->data_ptr->dlat*CDB_LAT_SCALE;
+      lon -= (double)source->data_ptr->dlon*CDB_LON_SCALE;
+      draw_pd(lat, lon);
       x1 = x2;
       y1 = y2;
-      this->data_ptr--;
+      source->data_ptr--;
       idata--;
       ipoints++;
       inside = TRUE;
@@ -695,12 +643,12 @@ static void thin_segment_dec(cdb_class *this)
     
   }  /* end for.... */
 
-  draw_pd_dec(lat, lon);
+  draw_pd(lat, lon);
   next_point_ok = FALSE;
   ipoints++;
   if (very_verbose) 
     { fprintf(stderr,">>segment was %d points.\n",
-	      this->npoints); 
+	      source->npoints); 
       fprintf(stderr,">>segment is now %d points.\n",
 	      ipoints); 
     }
@@ -709,25 +657,25 @@ static void thin_segment_dec(cdb_class *this)
 }
   
 /*------------------------------------------------------------------------
- * copy_segment_dec - copy each stroke of the current segment
+ * copy_segment - copy each stroke of the current segment
  *------------------------------------------------------------------------*/ 
 
 
-static void copy_segment_dec(cdb_class *this)
+static void copy_segment(cdb_class *source)
 {
   int idata;
   double lat = 0.0, lon = 0.0;
   
-  lat = (double)this->segment->ilat0*CDB_LAT_SCALE;
-  lon = (double)this->segment->ilon0*CDB_LON_SCALE;
+  lat = (double)source->segment->ilat0*CDB_LAT_SCALE;
+  lon = (double)source->segment->ilon0*CDB_LON_SCALE;
   
-  move_pu_dec(lat, lon);
+  move_pu(lat, lon);
    
-  for (idata = 0; idata <= this->npoints; 
-       idata++, this->data_ptr++)
+  for (idata = 0; idata <= source->npoints; 
+       idata++, source->data_ptr++)
   {
-    lat += (double)this->data_ptr->dlat*CDB_LAT_SCALE;
-    lon += (double)this->data_ptr->dlon*CDB_LON_SCALE;
-    draw_pd_dec(lat, lon);
+    lat += (double)source->data_ptr->dlat*CDB_LAT_SCALE;
+    lon += (double)source->data_ptr->dlon*CDB_LON_SCALE;
+    draw_pd(lat, lon);
   }
 }
