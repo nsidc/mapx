@@ -5,7 +5,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.56 2004-01-28 19:55:30 knowlesk Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.57 2004-02-26 16:45:16 knowlesk Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -103,7 +103,7 @@ all : libmapx.a install
 
 allall: cleanall all appall testall
 
-appall : gridloc regrid resamp irregrid \
+appall : gridloc regrid resamp irregrid ungrid \
 	 cdb_edit cdb_list wdbtocdb mapenum
 
 testall : xytest mtest gtest crtest macct gacct
@@ -126,14 +126,14 @@ clean :
 
 cleanexes :
 	- $(RM) cdb_edit cdb_list gacct gpmon gridloc gtest crtest irregrid \
-		macct mapenum mpmon mtest regrid resamp wdbtocdb xytest
+		macct mapenum mpmon mtest regrid resamp wdbtocdb xytest ungrid
 
 tar :
 	$(RM) $(TARFILE).gz 
 	$(TAR) cvf $(TARFILE) \
 		README COPYING INSTALL\
 		Makefile ppgc.html mprojex.gif coordef.gif \
-		regrid.c resamp.c irregrid.c \
+		regrid.c resamp.c irregrid.c ungrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
 		$(SRCS) $(HDRS) $(UTESTDIR)/*.pl \
@@ -164,6 +164,9 @@ resamp: resamp.o $(DEPEND_LIBS)
 irregrid: irregrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o irregrid irregrid.o $(LIBS)
 	$(INSTALL) irregrid $(BINDIR)
+ungrid: ungrid.o $(DEPEND_LIBS)
+	$(CC) $(CFLAGS) -o ungrid ungrid.o $(LIBS)
+	$(INSTALL) ungrid $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
