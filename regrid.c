@@ -4,6 +4,8 @@
  * 27-Apr-1994 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
+static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.4 1995-09-20 20:11:21 knowles Exp $";
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
