@@ -7,16 +7,21 @@
  * 31-July-1992 K.Knowles knowles@sastrugi.colorado.edu 303-492-0644
  * National Snow & Ice Data Center, University of Colorado, Boulder
  *========================================================================*/
+static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.4 2003-06-24 23:06:47 haran Exp $";
+
 #include <stdio.h>
 #include <float.h>
 #include "define.h"
 #include "smodel.h"
 
-static const char smodel_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.c,v 1.3 1994-04-07 16:28:59 knowles Exp $";
-
 static smodel *new_smodel(int n);
 static double linearize(double lon1, double lon2, int topo);
 static double normalize(double lon, int topo);
+
+char *id_smodel(void)
+{
+  return((char *)smodel_c_rcsid);
+}
 
 /*------------------------------------------------------------------------
  * init_smodel - initialize spline model
