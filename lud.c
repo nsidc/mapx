@@ -14,7 +14,7 @@
 #include "define.h"
 #include "lud.h"
 
-static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.1 1993-11-03 16:26:13 knowles Exp $";
+static const char lud_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.c,v 1.2 1993-11-03 16:48:03 knowles Exp $";
 
 /*----------------------------------------------------------------------
  * design - calculate xT*x and xT*y
@@ -64,7 +64,7 @@ int design(double **x, double *y, double **A, double *z, int m, int n)
  *	result: 0 = success, -1 = error
  *
  *----------------------------------------------------------------------*/
-void factor(double **A, int n)
+int factor(double **A, int n)
 {
   double nf;
   int i, j, k;
