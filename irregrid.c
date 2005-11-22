@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1999-2004 University of Colorado
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.9 2004-07-20 20:32:01 knowlesk Exp $";
+static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.10 2005-11-22 21:06:39 haran Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -15,8 +15,8 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage									\
-"$Revision: 1.9 $\n"								\
-"usage: irregrid [-wcnv -i value -k kernel\n"					\
+"$Revision: 1.10 $\n"								\
+"usage: irregrid [-wcdnv -i value -k kernel\n"					\
 " -p value -r value -z beta_file -o outputfile\n"				\
 " -t total_pts_file]  from_data to.gpd \n"					\
 "\n"										\
@@ -26,11 +26,12 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 "\n"										\
 " output: grid values (float) by row to stdout or optional outputfile\n"	\
 "\n"										\
-" options:c - Cressman weighting\n"						\
+" options:c - Cressman weighting (default)\n"                                   \
+"         d - drop in the bucket weighted\n"                                    \
 "         w - inverse distance weighted sum\n"					\
 "                 -p the power of the distance weight\n"			\
 "         n - nearest neighbor weighted sum\n"					\
-"         r - specify the search radius (units: grid cells)\n"			\
+"         r - specify the search radius (units: grid cells, default: 0.)\n"	\
 "         i value - ignore fill value.  Output is filled with this value\n"	\
 "                   If not specified, then filled with zero.\n"			\
 "         z beta_file - not yet implemented! save/restore intermediate\n"	\
@@ -71,6 +72,11 @@ static int init_cressman(grid_class *,float **,float **);
 static int cressman(double,double,double,double,float,int *,
 		    grid_class *,float **,float **,int **);
 static int normalize_cressman(grid_class *,float **, float **, int **);
+
+static int init_drop_in_bucket(grid_class *,float **,float **);
+static int drop_in_bucket(double,double,double,double,float,int *,
+			 grid_class *,float **,float **,int **);
+static int normalize_drop_in_bucket(grid_class *,float **, float **, int **);
 
 static int init_inv_dist(grid_class *,float **,float **);
 static int inv_dist(double,double,double,double,float,int *,
@@ -144,6 +150,13 @@ main(int argc, char *argv[]) {
 	  min_in_pts = 1;
 	  algo_specified = TRUE;
 	  algo_string = "Cressman weighting";
+	  break;
+	case 'd':
+	  weighted_average = drop_in_bucket;
+	  normalize_result = normalize_drop_in_bucket;
+	  init_grids = init_drop_in_bucket;
+	  algo_specified = TRUE;
+	  algo_string = "Drop in the bucket";
 	  break;
 	case 'r':
 	  ++argv; --argc;
@@ -450,6 +463,109 @@ int normalize_cressman(grid_class *to_grid,float **to_data,float **to_data_beta,
       }
     }
   }
+  return npts;
+}
+
+/*------------------------------------------------------------------------
+ * Initialize grids for drop in the bucket calculation.
+ *
+ *	input : to_data, (numerator: sum at grid point [r,s])
+ *
+ *	output : to_data, (numerator: sum of data)
+ *
+ *	result: number of points initialized
+ *
+ *------------------------------------------------------------------------*/
+int init_drop_in_bucket(grid_class *to_grid,float **to_data,float **to_data_beta)
+{ int r, s, npts;
+ 
+ npts = 0; 
+ for (r = 0; r < to_grid->cols; r++) {
+   for (s = 0; s < to_grid->rows; s++) {
+     to_data[s][r] = 0;
+     npts++;
+   }
+ }
+ return npts;
+}
+
+/*------------------------------------------------------------------------
+ * Drop in the bucket algorithm.  Note this only calculates the drop in the
+ * bucket value for grid locations that are within the "shell_range" of
+ * each input point.
+ *
+ *	input : from_r, from_s, (the input data location)
+ *              shell_range (the min and max of the search area 
+ *                          on the output grid).
+ *
+ *	output: to_data, (numerator: sum of data values)
+ *              to_data_num_pts, (denominator: number of points)
+ *
+ *	result: number of valid points resampled
+ *
+ *------------------------------------------------------------------------*/
+int drop_in_bucket(double from_r,double from_s,double from_lat, double from_lon,
+		   float from_dat,int shell_range[],
+		   grid_class *to_grid,float **to_data,float **to_data_beta,
+		   int **to_data_num_pts)
+{ int r, s;
+ int r_target, s_target;
+ int npts=0;
+
+/*
+ *	use each grid location within the shell range
+ *	of r and s (the from_location).  
+ */
+  for (r = shell_range[0]; r <= shell_range[1]; r++) {
+    for (s = shell_range[2]; s <= shell_range[3]; s++) {
+/*
+ *	make sure that while stepping through the grid points we are
+ *	within the grid boundaries... 
+ */
+      if (r >= 0 && s >= 0 && r < to_grid->cols 
+	  && s < to_grid->rows) {
+/*
+ *	add the data to the sum and increment the point count 
+ */
+	to_data[s][r] += from_dat;
+	to_data_num_pts[s][r]++;
+	++npts;
+      }
+    }
+  }
+  
+  return npts;
+}
+
+/*------------------------------------------------------------------------
+ * Drop in the bucket normalization.
+ *
+ *	input : to_data
+ *              to_data_num_pts
+ *
+ *      output: to_data
+ *
+ *	result: number of valid points normalized
+ *
+ *------------------------------------------------------------------------*/
+int normalize_drop_in_bucket(grid_class *to_grid,float **to_data,
+			     float **to_data_beta,
+			     int **to_data_num_pts)
+{
+  int r, s;
+  int npts=0;
+
+  for (r = 0; r < to_grid->cols; r++) {
+    for (s = 0; s < to_grid->rows; s++) {
+      if (to_data_num_pts[s][r] != 0.) {
+	to_data[s][r] = to_data[s][r]/to_data_num_pts[s][r];
+	npts++;
+      } else {
+	to_data[s][r] = fill;
+      }
+    }
+  }
+  
   return npts;
 }
 
