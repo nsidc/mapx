@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.7 2006-08-24 23:00:05 tharan Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.8 2006-08-24 23:08:12 tharan Exp $";
 
 #include "define.h"
 #include "matrix.h"
@@ -768,8 +768,7 @@ static int process_row_use_center(float *row_from_data, int row,
 	control->lon_min > to_lon || control->lon_max < to_lon)
       continue;
     value = row_from_data[col];
-    if ((control->fill_value == value) ||
-	(control->max_set && control->max_value < value) ||
+    if ((control->max_set && control->max_value < value) ||
 	(control->min_set && control->min_value > value))
       value = control->fill_value;
     if (!control->supress_missing || control->fill_value != value) {
