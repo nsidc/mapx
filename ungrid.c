@@ -5,34 +5,43 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.5 2004-09-14 19:53:54 haran Exp $";
+static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.6 2006-08-24 22:51:28 tharan Exp $";
 
 #include "define.h"
 #include "matrix.h"
 #include "grids.h"
 
 #define usage									\
-"usage: ungrid [-v] [-b] [-e] [-i fill] [-n min_value] [-x max_value]\n"	\
+"usage: ungrid [-v] [-V] [-b] [-e] [-i fill] [-n min_value] [-x max_value]\n"	\
+"              [-B] [-U] [-S] [-L] [-F]\n"                                      \
 "              [-c method] [-r radius] [-p power]\n"				\
+"              [-C] [-I] [-R lat_min lat_max lon_min lon_max]\n"                \
 "              from_gpd from_data\n"						\
 "\n"										\
 " input : from.gpd  - source grid parameters definition file\n"			\
 "         from_data - source gridded data file (4 byte floats)\n"		\
 "         < stdin - list of locations one lat/lon pair per line\n"		\
+"                   (not used if -C is specified)\n"                            \
 "\n"										\
 " output: > stdout - list of '[lat lon] value' for each input point\n"		\
 "\n"										\
 " option: v - verbose\n"							\
-"         b - binary (float) stdin and stdout (default is ASCII) \n"		\
-"             Note: the input grid is always binary (float).\n"			\
+"         V - print version information to stderr\n"                            \
+"         b - binary float stdin and stdout (default is ASCII) \n"		\
+"             Note: the input grid (from_data) is always binary.\n"		\
 "             If binary is set, the location is not echoed to\n"		\
 "             the output but the data values are written in the\n"		\
-"             same order as the input points.\n"				\
+"             same order as the input points.\n"			\
 "         e - If binary is not set, then output ASCII in exponential (%15.8e)\n"\
 "             format (default is %f). If binary is set, then -e is ignored.\n"  \
 "         i fill - fill value for missing data (default = 0)\n"			\
-"         n min_value - ignore data values less than min_value\n"		\
-"         x max_value - ignore data values greater than max_value\n"		\
+"         n min_value - treat values less than min_value as missing data\n"	\
+"         x max_value - treat values greater than max_value as missing data\n"	\
+"         B - 1 byte input data\n"                                              \
+"         U - unsigned input data (default is signed)\n"                        \
+"         S - short (2 byte) input data\n"                                      \
+"         L - long (4 byte) input data\n"                                       \
+"         F - float (4 byte) input data (default)\n"                            \
 "         c method - choose interpolation method\n"				\
 "                    N = nearest neighbor (default)\n"				\
 "                    D = drop-in-the-bucket\n"					\
@@ -41,19 +50,38 @@ static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.
 "                    I = inverse distance\n"					\
 "         r radius - circle to average over (-c D or I only) \n"		\
 "         p power - inverse distance exponent (default = 2, -c I only) \n"	\
+"         C - output a value for the center of each cell.\n"                    \
+"             Note: If -C is specified, then stdin, -b, -c method, -r radius,\n"\
+"             and -p power are ignored.\n"                                      \
+"         I - supress output of missing or invalid data.\n"                     \
+"             Note: If -C is not specified, then -I is ignored.\n"              \
+"         R lat_min lat_max lon_min lon_max - specifies latitude and longitude\n"\
+"           ranges for which output is desired.\n"                              \
+"           Note: If -C is not specified, then -R is ignored.\n"                \
 "\n"
 
 static int verbose = 0;
 
 struct interp_control {
   grid_class *grid;
-  int min_set;
+  bool do_binary;
+  bool do_exponential;
+  bool min_set;
   float min_value;
-  int max_set;
+  bool max_set;
   float max_value;
+  bool unsigned_data;
+  bool float_data;
+  int bytes_per_cell;
   float fill_value;
   float shell_radius;
   float power;
+  bool use_center;
+  bool supress_missing;
+  float lat_min;
+  float lat_max;
+  float lon_min;
+  float lon_max;
 };
 
 static int cubic(float *value, float **from_data, double r, double s, 
@@ -65,8 +93,13 @@ static int average(float *value, float **from_data, double r, double s,
 static int bilinear(float *value, float **from_data, double r, double s, 
 		    struct interp_control *control);
 static int distance(float *value, float **from_data, double r, double s, 
-			struct interp_control *control);
-
+		    struct interp_control *control);
+static int read_row(float *row_from_data, FILE *from_file, void *row_buf,
+		    struct interp_control *control);
+static int process_row_use_center(float *row_from_data, int row,
+				  struct interp_control *control);
+static int write_point(double to_lat, double to_lon, float value,
+		       struct interp_control *control);
 static char possible_methods[] = "NDBCI";
 
 static int (*method_function[])()  = { nearest,
@@ -84,8 +117,6 @@ static char *method_string[] = { "nearest-neighbor",
 
 int main(int argc, char *argv[]) { 
   int io_err, status, method_number, line_num, row;
-  bool do_binary;
-  bool do_exponential;
   double to_lat, to_lon;
   double from_r, from_s;
   float **from_data;
@@ -97,18 +128,30 @@ int main(int argc, char *argv[]) {
   FILE *from_file;
   int (*interpolate)();
   struct interp_control control;
+  int rows_in_from_data;
+  int row_to_store;
+  int points_processed;
+  void *row_buf;
 
 /*
  * set defaults
  */
   control.min_set = FALSE;
   control.max_set = FALSE;
+  control.unsigned_data = FALSE;
+  control.float_data = TRUE;
+  control.bytes_per_cell = 4;
   control.fill_value = 0;
   control.shell_radius = 0.5;
   control.power = 2;
-  do_binary = FALSE;
-  do_exponential = FALSE;
-  verbose = 0;
+  control.use_center = FALSE;
+  control.supress_missing = FALSE;
+  control.lat_min = -90;
+  control.lat_max = 90;
+  control.lon_min = -180;
+  control.lon_max = 180;
+  control.do_binary = FALSE;
+  control.do_exponential = FALSE;
   method = 'N';
 
 /* 
@@ -121,10 +164,10 @@ int main(int argc, char *argv[]) {
 	  ++verbose;
 	  break;
 	case 'b':
-	  do_binary = TRUE;
+	  control.do_binary = TRUE;
 	  break;
         case 'e':
-          do_exponential = TRUE;
+          control.do_exponential = TRUE;
           break;
 	case 'c':
 	  ++argv; --argc;
@@ -155,6 +198,40 @@ int main(int argc, char *argv[]) {
 	case 'V':
 	  fprintf(stderr,"%s\n", ungrid_c_rcsid);
 	  break;
+        case 'B':
+	  control.bytes_per_cell = 1;
+	  control.float_data = FALSE;
+	  break;
+        case 'U':
+	  control.unsigned_data = TRUE;
+	  break;
+        case 'S':
+	  control.bytes_per_cell = 2;
+	  control.float_data = FALSE;
+	  break;
+        case 'L':
+	  control.bytes_per_cell = 4;
+	  control.float_data = FALSE;
+	  break;
+        case 'F':
+	  control.float_data = TRUE;
+	  break;
+        case 'C':
+	  control.use_center = TRUE;
+	  break;
+        case 'I':
+	  control.supress_missing = TRUE;
+	  break;
+        case 'R':
+	  ++argv; --argc;
+	  if (sscanf(*argv, "%f", &(control.lat_min)) != 1) error_exit(usage);
+	  ++argv; --argc;
+	  if (sscanf(*argv, "%f", &(control.lat_max)) != 1) error_exit(usage);
+	  ++argv; --argc;
+	  if (sscanf(*argv, "%f", &(control.lon_min)) != 1) error_exit(usage);
+	  ++argv; --argc;
+	  if (sscanf(*argv, "%f", &(control.lon_max)) != 1) error_exit(usage);
+	  break;
 	default:
 	  fprintf(stderr,"invalid option %c\n", *option);
 	  error_exit(usage);
@@ -162,6 +239,31 @@ int main(int argc, char *argv[]) {
     }
   }
 
+/*
+ * make options consistent
+ */
+  if (control.float_data) {
+    control.bytes_per_cell = 4;
+    control.unsigned_data = FALSE;
+  }
+  if (control.use_center) {
+    control.do_binary = FALSE;
+    while (control.lon_min > 180)
+      control.lon_min -= 360;
+    while (control.lon_max > 180)
+      control.lon_max -= 360;
+    while (control.lon_min < -180)
+      control.lon_min += 360;
+    while (control.lon_max < -180)
+      control.lon_max += 360;
+  } else {
+    control.supress_missing = FALSE;
+    control.lat_min = -90;
+    control.lat_max = 90;
+    control.lon_min = -180;
+    control.lon_max = 180;
+  }
+  
 /*
  * validate method option
  */
@@ -187,48 +289,75 @@ int main(int argc, char *argv[]) {
   from_file = fopen(from_filename, "r");
   if (!from_file) { perror(from_filename); error_exit("ungrid: ABORTING"); }
   ++argv; --argc;
-  
+
 /*
  * echo defaults and settings
  */
   if (verbose) {
     fprintf(stderr,"> Data grid:\t%s\n", control.grid->gpd_filename);
     fprintf(stderr,"> Data file:\t%s\n", from_filename);
-    fprintf(stderr,"> Method:\t%c = %s\n", method, method_string[method_number]);
+    if (!control.use_center)
+      fprintf(stderr,"> Method:\t%c = %s\n",
+	      method, method_string[method_number]);
     fprintf(stderr,"> Fill value:\t%g\n", control.fill_value);
     if (control.min_set) fprintf(stderr,"> Valid min:\t%g\n", control.min_value);
     if (control.max_set) fprintf(stderr,"> Valid max:\t%g\n", control.max_value);
-    fprintf(stderr,"> Shell radius:\t%g\n", control.shell_radius);
-    if (method == 'I') fprintf(stderr,"> Power:\t%g\n", control.power);
+    if (!control.use_center) {
+      fprintf(stderr,"> Shell radius:\t%g\n", control.shell_radius);
+      if (method == 'I') fprintf(stderr,"> Power:\t%g\n", control.power);
+    }
     fprintf(stderr,"> Format:\t%s\n",
-                   do_binary ? "binary" : 
-                               (do_exponential ? "ascii %15.8e" : "ascii %f"));
+                   control.do_binary ? "binary" : 
+                               (control.do_exponential ?
+				"ascii %15.8e" : "ascii %f"));
+    if (control.use_center) {
+      fprintf(stderr, "> Output a value for the center of each cell.\n");
+      fprintf(stderr, "> Supress output for missing or invalid data.\n");
+      fprintf(stderr, "> Latitude range:\t%g\tto\t%g\n",
+	      control.lat_min, control.lat_max);
+      fprintf(stderr, "> Longitude range:\t%g\tto\t%g\n",
+	      control.lon_min, control.lon_max);
+    }
   }
 
 /*
- * read in grid of input data values
+ * read in grid of input data values a row at a time
  */
-  from_data = (float **)matrix(control.grid->rows, control.grid->cols,
+  row_buf = calloc(control.grid->cols, control.bytes_per_cell);
+  if (!row_buf) { error_exit("ungrid: ABORTING"); }
+
+  rows_in_from_data = control.use_center ? 1 : control.grid->rows;
+  from_data = (float **)matrix(rows_in_from_data, control.grid->cols,
 			       sizeof(float), TRUE);
   if (!from_data) { error_exit("ungrid: ABORTING"); }
 
+  points_processed = 0;
   for (row = 0; row < control.grid->rows; row++) {
-    status = fread(from_data[row], sizeof(float), control.grid->cols, from_file);
+    row_to_store = control.use_center ? 0 : row;
+    status = read_row(from_data[row_to_store], from_file, row_buf, &control);
     if (status != control.grid->cols) {
       perror(from_filename);
       free(from_data);
       error_exit("ungrid: ABORTING");
     }
+    /*
+     * if outputting a value for the center of each cell,
+     * then process this row of data.
+     */
+    if (control.use_center)
+      points_processed +=
+	process_row_use_center(from_data[row_to_store], row, &control);
   }
+
 /*
  * loop through input points
  */
-  for (line_num = 1; !feof(stdin); line_num++) {
+  for (line_num = 1; !control.use_center && !feof(stdin); line_num++) {
 
 /*
  * read a point
  */
-    if (do_binary) {
+    if (control.do_binary) {
       fread(&to_lat, sizeof(to_lat), 1, from_file);
       fread(&to_lon, sizeof(to_lon), 1, from_file);
       io_err = ferror(from_file);
@@ -239,7 +368,7 @@ int main(int argc, char *argv[]) {
 
     if (io_err != 0) { 
       fprintf(stderr, "ungrid: error reading lat/lon at line %i\n", line_num);
-      if (do_binary) error_exit("ungrid: ABORTING");
+      if (control.do_binary) error_exit("ungrid: ABORTING");
       continue;
     }
 
@@ -268,24 +397,16 @@ int main(int argc, char *argv[]) {
 /*
  * write the point
  */
-    if (do_binary) {
-      fwrite(&value, sizeof(value), 1, stdout);
-      io_err = ferror(stdout);
-    } else {
-      if (do_exponential)
-	printf("%15.8e %15.8e %15.8e\n", to_lat, to_lon, value);
-      else
-	printf("%f %f %f\n", to_lat, to_lon, value);
-      io_err = ferror(stdout);
-    }
+    io_err = write_point(to_lat, to_lon, value, &control);
 
     if (io_err != 0) {
       perror("writing to stdout");
       fprintf(stderr, "ungrid: line %d\n", line_num);
     }
+    points_processed++;
   }
 
-  if (verbose) fprintf(stderr,"> %d points processed\n", line_num - 1);
+  if (verbose) fprintf(stderr,"> %d points processed\n", points_processed);
 
   exit(EXIT_SUCCESS);
 }
@@ -493,7 +614,12 @@ static int nearest(float *value, float **from_data, double r, double s,
     *value = control->fill_value;
   } else {
     *value = from_data[row][col];
-    npts = 1;
+    if ((control->fill_value == *value) ||
+	(control->max_set && control->max_value < *value) ||
+	(control->min_set && control->min_value > *value))
+      *value = control->fill_value;
+    else
+      npts = 1;
   }
 
   return npts;
@@ -556,4 +682,133 @@ static int distance(float *value, float **from_data, double r, double s,
   }
 
   return npts;
+}
+
+/*------------------------------------------------------------------------
+ * read_row - read a row of data, convert it to floating-point,
+ *            and store it in from_data
+ *
+ *	input : from_data - pointer to current row of float input data
+ *              from_file - file pointer for input file
+ *              row_buf - buffer to use for reading a row of input data
+ *              control - control parameter structure
+ *
+ *	output: none.
+ *
+ *	result: status from read
+ *
+ *------------------------------------------------------------------------*/
+static int read_row(float *row_from_data, FILE *from_file, void *row_buf,
+		    struct interp_control *control) {
+  int status;
+  int col;
+
+  status = fread(row_buf, control->bytes_per_cell,
+		 control->grid->cols, from_file);
+  for (col = 0; col < control->grid->cols; col++) {
+    if (control->float_data) {
+      row_from_data[col] = ((float *)(row_buf))[col];
+    } else {
+      switch (control->bytes_per_cell) {
+      case 1:
+	row_from_data[col] = control->unsigned_data ?
+	  ((unsigned char *)(row_buf))[col] :
+	  ((char *)(row_buf))[col];
+	break;
+      case 2:
+	row_from_data[col] = control->unsigned_data ?
+	  ((unsigned short *)(row_buf))[col] :
+	  ((short *)(row_buf))[col];
+	break;
+      case 4:
+	row_from_data[col] = control->unsigned_data ?
+	  ((unsigned int *)(row_buf))[col] :
+	  ((int *)(row_buf))[col];
+	break;
+      }
+    }
+  }
+
+  return status;
+}
+
+/*------------------------------------------------------------------------
+ * process_row_use_center - process a row of image data using the center
+ *                          value of each cell
+ *
+ *	input : row_from_data - pointer to current row of float input data
+ *              row - row coordinate within input grid
+ *              control - control parameter structure
+ *
+ *	output: none.
+ *
+ *	result: number of valid points sampled
+ *
+ *------------------------------------------------------------------------*/
+static int process_row_use_center(float *row_from_data, int row,
+				  struct interp_control *control) {
+  int col;
+  int status;
+  double to_lat, to_lon;
+  double from_r, from_s;
+  float value;
+  int io_err;
+  int npts = 0;
+
+  from_s = row;
+  for (col = 0; col < control->grid->cols; col++) {
+    from_r = col;
+    status = inverse_grid(control->grid, from_r, from_s, &to_lat, &to_lon);
+    if (!status) {
+	fprintf(stderr,">> col/row: %d %d   lat/lon: %f %f is off the grid\n",
+		col, row, to_lat, to_lon);
+	error_exit("ungrid: ABORTING");
+    }
+    value = row_from_data[col];
+    if ((control->fill_value == value) ||
+	(control->max_set && control->max_value < value) ||
+	(control->min_set && control->min_value > value))
+      value = control->fill_value;
+    if (!control->supress_missing || control->fill_value != value) {
+      npts++;
+      io_err = write_point(to_lat, to_lon, value, control);
+      if (io_err != 0) {
+	perror("writing to stdout");
+	fprintf(stderr, "ungrid: col/row: %d %d\n", col, row);
+      }
+    }
+  }
+  
+  return npts;
+}
+
+/*------------------------------------------------------------------------
+ * write_point - write the information for a single point to stdout
+ *
+ *	input : to_lat - latitude of point
+ *              to_lon - longitude of point
+ *              value - value of point
+ *              control - control parameter structure
+ *
+ *	output: none.
+ *
+ *	result: io_err from write
+ *
+ *------------------------------------------------------------------------*/
+static int write_point(double to_lat, double to_lon, float value,
+		       struct interp_control *control) {
+  int io_err;
+
+  if (control->do_binary) {
+    fwrite(&value, sizeof(value), 1, stdout);
+    io_err = ferror(stdout);
+  } else {
+    if (control->do_exponential)
+      printf("%15.8e %15.8e %15.8e\n", to_lat, to_lon, value);
+    else
+	printf("%f %f %f\n", to_lat, to_lon, value);
+    io_err = ferror(stdout);
+  }
+
+  return io_err;
 }
