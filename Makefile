@@ -5,7 +5,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.58 2004-04-02 15:48:40 brodzik Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.59 2008-03-04 22:19:11 savoie Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -50,8 +50,14 @@ TARFILE = mapx.tar
 #	for other architectures (Sun, SGI, HP, etc.) do _not_ use
 #	the -DLSB1ST flag
 #
-CONFIG_CFLAGS = -O -DLSB1ST
 #CONFIG_CFLAGS = -O
+
+CONFIG_CFLAGS = -O -DLSB1ST
+
+# Use this option for 64bit build allowing for shared objects (like grid_class)
+# CONFIG_CFLAGS = -O -DLSB1ST -fPIC
+
+
 #CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
 #CONFIG_CFLAGS = -DDEBUG -g
 
@@ -168,17 +174,17 @@ ungrid: ungrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o ungrid ungrid.o $(LIBS)
 	$(INSTALL) ungrid $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
-	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
+	$(CC) $(CFLAGS) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
 	$(INSTALL) cdb_edit.mpp $(MAPDIR)
 cdb_list: cdb_list.o $(DEPEND_LIBS)
-	$(CC) -o cdb_list cdb_list.o $(LIBS)
+	$(CC) $(CFLAGS) -o cdb_list cdb_list.o $(LIBS)
 	$(INSTALL) cdb_list $(BINDIR)
 wdbtocdb: wdbtocdb.o wdbpltc.o $(DEPEND_LIBS)
-	$(CC) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
+	$(CC) $(CFLAGS) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
 	$(INSTALL) wdbtocdb $(BINDIR)
 mapenum: mapenum.o $(DEPEND_LIBS)
-	$(CC) -o mapenum mapenum.o $(LIBS)
+	$(CC) $(CFLAGS) -o mapenum mapenum.o $(LIBS)
 	$(INSTALL) mapenum $(BINDIR)
 #
 #------------------------------------------------------------------------
