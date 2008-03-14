@@ -5,7 +5,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.59 2008-03-04 22:19:11 savoie Exp $
+RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.60 2008-03-14 16:04:30 brodzik Exp $
 
 #------------------------------------------------------------------------
 # configuration section
@@ -13,7 +13,6 @@ RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile,v 1.59 2008-03-04 22:19:11 savoie 
 #	installation directories
 #
 TOPDIR = $(HOME)
-#TOPDIR = ../..
 LIBDIR = $(TOPDIR)/lib
 MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
@@ -50,16 +49,13 @@ TARFILE = mapx.tar
 #	for other architectures (Sun, SGI, HP, etc.) do _not_ use
 #	the -DLSB1ST flag
 #
-#CONFIG_CFLAGS = -O
-
 CONFIG_CFLAGS = -O -DLSB1ST
+#CONFIG_CFLAGS = -DDEBUG -g
+#CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
+#CONFIG_CFLAGS = -O -Wall -DLSB1ST
 
 # Use this option for 64bit build allowing for shared objects (like grid_class)
-# CONFIG_CFLAGS = -O -DLSB1ST -fPIC
-
-
-#CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
-#CONFIG_CFLAGS = -DDEBUG -g
+# CONFIG_CFLAGS = -O -Wall -DLSB1ST -fPIC
 
 #
 #	system libraries
@@ -102,7 +98,7 @@ GCTP_OBJS = isinfor.o isininv.o report.o cproj.o
 GCTP_HDRS = isin.h cproj.h proj.h
 
 SRCS = $(MAPX_SRCS) $(MODELS_SRCS) $(GCTP_SRCS)
-HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
+HDRS = define.h define64.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
 OBJS = $(MAPX_OBJS) $(MODELS_OBJS) $(GCTP_OBJS)
 
 all : libmapx.a install
