@@ -4,7 +4,7 @@
 #ifndef define_h_
 #define define_h_
 
-static const char define_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/define.h,v 1.11 2004-01-23 01:53:33 knowlesk Exp $";
+static const char define_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/define.h,v 1.11.4.1 2008-04-11 16:37:56 brodzik Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,27 +65,33 @@ typedef int bool;
 
 typedef unsigned char byte1;
 typedef unsigned short int byte2;
-typedef unsigned long int byte4;
+typedef unsigned int byte4;
+typedef unsigned long long NSIDCbyte8;
 
 typedef char int1;
 typedef short int int2;
-typedef long int int4;
+typedef int int4;
+typedef long long NSIDCint8;
 
 #define BYTE1_BITS CHAR_BIT
 #define BYTE1_MAX UCHAR_MAX
 #define BYTE2_MAX USHRT_MAX
-#define BYTE4_MAX ULONG_MAX
+#define BYTE4_MAX UINT_MAX
+#define NSIDCBYTE8_MAX ULLONG_MAX
 
 #define INT1_MAX SCHAR_MAX
 #define INT2_MAX SHRT_MAX
-#define INT4_MAX LONG_MAX
+#define INT4_MAX INT_MAX
+#define NSIDCINT8_MAX LLONG_MAX
 
 #define BYTE1_MIN 0
 #define BYTE2_MIN 0
 #define BYTE4_MIN 0
+#define NSIDCBYTE8_MIN 0
 
 #define INT1_MIN SCHAR_MIN
 #define INT2_MIN SHRT_MIN
-#define INT4_MIN LONG_MIN
+#define INT4_MIN INT_MIN
+#define NSIDCINT8_MIN LLONG_MIN
 
 #endif

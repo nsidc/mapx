@@ -98,7 +98,7 @@ GCTP_OBJS = isinfor.o isininv.o report.o cproj.o
 GCTP_HDRS = isin.h cproj.h proj.h
 
 SRCS = $(MAPX_SRCS) $(MODELS_SRCS) $(GCTP_SRCS)
-HDRS = define.h define64.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
+HDRS = define.h byteswap.h $(MAPX_HDRS) $(MODELS_HDRS) $(GCTP_HDRS)
 OBJS = $(MAPX_OBJS) $(MODELS_OBJS) $(GCTP_OBJS)
 
 all : libmapx.a install
