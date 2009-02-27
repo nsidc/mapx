@@ -236,13 +236,6 @@ void gctp_
     long *iflg
 );
 
-void sincos
-(
-    double val,
-    double *sin_val,
-    double *cos_val
-);
-
 double asinz
 (
     double con

@@ -3,7 +3,6 @@ NAME                Projection support routines listed below.
 
 PURPOSE:	The following functions are included in CPROJ.C.
 
-		SINCOS:	  Calculates the sine and cosine.
 		ASINZ:	  Eliminates roundoff errors.
 		MSFNZ:	  Computes the constant small m for Oblique Equal Area.
 		QSFNZ:	  Computes the constant small q for Oblique Equal Area.
@@ -40,22 +39,6 @@ S. Nelson, EROS		Jan, 1998	Changed misspelled error message
 #define MAX_VAL 4
 #define MAXLONG 2147483647.
 #define DBLLONG 4.61168601e18
-
-/* Function to calculate the sine and cosine in one call.  Some computer
-   systems have implemented this function, resulting in a faster implementation
-   than calling each function separately.  It is provided here for those
-   computer systems which don`t implement this function
-  ----------------------------------------------------*/
-void sincos
-(
-    double val,
-    double *sin_val,
-    double *cos_val
-)
-{
-    *sin_val = sin(val);
-    *cos_val = cos(val);
-}
 
 /* Function to eliminate roundoff errors in asin
 ----------------------------------------------*/
@@ -136,7 +119,8 @@ double phi1z
     eccnts = eccent * eccent; 
     for (i = 1; i <= 25; i++)
     {
-        sincos(phi,&sinpi,&cospi);
+        sinpi = sin( phi );
+        cospi = cos( phi );
         con = eccent * sinpi; 
         com = 1.0 - con * con;
         dphi = .5 * com * com / cospi * (qs / (1.0 - eccnts) - sinpi / com + 
