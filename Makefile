@@ -48,14 +48,13 @@ TARFILE = mapx.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #	for other architectures (Sun, SGI, HP, etc.) do _not_ use
 #	the -DLSB1ST flag
-#
-CONFIG_CFLAGS = -O -DLSB1ST
+
+CONFIG_CFLAGS = -O -DLSB1ST -fPIC 
+
+#CONFIG_CFLAGS = -O -DLSB1ST
 #CONFIG_CFLAGS = -DDEBUG -g
 #CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
 #CONFIG_CFLAGS = -O -Wall -DLSB1ST
-
-# Use this option for 64bit build allowing for shared objects (like grid_class)
-# CONFIG_CFLAGS = -O -Wall -DLSB1ST -fPIC
 
 #
 #	system libraries
