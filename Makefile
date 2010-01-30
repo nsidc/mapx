@@ -133,7 +133,7 @@ tar :
 	$(RM) $(TARFILE).gz 
 	$(TAR) cvf $(TARFILE) \
 		README COPYING INSTALL\
-		Makefile ppgc.html mprojex.gif coordef.gif \
+		Makefile mapx-poster.ppt ppgc.html mprojex.gif coordef.gif \
 		regrid.c resamp.c irregrid.c ungrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \

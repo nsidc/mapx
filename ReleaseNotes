@@ -4,30 +4,59 @@ The current release of mapx as of February, 2010 is mapx Version 0.10
 To install mapx, download the most recent tarball and follow the
 instructions in the INSTALL file.
 
-*******************************
+************************************
 * Release mapx-0.10  February 2010 *
-*******************************
+************************************
 
 * New Functionality
-------------------
+-------------------
 
-ungrid - 
+Added new command-line utility, ungrid, to extract point data from a
+binary gridded data file.
+
+Added options to command-line utility, irregrid, to output total points
+file and do drop-in-the-bucket averaging.
+
+Added -F option to command_line utility, regrid, to support floating-point
+data.
 
 UTM projections - (include admonition to users of mapx-0.9, that, although
 UTM projections were included there, this is the version to use to run
 them correctly, or some such)
 
-any stuff about new options
-
 * Fixes
 ------------------
 
-Any stuff about changed/fixed options.
+Modified Makefile:
+- making MAPDIR directory as part of install for libmapx.a
+- added target for new ungrid utility
+- added CFLAGS to all command-line utilities, so compilation switches are consistent
+- added -fPIC to the compilation to allow shared objects that link to this
+  library to work properly
 
-We should probably mention the change to the mapx struct that is a
-workaround to the compiler/debugger bug.
+Modified INSTALL with note about where to get sample .mpp/.gpd files.
 
-Any other fixes (Do the makefiles automatically install man pages?)
+Added 64-bit types to define.h.  Used 'NSIDC' prefix to avoid collisions
+ with HDF library types.
+
+Removed the sincos function from proj.h/cproj.c.  Beginning with
+optimizations introduced in gcc 4.3.1, this was causing a segfault, most
+obviously in gtest, but would have occurred anytime the optimization was
+invoked.  Apparently the existence of our own sincos function was
+resulting in optimizations that set up infinite recursion.  We are
+removing our local copy, so that optimizations will be implemented
+properly.
+
+Added out-of-grid-bounds error checking to mapx handling of UTM
+projections.
+
+Added dummy variables to mapx structure to work around compiler/debugger
+problem that wasn't aligning structure elements properly for the debugger.
+
+New file, mapx-poster.ppt is a powerpoint file with poster describing mapx.
+
+New revision of ppgc.html, with standardized html formatting and clarified
+content.
 
 ******************************
 * Release mapx-0.9  Jan 2004*

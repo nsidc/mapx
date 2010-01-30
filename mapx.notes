@@ -51,23 +51,7 @@ for 64-bit machines, and so we can release a new pmsdt.
 
 Summary of changes:
 
--) Makefile
-   - making MAPDIR directory as part of install for libmapx.a
-   - added target for new ungrid utility
-   - added CFLAGS to all command-line utilities, so compilation switches are consistent
-   - added -fPIC to the compilation to allow shared objects that link to this
-     library to work properly
-
--) Removed the sincos function from proj.h/cproj.c.  Beginning with
-optimizations introduced in gcc 4.3.1, this was causing a segfault, most
-obviously in gtest, but would have occurred anytime the optimization was
-invoked.  Apparently the existence of our own sincos function was
-resulting in optimizations that set up infinite recursion.  We are
-removing our local copy, so that optimizations will be implemented
-properly.
-
--) Added 64-bit types to define.h.  Used 'NSIDC' prefix to avoid
- collisions with HDF library types.
+* New Functions:
 
 -) New command-line utility, ungrid, extracts point data from a binary
  gridded data file.
@@ -76,6 +60,29 @@ properly.
  drop-in-the-bucket weighting.
 
 -) New option to regrid, added -F option to support floating-point data
+
+* Fixes
+
+-) Makefile
+   - making MAPDIR directory as part of install for libmapx.a
+   - added target for new ungrid utility
+   - added CFLAGS to all command-line utilities, so compilation switches are consistent
+   - added -fPIC to the compilation to allow shared objects that link to this
+     library to work properly
+
+-) INSTALL
+   - Added note about where to get sample .mpp/.gpd files
+   
+-) Added 64-bit types to define.h.  Used 'NSIDC' prefix to avoid
+ collisions with HDF library types.
+
+-) Removed the sincos function from proj.h/cproj.c.  Beginning with
+optimizations introduced in gcc 4.3.1, this was causing a segfault, most
+obviously in gtest, but would have occurred anytime the optimization was
+invoked.  Apparently the existence of our own sincos function was
+resulting in optimizations that set up infinite recursion.  We are
+removing our local copy, so that optimizations will be implemented
+properly.
 
 -) Changes to mapx.h/mapx.c:
 
@@ -103,8 +110,8 @@ problem
 
 xx) unit_test changes -- note sent to Terry about this, today
 
-
-Stuff to remove prior to tarball:
+Stuff to remove prior to tarball (the tar target in the Makefile looks
+like it already omits these):
 
 .svn directory - housekeeping, no need to release
 mapx.notes - internal project notes
@@ -121,8 +128,8 @@ README-cdb -
 A copy of ReleaseNotes should not be included in the tarball, but put it on the FTP site.
 Find and change all CVS keywords, tell svn to do substitution:
 
-svn propset svn:keywords "Id" weather.txt
+svn propset svn:keywords "Id Revision" weather.txt
 
-Date Revision Author HeadURL Id
+Possible keywords: Date Revision Author HeadURL Id
 
 Do a final check to ensure no references to define64.h
