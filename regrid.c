@@ -14,7 +14,7 @@ static const char regrid_c_rcsid[] = "$Id$";
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.19 $\n"                                                             \
+"$Revision$\n"                                                             \
 "usage: regrid [-fwubslFv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \

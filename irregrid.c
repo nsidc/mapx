@@ -15,7 +15,7 @@ static const char irregrid_c_rcsid[] = "$Id$";
 #include "maps.h"
 
 #define usage									\
-"$Revision: 1.10 $\n"								\
+"$Revision$\n"								\
 "usage: irregrid [-wcdnv -i value -k kernel\n"					\
 " -p value -r value -z beta_file -o outputfile\n"				\
 " -t total_pts_file]  from_data to.gpd \n"					\
