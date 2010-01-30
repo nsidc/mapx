@@ -10,7 +10,7 @@
 #define mapx_h_
 
 #ifdef mapx_c_
-const char mapx_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.h,v 1.28 2004-06-08 21:51:55 haran Exp $";
+const char mapx_h_rcsid[] = "$Id$";
 #endif
 
 /*

@@ -9,7 +9,7 @@
 #define pmodel_h_
 
 #ifdef pmodel_c_
-const char pmodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/pmodel.h,v 1.7 2004-01-23 01:53:34 knowlesk Exp $";
+const char pmodel_h_rcsid[] = "$Id$";
 #endif
 
 #define ipow(x,i) \

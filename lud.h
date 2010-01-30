@@ -9,7 +9,7 @@
 #define lud_h_
 
 #ifdef lud_c_
-const char lud_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lud.h,v 1.5 2004-01-23 01:53:34 knowlesk Exp $";
+const char lud_h_rcsid[] = "$Id$";
 #endif
 
 int design(double **x, double *y, double **A, double *z, int m, int n);

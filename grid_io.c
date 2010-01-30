@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1998 University of Colorado
  *======================================================================*/
-static const char grid_io_c_rcsid[]="$Header: /tmp_mnt/FILES/mapx/grid_io.c,v 1.11 2004-01-23 01:53:33 knowlesk Exp $";
+static const char grid_io_c_rcsid[]="$Id$";
 
 #include "define.h"
 #include "matrix.h"

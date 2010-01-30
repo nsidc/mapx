@@ -2,7 +2,7 @@
  * interupted homolosine equal-area
  * reference: http://edcwww.cr.usgs.gov/landdaac/1KM/goodesarticle.html
  *--------------------------------------------------------------------------*/
-static const char interupted_homolosine_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/interupted_homolosine_equal_area.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
+static const char interupted_homolosine_equal_area_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "mapx.h"

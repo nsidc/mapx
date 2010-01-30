@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * azimuthal_equal_area
  *------------------------------------------------------------------------*/
-static const char azimuthal_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/azimuthal_equal_area.c,v 1.4 2004-01-21 23:54:17 knowlesk Exp $";
+static const char azimuthal_equal_area_c_rcsid[] = "$Id$";
 
 #include "proj.h"
 #include "define.h"

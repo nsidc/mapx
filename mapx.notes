@@ -1,7 +1,7 @@
 This is the Notes file for mapx.
 
 Refer to NSIDC Best Practices document at 
-http://nsidc.org/intranet/GROUPS/PROGRAMMERS/best_practices.html
+http://newice.colorado.edu:8000/intranet/GROUPS/PROGRAMMERS/best_practices.html
 for guidelines and thoughts about what standard files to include, and
 details about how to accomplish any of the following steps.
 
@@ -44,4 +44,85 @@ To make a release of mapx, you need to do these steps
 
 Ship the tarball to whomever gets it.
 
+2010-01-23 MJB
 
+Considering issuing mapx-0.10.  Main compelling reason is updated define.h
+for 64-bit machines, and so we can release a new pmsdt.
+
+Summary of changes:
+
+-) Makefile
+   - making MAPDIR directory as part of install for libmapx.a
+   - added target for new ungrid utility
+   - added CFLAGS to all command-line utilities, so compilation switches are consistent
+   - added -fPIC to the compilation to allow shared objects that link to this
+     library to work properly
+
+-) Removed the sincos function from proj.h/cproj.c.  Beginning with
+optimizations introduced in gcc 4.3.1, this was causing a segfault, most
+obviously in gtest, but would have occurred anytime the optimization was
+invoked.  Apparently the existence of our own sincos function was
+resulting in optimizations that set up infinite recursion.  We are
+removing our local copy, so that optimizations will be implemented
+properly.
+
+-) Added 64-bit types to define.h.  Used 'NSIDC' prefix to avoid
+ collisions with HDF library types.
+
+-) New command-line utility, ungrid, extracts point data from a binary
+ gridded data file.
+
+-) New options to irregrid, to output total points file, and do
+ drop-in-the-bucket weighting.
+
+-) New option to regrid, added -F option to support floating-point data
+
+-) Changes to mapx.h/mapx.c:
+
+added include isin.h
+added forward_xy_mapx_check and inverse_xy_mapx_check
+added dist_latlon_map_units and dist_xy_map_units
+added Map Maximum Error
+made default eccentricity = 0 for spherical projections
+added setting the flattening in reinit_mapx
+added call to forward_xy_mapx_check in forward_mapx and forward_xy_mapx
+added call to inverse_xy_mapx_check in inverse_mapx and inverse_xy_mapx
+
+-) mapx.h:
+
+added maximum_error to mapx structure
+added dummy variables to mapx structure to work around compiler/debugger
+problem
+
+--> need to get Terry to explain what these changes are for
+
+-) New file, mapx-poster.ppt -  Powerpoint file with poster describing mapx.
+
+-) New revision of ppgc.html - standardized html formatting, clarified
+ content.
+
+xx) unit_test changes -- note sent to Terry about this, today
+
+
+Stuff to remove prior to tarball:
+
+.svn directory - housekeeping, no need to release
+mapx.notes - internal project notes
+Makefile.ms2gt -
+               no -fPIC in CONFIG_CFLAGS, and a little out-of-date with Makefile;
+               no need to distribute this copy.
+README-UTMupgrade -
+               extensive notes from Terry on changes made in 2003-2004; it looks to me
+               like these were all included in mapx-0.9
+README-cdb -
+           Ken's notes on the cdb (CIA database) stuff.  No need to distribute.
+
+
+A copy of ReleaseNotes should not be included in the tarball, but put it on the FTP site.
+Find and change all CVS keywords, tell svn to do substitution:
+
+svn propset svn:keywords "Id" weather.txt
+
+Date Revision Author HeadURL Id
+
+Do a final check to ensure no references to define64.h

@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * mercator
  *------------------------------------------------------------------------*/
-static const char mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mercator.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
+static const char mercator_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "mapx.h"

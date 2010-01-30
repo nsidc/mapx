@@ -5,7 +5,7 @@
 # National Snow & Ice Data Center, University of Colorado, Boulder
 # Copyright (C) 1993-2004 University of Colorado
 #========================================================================
-RCSID = $Header: /tmp_mnt/FILES/mapx/Makefile.ms2gt,v 1.1 2007-04-30 23:49:32 tharan Exp $
+RCSID = $Id$
 
 #------------------------------------------------------------------------
 # configuration section

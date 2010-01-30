@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * transverse_mercator
  *------------------------------------------------------------------------*/
-static const char transverse_mercator_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/transverse_mercator.c,v 1.2 2004-01-21 23:54:17 knowlesk Exp $";
+static const char transverse_mercator_c_rcsid[] = "$Id$";
 
 #include "proj.h"
 #include "define.h"
