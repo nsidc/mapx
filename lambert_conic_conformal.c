@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------------
  * Lambert conic conformal ellipsoid
  *--------------------------------------------------------------------------*/
-static const char lambert_conic_conformal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/lambert_conic_conformal.c,v 1.4 2004-01-21 23:54:17 knowlesk Exp $";
+static const char lambert_conic_conformal_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "mapx.h"

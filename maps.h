@@ -9,7 +9,7 @@
 #define maps_h_
 
 #ifdef maps_c_
-const char maps_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/maps.h,v 1.12 2004-01-23 01:53:34 knowlesk Exp $";
+const char maps_h_rcsid[] = "$Id$";
 #endif
 
 #include "define.h"

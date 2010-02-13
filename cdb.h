@@ -9,7 +9,7 @@
 #define cdb_h_
 
 #ifdef cdb_c_
-const char cdb_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb.h,v 1.15 2004-01-23 01:53:33 knowlesk Exp $";
+const char cdb_h_rcsid[] = "$Id$";
 #endif
 
 #include "define.h"

@@ -9,7 +9,7 @@
 #define smodel_h_
 
 #ifdef smodel_c_
-const char smodel_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/smodel.h,v 1.5 2004-01-23 01:53:34 knowlesk Exp $";
+const char smodel_h_rcsid[] = "$Id$";
 #endif
 
 typedef struct {

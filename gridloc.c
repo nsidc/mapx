@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1995 University of Colorado
  *========================================================================*/
-static const char gridloc_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/gridloc.c,v 1.8 2004-01-19 00:57:22 knowlesk Exp $";
+static const char gridloc_c_rcsid[] = "$Id$";
 
 #include <stdio.h>
 #include <math.h>

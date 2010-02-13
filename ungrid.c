@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 2004 University of Colorado
  *========================================================================*/
-static const char ungrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/ungrid.c,v 1.8 2006-08-24 23:08:12 tharan Exp $";
+static const char ungrid_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "matrix.h"

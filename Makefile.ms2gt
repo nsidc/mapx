@@ -12,7 +12,8 @@ RCSID = $Id$
 #
 #	installation directories
 #
-TOPDIR = $(HOME)
+#TOPDIR = $(HOME)
+TOPDIR = ../..
 LIBDIR = $(TOPDIR)/lib
 MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
@@ -48,13 +49,11 @@ TARFILE = mapx.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #	for other architectures (Sun, SGI, HP, etc.) do _not_ use
 #	the -DLSB1ST flag
-
-CONFIG_CFLAGS = -O -DLSB1ST -fPIC 
-
-#CONFIG_CFLAGS = -O -DLSB1ST
-#CONFIG_CFLAGS = -DDEBUG -g
+#
+CONFIG_CFLAGS = -O -DLSB1ST
+#CONFIG_CFLAGS = -O
 #CONFIG_CFLAGS = -DDEBUG -g -DLSB1ST
-#CONFIG_CFLAGS = -O -Wall -DLSB1ST
+#CONFIG_CFLAGS = -DDEBUG -g
 
 #
 #	system libraries
@@ -133,7 +132,7 @@ tar :
 	$(RM) $(TARFILE).gz 
 	$(TAR) cvf $(TARFILE) \
 		README COPYING INSTALL\
-		Makefile mapx-poster.ppt ppgc.html mprojex.gif coordef.gif \
+		Makefile ppgc.html mprojex.gif coordef.gif \
 		regrid.c resamp.c irregrid.c ungrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
@@ -169,17 +168,17 @@ ungrid: ungrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o ungrid ungrid.o $(LIBS)
 	$(INSTALL) ungrid $(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
-	$(CC) $(CFLAGS) -o cdb_edit cdb_edit.o $(LIBS)
+	$(CC) -o cdb_edit cdb_edit.o $(LIBS)
 	$(INSTALL) cdb_edit $(BINDIR)
 	$(INSTALL) cdb_edit.mpp $(MAPDIR)
 cdb_list: cdb_list.o $(DEPEND_LIBS)
-	$(CC) $(CFLAGS) -o cdb_list cdb_list.o $(LIBS)
+	$(CC) -o cdb_list cdb_list.o $(LIBS)
 	$(INSTALL) cdb_list $(BINDIR)
 wdbtocdb: wdbtocdb.o wdbpltc.o $(DEPEND_LIBS)
-	$(CC) $(CFLAGS) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
+	$(CC) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
 	$(INSTALL) wdbtocdb $(BINDIR)
 mapenum: mapenum.o $(DEPEND_LIBS)
-	$(CC) $(CFLAGS) -o mapenum mapenum.o $(LIBS)
+	$(CC) -o mapenum mapenum.o $(LIBS)
 	$(INSTALL) mapenum $(BINDIR)
 #
 #------------------------------------------------------------------------

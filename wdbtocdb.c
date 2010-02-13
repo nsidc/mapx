@@ -9,7 +9,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1992 University of Colorado
  *========================================================================*/
-static const char wdbtocdb_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/wdbtocdb.c,v 1.5 2004-01-19 00:57:22 knowlesk Exp $";
+static const char wdbtocdb_c_rcsid[] = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>

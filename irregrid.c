@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1999-2004 University of Colorado
  *========================================================================*/
-static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,v 1.10 2005-11-22 21:06:39 haran Exp $";
+static const char irregrid_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "matrix.h"
@@ -15,7 +15,7 @@ static const char irregrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/irregrid.c,
 #include "maps.h"
 
 #define usage									\
-"$Revision: 1.10 $\n"								\
+"$Revision$\n"								\
 "usage: irregrid [-wcdnv -i value -k kernel\n"					\
 " -p value -r value -z beta_file -o outputfile\n"				\
 " -t total_pts_file]  from_data to.gpd \n"					\

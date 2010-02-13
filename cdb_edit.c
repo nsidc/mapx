@@ -15,7 +15,7 @@
  *  National Snow & Ice Data Center, University of Colorado, Boulder
  *  Copyright (C) 1993 University of Colorado
  *========================================================================*/
-static const char cdb_edit_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cdb_edit.c,v 1.7 2004-01-19 00:57:22 knowlesk Exp $";
+static const char cdb_edit_c_rcsid[] = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>

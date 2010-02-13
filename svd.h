@@ -9,7 +9,7 @@
 #define svd_h_
 
 #ifdef svd_c_
-const char svd_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/svd.h,v 1.5 2004-01-23 01:53:34 knowlesk Exp $";
+const char svd_h_rcsid[] = "$Id$";
 #endif
 
 int svdecomp(double **u, int m, int n, double *w, double **v);

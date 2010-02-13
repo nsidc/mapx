@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * integerized sinusoidal
  *------------------------------------------------------------------------*/
-static const char integerized_sinusoidal_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/integerized_sinusoidal.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
+static const char integerized_sinusoidal_c_rcsid[] = "$Id$";
 
 #include "isin.h"
 #include "define.h"

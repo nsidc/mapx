@@ -5,7 +5,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1994 University of Colorado
  *========================================================================*/
-static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.19 2004-07-30 22:07:32 haran Exp $";
+static const char regrid_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "matrix.h"
@@ -14,7 +14,7 @@ static const char regrid_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/regrid.c,v 1.
 #include "maps.h"
 
 #define usage								   \
-"$Revision: 1.19 $\n"                                                             \
+"$Revision$\n"                                                             \
 "usage: regrid [-fwubslFv -i value -k kernel -p power -z beta_file] \n"	   \
 "              from.gpd to.gpd from_data to_data\n"			   \
 "\n"									   \

@@ -10,7 +10,7 @@
 #define matrix_io_h_
 
 #ifdef matrix_io_c_
-const char matrix_io_h_rcsid[]="$Header: /tmp_mnt/FILES/mapx/matrix_io.h,v 1.10 2004-01-23 01:53:34 knowlesk Exp $";
+const char matrix_io_h_rcsid[]="$Id$";
 #endif
 
 #include "define.h"

@@ -30,3 +30,18 @@ You should not have to change anything outside of the configuration
 section.
 
 See the README file for contact information if you need help.
+
+---------------------------------------------------------------------------
+
+To get started with a copy of the map projection parameter (.mpp) and grid
+parameter definition (.gpd) files already in use at NSIDC, download and
+uncompress the maps file from here:
+
+ftp://sidads.colorado.edu/pub/tools/mapx/nsidc_maps.tar.gz
+
+Follow the instructions in the included README file for setting up your
+environment to point the mapx library to these .mpp/.gpd files.  Sometimes
+the easiest way to write your own .gpd file is to use existing files with
+similar projections as models, and modify them to suit your map
+requirements.
+

@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
  * cylindrical_equal_area
  *------------------------------------------------------------------------*/
-static const char cylindrical_equal_area_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/cylindrical_equal_area.c,v 1.3 2004-01-21 23:54:17 knowlesk Exp $";
+static const char cylindrical_equal_area_c_rcsid[] = "$Id$";
 
 #include "define.h"
 #include "mapx.h"

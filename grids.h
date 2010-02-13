@@ -9,7 +9,7 @@
 #define grids_h_
 
 #ifdef grids_c_
-const char grids_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/grids.h,v 1.11 2004-01-23 01:53:34 knowlesk Exp $";
+const char grids_h_rcsid[] = "$Id$";
 #endif
 
 #include "mapx.h"

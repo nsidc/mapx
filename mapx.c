@@ -6,7 +6,7 @@
  * National Snow & Ice Data Center, University of Colorado, Boulder
  * Copyright (C) 1991 University of Colorado
  *========================================================================*/
-static const char mapx_c_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/mapx.c,v 1.42 2004-06-08 22:05:03 haran Exp $";
+static const char mapx_c_rcsid[] = "$Id$";
 
 #include <stdio.h>
 #include <stdlib.h>

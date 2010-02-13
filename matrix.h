@@ -9,7 +9,7 @@
 #define matrix_h_
 
 #ifdef matrix_c_
-const char matrix_h_rcsid[] = "$Header: /tmp_mnt/FILES/mapx/matrix.h,v 1.7 2004-01-23 01:53:34 knowlesk Exp $";
+const char matrix_h_rcsid[] = "$Id$";
 #endif
 
 #define matrix_ZERO 1
