@@ -20,9 +20,8 @@ file and do drop-in-the-bucket averaging.
 Added -F option to command_line utility, regrid, to support floating-point
 data.
 
-UTM projections - (include admonition to users of mapx-0.9, that, although
-UTM projections were included there, this is the version to use to run
-them correctly, or some such)
+Added out-of-grid-bounds error checking to mapx handling of UTM
+projections.
 
 * Fixes
 ------------------
@@ -47,9 +46,6 @@ resulting in optimizations that set up infinite recursion.  We are
 removing our local copy, so that optimizations will be implemented
 properly.
 
-Added out-of-grid-bounds error checking to mapx handling of UTM
-projections.
-
 Added dummy variables to mapx structure to work around compiler/debugger
 problem that wasn't aligning structure elements properly for the debugger.
 
@@ -57,6 +53,11 @@ New file, mapx-poster.ppt is a powerpoint file with poster describing mapx.
 
 New revision of ppgc.html, with standardized html formatting and clarified
 content.
+
+NSIDC switched internal revision control from CVS to Subversion, where
+keyword substitution is handled differently.  Header keyword was changed
+to Id.  Value of file revisions now reflects Subversion repository
+revisions.
 
 ******************************
 * Release mapx-0.9  Jan 2004*
