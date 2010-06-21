@@ -30,7 +30,7 @@ README			    This file
 INSTALL			    A brief installation guide
 COPYING			    The GNU Lesser General Public License
 Makefile		    Top level make file
-ppgc.html		    Documentation for configuration files
+Documentation/ppgc.html     Documentation for configuration files
 *.[ch]			    Source code
 unit_test/utest.pl	    Script to run unit tests
 
@@ -149,9 +149,10 @@ Points, Pixels, Grids, and Cells
 --------------------------------
 
 Predefined map projection files are available from NSIDC. The
-documentation describing these configuration files is in ppgc.html.
-It seems straightforward enough but in practice can be tricky to get it
-"just right". We are glad to help. Please contact NSIDC User Services.
+documentation describing these configuration files is in
+Documentation/ppgc.html.  It seems straightforward enough but in practice
+can be tricky to get it "just right". We are glad to help. Please contact
+NSIDC User Services.
 
 
 Help and Other Information

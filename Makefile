@@ -18,6 +18,8 @@ MAPDIR = $(LIBDIR)/maps
 INCDIR = $(TOPDIR)/include
 BINDIR = $(TOPDIR)/bin
 UTESTDIR = unit_test
+DOCDIR = Documentation
+
 #
 #	commands
 #
@@ -133,7 +135,8 @@ tar :
 	$(RM) $(TARFILE).gz 
 	$(TAR) cvf $(TARFILE) \
 		README COPYING INSTALL\
-		Makefile mapx-poster.ppt ppgc.html mprojex.gif coordef.gif \
+		Makefile mapx-poster.ppt $(DOCDIR)/ppgc.html \
+		$(DOCDIR)/mprojex.gif $(DOCDIR)/coordef.gif \
 		regrid.c resamp.c irregrid.c ungrid.c \
 		cdb_edit.mpp cdb_edit.c cdb_list.c wdbtocdb.c wdbpltc.c \
 		mapenum.c gridloc.c \
