@@ -1,0 +1,44 @@
+# file: linuxhp_megadune_sinusoidal_s00.gpd
+# Map Projections--A Working Manual, John P. Snyder
+# Appendix A: Numerical Examples
+# Sinusoidal Sphere pp. 365-366
+#
+Map Projection:                 Sinusoidal
+Map Equatorial Radius:          1.0
+Map Reference Latitude:         0.0
+Map Reference Longitude:        -90.0
+Grid Width:                     500
+Grid Height:                    250
+Grid Cells Per Map Unit:        135
+Grid Map Origin Column:         249.5
+Grid Map Origin Row:            124.5
+#
+# macct
+#   102400 points,  0 bad points
+#   average error = 2.0174e-05 km
+#   std dev error = 3.8837e-05 km
+#   maximum error = 9.4939e-05 km
+#   max error was at 88.87S 180.00W
+#
+# gacct
+#   125000 points,  0 bad points
+#   average error = 9.9655e-15 pixels
+#   std dev error = 1.6255e-14 pixels
+#   maximum error = 1.0752e-13 pixels
+#   max error was at col: 37  row: 83   lat: 17.613147  lon: 175.376362
+#
+# xytest forward
+#   lat,lon = -50.0 -75.0
+#   x,y = 0.1682814 -0.8726646  .vs 0.1682814 -0.8726646 in snyder
+#
+# xytest inverse
+#   x,y = 0.1682814 -0.8726646
+#   lat,lon = -49.9999985 -75.0000007  .vs -49.9999985 -75.0000007 in snyder
+#
+# crtest forward
+#   lat,lon = -50 -75.0
+#   col,row = 272.2179894 242.3097245 
+#
+# crtest inverse
+#   col,row = 272.2179894 242.3097245
+#   lat,lon = -50.0000000 -75.0000000 
