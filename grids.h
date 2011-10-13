@@ -37,6 +37,7 @@ GLOBAL int grid_verbose;
 typedef struct {
 	double map_origin_col, map_origin_row;
 	double cols_per_map_unit, rows_per_map_unit;
+        double u_min, u_max;
 	int cols, rows;
 	FILE *gpd_file;
 	char *gpd_filename;
