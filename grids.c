@@ -139,6 +139,25 @@ grid_class *new_grid(char *label)
  */
   if (!decode_gpd(this, label)) { close_grid(this); return NULL; }
 
+  /*
+   *    calculate u_min and u_max to enable extending col values
+   *    across +180/-180 boundary in cylindrical grids.
+   */
+  if (strcmp(this->mapx->projection_name, "CYLINDRICALEQUALAREA") == 0 ||
+      strcmp(this->mapx->projection_name, "MERCATOR") == 0 ||
+      strcmp(this->mapx->projection_name, "MOLLWEIDE") == 0 ||
+      strcmp(this->mapx->projection_name, "SINUSOIDAL") == 0 ||
+      strcmp(this->mapx->projection_name, "CYLINDRICALEQUIDISTANT") == 0 ||
+      strcmp(this->mapx->projection_name, "CYLINDRICALEQUALAREAELLIPSOID") == 0 ||
+      strcmp(this->mapx->projection_name, "INTERUPTEDHOMOLOSINEEQUALAREA") == 0 ||
+      strcmp(this->mapx->projection_name, "INTEGERIZEDSINUSOIDAL") == 0)
+    {
+      this->u_max = this->mapx->Rg * PI;
+      this->u_min = -this->u_max;
+    } else {
+      this->u_max = 0;
+      this->u_min = 0;
+    }
   return this;
 }
 
@@ -327,6 +346,15 @@ int forward_grid(grid_class *this,
   status = forward_mapx(this->mapx, lat, lon, &u, &v);
   if (status != 0) return FALSE;
 
+  /*
+   * Extend col values across +180/-180 boundary
+   * for cylindrical grids.
+   */
+  if (u > this->u_max)
+    u -= 2 * this->u_max;
+  if (u < this->u_min)
+    u += -2 * this->u_min;
+
   *r = this->map_origin_col + u * this->cols_per_map_unit;
   *s = this->map_origin_row - v * this->rows_per_map_unit;
 
@@ -356,6 +384,15 @@ int inverse_grid (grid_class *this,
 
   u =  (r - this->map_origin_col) / this->cols_per_map_unit;
   v = -(s - this->map_origin_row) / this->rows_per_map_unit;
+
+  /*
+   * Extend col values across +180/-180 boundary
+   * for cylindrical grids.
+   */
+  if (u > this->u_max)
+    u -= 2 * this->u_max;
+  if (u < this->u_min)
+    u += -2 * this->u_min;
 
   status = inverse_mapx(this->mapx, u, v, lat, lon);
   if (status != 0) return FALSE;
