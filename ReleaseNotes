@@ -1,8 +1,33 @@
 Release Notes
-The current release of mapx as of February, 2010 is mapx Version 0.10
+The current release of mapx as of October 14, 2011 is mapx Version 0.11
 
 To install mapx, download the most recent tarball and follow the
 instructions in the INSTALL file.
+
+************************************
+* Release mapx-0.11  October 14, 2011 *
+************************************
+
+* New Functionality
+-------------------
+
+Added u_min and u_max to grid_class structure.
+
+Files grids.c and grids.h were modified such that for certain
+projections, new members of the mapx grid_class stucture, namely u_min
+and u_max, are initialized to minus and plus the scaled earth radius
+times pi, respectively. The projections for which this initialization
+is performed include Cylindrical Equal Area (both spherical and
+ellipsoidal), Mercator, Mollweide, Sinusoidal, Cylindrical
+Equidistant, Interrupted Homolosine Equal Area, and Integerized
+Sinusoidal; for all other projections, u_min and u_max are initialized
+to 0. Then for both forward and inverse transformations: if the
+computed u value is greater than u_max, then 2 * u_max is subtracted
+from u; and if the computed u value is less than u_min, then 2 * u_min
+is added to u. This effectively allows associated column values to be
+monotonic across the +180/-180 longitude boundary, and avoids "holes"
+and "garbage" from appearing in gridded output images created by
+MS2GT script mod02.pl for grids that include or are close to the boundary.
 
 ************************************
 * Release mapx-0.10  February 2010 *
