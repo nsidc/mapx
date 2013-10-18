@@ -141,20 +141,15 @@ grid_class *new_grid(char *label)
 
   /*
    *    calculate u_min and u_max to enable extending col values
-   *    across +180/-180 boundary in cylindrical grids.
+   *    across +180/-180 boundary in cylindrical equidistant grids.
    */
-  if (strcmp(this->mapx->projection_name, "CYLINDRICALEQUALAREA") == 0 ||
-      strcmp(this->mapx->projection_name, "MERCATOR") == 0 ||
-      strcmp(this->mapx->projection_name, "MOLLWEIDE") == 0 ||
-      strcmp(this->mapx->projection_name, "SINUSOIDAL") == 0 ||
-      strcmp(this->mapx->projection_name, "CYLINDRICALEQUIDISTANT") == 0 ||
-      strcmp(this->mapx->projection_name, "CYLINDRICALEQUALAREAELLIPSOID") == 0 ||
-      strcmp(this->mapx->projection_name, "INTERUPTEDHOMOLOSINEEQUALAREA") == 0 ||
-      strcmp(this->mapx->projection_name, "INTEGERIZEDSINUSOIDAL") == 0)
+  if (strcmp(this->mapx->projection_name, "CYLINDRICALEQUIDISTANT") == 0)
     {
       this->u_max = this->mapx->Rg * PI;
       this->u_min = -this->u_max;
-    } else {
+    }
+  else
+    {
       this->u_max = 0;
       this->u_min = 0;
     }
@@ -345,6 +340,8 @@ int forward_grid(grid_class *this,
 
   status = forward_mapx(this->mapx, lat, lon, &u, &v);
   if (status != 0) return FALSE;
+
+  fprintf(stderr, "u before: %f\n", u);
 
   /*
    * Extend col values across +180/-180 boundary
