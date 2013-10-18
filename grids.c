@@ -341,8 +341,6 @@ int forward_grid(grid_class *this,
   status = forward_mapx(this->mapx, lat, lon, &u, &v);
   if (status != 0) return FALSE;
 
-  fprintf(stderr, "u before: %f\n", u);
-
   /*
    * Extend col values across +180/-180 boundary
    * for cylindrical grids.
