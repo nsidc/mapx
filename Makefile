@@ -67,9 +67,10 @@ SYSLIBS = -lm
 # end configuration section
 #------------------------------------------------------------------------
 
-CFLAGS = -I$(INCDIR) $(CONFIG_CFLAGS)
-LIBS = -L$(LIBDIR) -lmapx $(SYSLIBS)
-DEPEND_LIBS = $(LIBDIR)/libmapx.a
+CFLAGS = -I$(DESTDIR)$(INCDIR) $(CONFIG_CFLAGS)
+LIBS = -L$(DESTDIR)$(LIBDIR) -lmapx $(SYSLIBS)
+#DEPEND_LIBS = $(LIBDIR)/libmapx.a
+DEPEND_LIBS = libmapx.a
 
 PROJECTION_SRCS = polar_stereographic.c orthographic.c cylindrical_equal_area.c \
 mercator.c mollweide.c cylindrical_equidistant.c sinusoidal.c \
@@ -116,9 +117,9 @@ libmapx.a : $(OBJS)
 	$(RANLIB) libmapx.a
 
 install : libmapx.a $(HDRS)
-	$(MKDIR) $(LIBDIR) $(INCDIR) $(BINDIR) $(MAPDIR)
-	$(INSTALL) libmapx.a $(LIBDIR)
-	$(INSTALL) $(HDRS) $(INCDIR)
+	$(MKDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MAPDIR)
+	$(INSTALL) libmapx.a $(DESTDIR)$(LIBDIR)
+	$(INSTALL) $(HDRS) $(DESTDIR)$(INCDIR)
 
 cleanall : clean cleanexes
 	$(RM) *.o
@@ -158,32 +159,41 @@ depend :
 #
 gridloc: gridloc.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o gridloc gridloc.o $(LIBS)
-	$(INSTALL) gridloc $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) gridloc $(DESTDIR)$(BINDIR)
 regrid: regrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o regrid regrid.o $(LIBS)
-	$(INSTALL) regrid $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) regrid $(DESTDIR)$(BINDIR)
 resamp: resamp.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o resamp resamp.o $(LIBS)
-	$(INSTALL) resamp $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) resamp $(DESTDIR)$(BINDIR)
 irregrid: irregrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o irregrid irregrid.o $(LIBS)
-	$(INSTALL) irregrid $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) irregrid $(DESTDIR)$(BINDIR)
 ungrid: ungrid.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o ungrid ungrid.o $(LIBS)
-	$(INSTALL) ungrid $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) ungrid $(DESTDIR)$(BINDIR)
 cdb_edit: cdb_edit.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o cdb_edit cdb_edit.o $(LIBS)
-	$(INSTALL) cdb_edit $(BINDIR)
-	$(INSTALL) cdb_edit.mpp $(MAPDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) cdb_edit $(DESTDIR)$(BINDIR)
+	$(INSTALL) cdb_edit.mpp $(DESTDIR)$(MAPDIR)
 cdb_list: cdb_list.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o cdb_list cdb_list.o $(LIBS)
-	$(INSTALL) cdb_list $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) cdb_list $(DESTDIR)$(BINDIR)
 wdbtocdb: wdbtocdb.o wdbpltc.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o wdbtocdb wdbtocdb.o wdbpltc.o $(LIBS)
-	$(INSTALL) wdbtocdb $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) wdbtocdb $(DESTDIR)$(BINDIR)
 mapenum: mapenum.o $(DEPEND_LIBS)
 	$(CC) $(CFLAGS) -o mapenum mapenum.o $(LIBS)
-	$(INSTALL) mapenum $(BINDIR)
+	$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL) mapenum $(DESTDIR)$(BINDIR)
 #
 #------------------------------------------------------------------------
 # interactive tests
@@ -193,28 +203,28 @@ xytest : mapx.c mapx.h maps.c maps.h keyval.o \
 	$(CC) $(CFLAGS) -DXYTEST -o xytest mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) mapx.o
-	$(INSTALL) xytest $(BINDIR)
+	$(INSTALL) xytest $(DESTDIR)$(BINDIR)
 
 mtest : mapx.c mapx.h maps.c maps.h keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS)
 	$(CC) $(CFLAGS) -DMTEST -o mtest mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) mapx.o
-	$(INSTALL) mtest $(BINDIR)
+	$(INSTALL) mtest $(DESTDIR)$(BINDIR)
 
 gtest : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS)
 	$(CC) $(CFLAGS) -DGTEST -o gtest grids.c mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) grids.o
-	$(INSTALL) gtest $(BINDIR)
+	$(INSTALL) gtest $(DESTDIR)$(BINDIR)
 
 crtest : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS)
 	$(CC) $(CFLAGS) -DCRTEST -o crtest grids.c mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) grids.o
-	$(INSTALL) crtest $(BINDIR)
+	$(INSTALL) crtest $(DESTDIR)$(BINDIR)
 #
 #------------------------------------------------------------------------
 # performance tests
@@ -224,14 +234,14 @@ mpmon : mapx.c mapx.h maps.c maps.h keyval.o \
 	$(CC) $(CFLAGS) -p -DMPMON -o mpmon mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) mapx.o
-	$(INSTALL) mpmon $(BINDIR)
+	$(INSTALL) mpmon $(DESTDIR)$(BINDIR)
 
 gpmon : grids.c grids.h mapx.c mapx.h maps.c maps.h keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS)
 	$(CC) $(CFLAGS) -p -DGPMON -o gpmon grids.c mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) grids.o
-	$(INSTALL) gpmon $(BINDIR)
+	$(INSTALL) gpmon $(DESTDIR)$(BINDIR)
 #
 #------------------------------------------------------------------------
 # accuracy tests
@@ -241,14 +251,14 @@ macct : maps.c maps.h mapx.c mapx.h keyval.o \
 	$(CC) $(CFLAGS) -DMACCT -o macct mapx.c maps.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) mapx.o
-	$(INSTALL) macct $(BINDIR)
+	$(INSTALL) macct $(DESTDIR)$(BINDIR)
 
 gacct : grids.c maps.c maps.h mapx.c mapx.h keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS)
 	$(CC) $(CFLAGS) -DGACCT -o gacct grids.c maps.c mapx.c keyval.o \
 		$(PROJECTION_OBJS) $(GCTP_OBJS) $(SYSLIBS)
 	$(RM) grids.o
-	$(INSTALL) gacct $(BINDIR)
+	$(INSTALL) gacct $(DESTDIR)$(BINDIR)
 #
 #------------------------------------------------------------------------
 
