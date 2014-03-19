@@ -50,7 +50,8 @@ TARFILE = mapx.tar
 #	add -DLSB1ST option to enable byteswapping of cdb files
 #	for other architectures (Sun, SGI, HP, etc.) do _not_ use
 #	the -DLSB1ST flag
-
+#       -fPIC produces position-independent-code, which can be
+#       combined into static or dynamically-linked libraries
 CONFIG_CFLAGS = -O -DLSB1ST -fPIC 
 
 #CONFIG_CFLAGS = -O -DLSB1ST
@@ -69,7 +70,6 @@ SYSLIBS = -lm
 
 CFLAGS = -I$(DESTDIR)$(INCDIR) $(CONFIG_CFLAGS)
 LIBS = -L$(DESTDIR)$(LIBDIR) -lmapx $(SYSLIBS)
-#DEPEND_LIBS = $(LIBDIR)/libmapx.a
 DEPEND_LIBS = libmapx.a
 
 PROJECTION_SRCS = polar_stereographic.c orthographic.c cylindrical_equal_area.c \
@@ -112,9 +112,15 @@ appall : gridloc regrid resamp irregrid ungrid \
 
 testall : xytest mtest gtest crtest macct gacct
 
+# Static version of the library, with position-independent-code 
 libmapx.a : $(OBJS)
 	$(AR) ruv libmapx.a $(OBJS)
 	$(RANLIB) libmapx.a
+
+# Mac OS X relocatable version of the library, aka dynamically-linkable
+libmapx.dylib : $(OBJS)
+	$(CC) -dynamiclib -o libmapx.dylib $(OBJS)
+	$(INSTALL) libmapx.dylib $(DESTDIR)$(LIBDIR)
 
 install : libmapx.a $(HDRS)
 	$(MKDIR) $(DESTDIR)$(LIBDIR) $(DESTDIR)$(INCDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MAPDIR)
