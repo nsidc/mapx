@@ -58,7 +58,7 @@ increasing upward.
 
 ### Projections
 
-!(images/mprojex.gif)
+![Projection](images/mprojex.gif)
 
 Map projections are specified as a set of equations giving _x_ and
 _y_ in terms of _latitude_ and _longitude_. The manner in
