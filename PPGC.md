@@ -58,7 +58,7 @@ increasing upward.
 
 ### Projections
 
-![Projection](images/mprojex.gif)
+![Projections](images/mprojex.gif)
 
 Map projections are specified as a set of equations giving _x_ and
 _y_ in terms of _latitude_ and _longitude_. The manner in
@@ -124,7 +124,7 @@ Think of the grid as a map drawn on graph paper. To find a grid cell
 location, count graph lines over from the left and down from the top, then
 read the latitude and longitude off the map.
 
-!(images/coordef.gif)
+![Coordinate Reference](images/coordef.gif)
 
 
 ### Binning
