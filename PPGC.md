@@ -954,7 +954,7 @@ formulations of most common map projections can be found in the references
 below.
 
 
-## Reference
+## References
 
 **American Society of Photogrammetry. 1983.** _Manual of Remote
 Sensing._ Robert N. Colwell, editor. Second edition. Falls Church, VA.
