@@ -1,10 +1,28 @@
 # Points, Pixels, Grids, and Cells
 A Mapping and Gridding Primer
+
 _by Ken Knowles_
 
 ---
 
 ## Table of contents
+
+- [Introduction](#introduction)
+- [Concepts](#concepts)
+  - [Maps](#maps)
+  - [Projections](#projections)
+  - [Grids](#grids)
+  - [Binning](#binning)
+  - [Pictures](#pictures)
+- [Parameters](#parameters)
+  - [Map Projection Parameters (.mpp) File Format](#mpp)
+  - [Map Projection Names](#map-projection-names)
+  - [Map Projection Parameters (.mpp) File Format for Integerized Sinusoidal](#isin)
+  - [Map Projection Parameters (.mpp) File Format for Universal Transverse Mercator](#utm)
+  - [Grid Parameter Definition (.gpd) File Format](#gpd)
+- [Limitations](#limitations)
+- [References](#references)
+
 
 ---
 
@@ -95,7 +113,7 @@ areal distortion, while the aspect ratio varies from 1:1 at the pole to
 Tissot's indicatrix combines the two previous measures. Tissot's
 indicatrix is a small ellipse which shows both the scale distortion and
 the maximum angular deformation at a particular point on the map. See
-[Maling](#reference) or [Snyder](#references) for a complete discussion.
+[Maling](#references) or [Snyder](#references) for a complete discussion.
 
 
 ### Grids
@@ -152,12 +170,13 @@ pixels one for one. More sophisticated techniques, often referred to as
 ## Parameters
 
 Many programs we use at NSIDC depend on the "mapx" module to handle
- map  projections. These include: GISMO, PSQ, regrid, gridomatic, and the
+map  projections. These include: GISMO, PSQ, regrid, gridomatic, and the
 EASE-Grid  processing software. Most of these tools provide access to predefined
-maps,  but, it is relatively easy to define your own map with a map projection
- parameters  (.mpp) file.
+maps, but, it is relatively easy to define your own map with a map projection
+parameters  (.mpp) file.
 
 
+<a name='mpp'></a>
 ### Map Projection Parameters (.mpp) File Format
 
 Each parameter is described by a "keyword: value" pair on a single
@@ -184,7 +203,7 @@ and [Universal Transverse Mercator (UTM)](#utm).
        <td>Map Projection</td>
         <td>string</td>
         <td>required field</td>
-        <td>projection name (see [list ](#projection_names)below)</td>
+        <td>projection name (see [list](#map-projection-names) below)</td>
        </tr>
         <tr nosave="">
        <td>Map Reference Latitude</td>
@@ -392,7 +411,7 @@ note: For Integerized Sinusoidal, set scale to size of each row.
 - Cylindrical Equal-Area
 - Cylindrical Equal-Area (ellipsoid)
 - Cylindrical Equidistant
-- [Integerized Sinusoidal](#asin)
+- [Integerized Sinusoidal](#isin)
 - Interrupted Homolosine Equal-Area
 - Lambert Conic Conformal (ellipsoid)
 - Mercator
@@ -510,6 +529,7 @@ large lakes.  In either case the continental outline will appear with the
 same amount of detail (the same jaggedness).
 
 
+<a name='isin'></a>
 ### Map Projection Parameters (.mpp) File Format for Integerized Sinusoidal
 
 The following parameters define the Integerized Sinusoidal (ISin)
@@ -636,6 +656,7 @@ projection.  Only a spherical projection is supported for the ISin
 projection.
 
 
+<a name='utm'></a>
 ### Map Projection Parameters (.mpp) File Format for Universal Transverse Mercator
 
 <table border="1" width="100%" nosave="">
@@ -829,6 +850,7 @@ specified UTM Zone can produce an x-y pair that resides within the
 specified UTM Zone.
 
 
+<a name='gpd'></a>
 ### Grid Parameter Definition (.gpd) File Format
 
 Grids are defined in grid parameter definition (.gpd) files.
@@ -913,7 +935,7 @@ Grids are defined in grid parameter definition (.gpd) files.
 </table>
 
 
-### Limitations
+## Limitations
 
 The mapx library is very flexible but it does impose certain
 restrictions on the kinds of grids that can be defined. All grids must be
@@ -932,7 +954,7 @@ formulations of most common map projections can be found in the references
 below.
 
 
-### Reference
+## Reference
 
 **American Society of Photogrammetry. 1983.** _Manual of Remote
 Sensing._ Robert N. Colwell, editor. Second edition. Falls Church, VA.
