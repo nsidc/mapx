@@ -1,55 +1,51 @@
-<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="author" content="Original author Ken Knowles">
-  <meta name="description" content="Points, Pixels, Grids and Cells:  A
-Mapping and Gridding Primer is a technical memo written as part of the
-NSIDC Mapx software documentation.  It includes a brief introduction to
-mapping, gridding and associated terminology used in the Mapx library.">
-  <meta name="Keywords" content="mapx documentation, mapx, gridding, mapping">
-  <title>Points, Pixels, Grids, and Cells: A Mapping and Gridding Primer</title>
-  <meta name="Keywords" content="map transformation library mapx grids">
-</head>
-  <body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
- alink="#ff0000">
-              
-<h1> Points, Pixels, Grids, and Cells</h1>
-              
-<h2> A Mapping and Gridding Primer</h2>
-              
-<h3><i>by Ken Knowles</i></h3>
+# Points, Pixels, Grids, and Cells
+A Mapping and Gridding Primer
 
-<hr>       
-<h2> Table of Contents</h2>
-              
-<ul>
-       <li> <a href="#concepts">Concepts</a></li>
-        <li> <a href="#parameters">Parameters</a></li>
-             
-</ul>
-              
-<hr>       
-<h2> Introduction</h2>
+_by Ken Knowles_
 
-<p>Satellite remote sensing has made possible the collection of data over
+---
+
+## Table of contents
+
+- [Introduction](#introduction)
+- [Concepts](#concepts)
+  - [Maps](#maps)
+  - [Projections](#projections)
+  - [Grids](#grids)
+  - [Binning](#binning)
+  - [Pictures](#pictures)
+- [Parameters](#parameters)
+  - [Map Projection Parameters (.mpp) File Format](#mpp)
+  - [Map Projection Names](#map-projection-names)
+  - [Map Projection Parameters (.mpp) File Format for Integerized Sinusoidal](#isin)
+  - [Map Projection Parameters (.mpp) File Format for Universal Transverse Mercator](#utm)
+  - [Grid Parameter Definition (.gpd) File Format](#gpd)
+- [Limitations](#limitations)
+- [References](#references)
+
+
+---
+
+## Introduction
+
+Satellite remote sensing has made possible the collection of data over
 large areas of the Earth. These data are often stored in "grids."  Grids
 are an efficient means of storing data because the location of a value
 within the grid is implicit--it is not explicitly stored in the grid. The
 location is also constant, which makes it easy to compare data from
-different sensors or different time periods.</p>
+different sensors or different time periods.
 
-<p>The purpose of this document is to give a brief introduction to
+The purpose of this document is to give a brief introduction to
 mapping, gridding, and the associated terminology used in the mapx library
 at NSIDC.  Along with comments in the source code, it also describes the
-format of the map and grid parameter files. </p>
-           
-<h2> Concepts</h2>
-       <a name="concepts"></a>       
-           
-<h3> Maps</h3>
+format of the map and grid parameter files.
 
-<p>A map projection is a procedure or mathematical formula to transform a
+
+## Concepts
+
+### Maps
+
+A map projection is a procedure or mathematical formula to transform a
 curved surface onto a plane. The curved surface is usually the surface of
 the Earth and the plane is what we call a "map." The derivation of a map
 transformation requires a mathematical representation of the surface of
@@ -57,15 +53,15 @@ the Earth. The surface of constant geopotential referred to as mean sea
 level or the geoid is quite complicated and its mathematical form is
 correspondingly complex. When defining map projections then, it is common
 to approximate the surface of the earth with a simpler surface such as an
-ellipsoid or sphere.</p>
-       
-<p>The ellipsoid is flattened at the poles, relative to the sphere, by
+ellipsoid or sphere.
+
+The ellipsoid is flattened at the poles, relative to the sphere, by
 about 1 part in 300. For maps of large areas (continents or bigger) using
 the sphere introduces no significant error. When mapping smaller areas it
 is not uncommon to choose an ellipsoid specifically for each area; each
-area is mapped on an ellipsoid with a different radius and eccentricity. </p>
-           
-<p>Coordinates for points on the surface of the Earth are given in latitude
+area is mapped on an ellipsoid with a different radius and eccentricity.
+
+Coordinates for points on the surface of the Earth are given in latitude
 and longitude. Geodetic latitude is the angle between a vertical ray at the
 point and the plane of the equator. Geocentric latitude is the angle between
 a ray from the center of the Earth to the point and the plane of the equator.
@@ -73,127 +69,117 @@ On a sphere, the geodetic latitude is equivalent to the geocentric latitude.
 It's more common to use geodetic latitude. There is only one definition of
 longitude--the angle between a ray from the center of the Earth to the point
 and the plane of the Greenwich Meridian (an arbitrary reference point). Coordinates
-in the map plane (<i>x</i>,<i>y</i>) are defined in the usual manner with
-<i>x</i> horizontal and increasing to the right and <i>y</i> vertical and
-increasing upward.</p>
-           
-<p><a name="projections"></a> </p>
-           
-<h3> Projections</h3>
-       <img src="mprojex.gif">
-             
-<p>Map transformations are referred to as projections because they are
-commonly visualized as geometric constructs. That is, we think of the map
-as a piece of paper wrapped around a globe with lines emanating from
-points on the globe and "projected" onto the paper. It's important to note
-that not all map projections can be constructed in this manner. </p>
-           
-<p>Map projections are specified as a set of equations giving <i>x</i> and
-<i>y</i> in terms of <i>latitude</i> and <i>longitude</i>. The manner in
+in the map plane (_x_,_y_) are defined in the usual manner with
+ _x_ horizontal and increasing to the right and  _y_ vertical and
+increasing upward.
+
+
+### Projections
+
+![Projections](images/mprojex.gif)
+
+Map projections are specified as a set of equations giving _x_ and
+_y_ in terms of _latitude_ and _longitude_. The manner in
 which we wrap the paper around the globe determines the form of the
 equations.  Cylindrical projections wrap the paper around in a tube,
 conical projections use a cone, and azimuthal projections use a flat
 surface. Several parameters are used in these equations to specify exactly
 where the surface intersects the globe, the scale or size of the globe,
-and the translation and rotation of the map on the plane surface. </p>
-           
-<p>There is no one best map projection. Each projection has different
+and the translation and rotation of the map on the plane surface.
+
+There is no one best map projection. Each projection has different
 properties and different "best" uses. Two of the most important
 characteristics of maps are whether they are conformal or equal-area. No
 map projection is both, and some are neither. If a map is conformal then
 angles within a small area are reproduced accurately. This means that
 shapes are preserved.  A small circle on the globe will look like a small
 circle on the map. In formal terms, at any point on the map the scale
-<i>h</i> along a meridian of longitude is equal to the scale <i>k</i>
+_h_ along a meridian of longitude is equal to the scale _k_
 along a parallel of latitude.  If a map is equal-area then a small circle
 placed anywhere on the map will always cover the same amount of area on
-the globe and the product of <i>h</i> and <i>k</i> at any point is
-one. </p>
-           
-<p>For maps that are not equal-area, <i>hk</i> - 1 gives a measure of the
-areal distortion. For maps that are not conformal, <i>k</i>/<i>h</i> gives
+the globe and the product of _h_ and _k_ at any point is
+one.
+
+For maps that are not equal-area, _hk_ - 1 gives a measure of the
+areal distortion. For maps that are not conformal, _k_/_h_ gives
 the aspect ratio, which is a measure of shape distortion. For example, on
 the Polar Stereographic map true at 70N (a conformal map) the areal
 distortion varies from -6% at the pole to +29% at 45N and goes up to +276%
 at the equator while, by definition, the aspect ratio remains 1:1
 everywhere.  The Azimuthal Equal-Area map over the pole has, of course, no
 areal distortion, while the aspect ratio varies from 1:1 at the pole to
-1.17:1 at 45N and goes up to 2:1 at the equator. </p>
-           
-<p>Tissot's indicatrix combines the two previous measures. Tissot's
-indicatrix is a small ellipse which shows both the scale distortion and
-the maximum angular deformation at a particular point on the map. See <a
-href="#references">Maling</a> or <a href="#references">Snyder</a> for a
-complete discussion. </p>
-           
-<p><a name="grids"></a> </p>
-           
-<h3> Grids</h3>
+1.17:1 at 45N and goes up to 2:1 at the equator.
 
-<p>A grid is a rectangular array of points. Grids record regularly spaced
+Tissot's indicatrix combines the two previous measures. Tissot's
+indicatrix is a small ellipse which shows both the scale distortion and
+the maximum angular deformation at a particular point on the map. See
+[Maling](#references) or [Snyder](#references) for a complete discussion.
+
+
+### Grids
+
+A grid is a rectangular array of points. Grids record regularly spaced
 samples over an area. When sampling over the surface of the earth a grid
 is determined by a map projection, a sampling interval, an origin, and the
 number of rows and columns. So called "lat/lon" or "equal angle" grids are
-equivalent to grids sampled on a Cylindrical Equidistant map projection.</p>
-     
-<p>A grid coordinate system is defined in the map plane with axes parallel
+equivalent to grids sampled on a Cylindrical Equidistant map projection.
+
+A grid coordinate system is defined in the map plane with axes parallel
 to the rows and columns of the grid and units equal to the sampling
 interval.  The grid sample locations are at the whole integer grid
 coordinate points.  To conform to mathematical array conventions, the grid
-coordinates (<i>r</i>,<i>s</i>) start at (0,0) in the upper left corner
-with <i>r</i> increasing to the right, and <i>s</i> increasing downward
+coordinates (_r_,_s_) start at (0,0) in the upper left corner
+with _r_ increasing to the right, and _s_ increasing downward
 (this also conforms to digital image processing conventions). A grid cell
-(<i>i</i>,<i>j</i>) is defined as the area between grid coordinates
-<i>i</i>-.5 and <i>i</i>+.5, and <i>j</i>-.5 and <i>j</i>+.5.  To conform
+(_i_,_j_) is defined as the area between grid coordinates
+_i_-.5 and _i_+.5, and _j_-.5 and _j_+.5.  To conform
 to rounding conventions, the lower bound is included in the cell while the
-upper bound is not (round up at .5).  Note that the <i>r</i> coordinate
-corresponds to the grid column number <i>j</i>, and the <i>s</i>
-coordinate corresponds to the grid row number <i>i</i>.</p>
-           
-<p>Think of the grid as a map drawn on graph paper. To find a grid cell
-location, count graph lines over from the left and down from the top, then
-read the latitude and longitude off the map. </p>
-           
-<p><img src="coordef.gif">
-       </p>
-           
-<p><a name="binning"></a> </p>
-           
-<h3> Binning</h3>
+upper bound is not (round up at .5).  Note that the _r_ coordinate
+corresponds to the grid column number _j_, and the _s_
+coordinate corresponds to the grid row number _i_.
 
-<p>The process of sampling data on a grid is sometimes referred to as
+Think of the grid as a map drawn on graph paper. To find a grid cell
+location, count graph lines over from the left and down from the top, then
+read the latitude and longitude off the map.
+
+![Coordinate Reference](images/coordef.gif)
+
+
+### Binning
+
+The process of sampling data on a grid is sometimes referred to as
 binning, especially when the sampling method is to average all data that
 falls into the grid cell. Other methods used to sample data are: take the
 closest value to the grid point (nearest neighbor) or interpolate between
 surrounding grid points.  Also, binning doesn't need to be the average of
 multiple data points; it could be the minimum, the maximum, the median, or
 the latest value in the grid cell. The characteristics of the data should
-determine the sampling method. </p>
+determine the sampling method.
 
-<a name="pictures"></a>       
-<h3> Pictures</h3>
 
-<p>Pixels are analogous to grid cells. To display gridded data as a
+### Pictures
+
+Pixels are analogous to grid cells. To display gridded data as a
 picture, define a transformation from grid coordinates to pixel
 coordinates and then sample the gridded data at the whole integer pixel
 coordinate points.  The most common technique is to map grid cells onto
 pixels one for one. More sophisticated techniques, often referred to as
-"resampling", allow for scrolling, zooming, and rotating. <br>
-      <br>
-      <a name="parameters"></a>       
+"resampling", allow for scrolling, zooming, and rotating.
 
-<h2> Parameters</h2>
 
-<p>Many programs we use at NSIDC depend on the "mapx" module to handle
- map  projections. These include: GISMO, PSQ, regrid, gridomatic, and the
+## Parameters
+
+Many programs we use at NSIDC depend on the "mapx" module to handle
+map  projections. These include: GISMO, PSQ, regrid, gridomatic, and the
 EASE-Grid  processing software. Most of these tools provide access to predefined
-maps,  but, it is relatively easy to define your own map with a map projection 
- parameters  (.mpp) file. </p>
-<br>
+maps, but, it is relatively easy to define your own map with a map projection
+parameters  (.mpp) file.
 
-<h3> <a name="mpp"></a>Map Projection Parameters (.mpp) File Format</h3>
 
-<p>Each parameter is described by a "keyword: value" pair on a single
+<a name='mpp'></a>
+### Map Projection Parameters (.mpp) File Format
+
+Each parameter is described by a "keyword: value" pair on a single
 line.  A colon must delimit the end of a keyword without any intervening
 spaces, tabs, or newlines. Keywords are not case sensitive. Parameters can
 be followed by comments, which begin with a semi-colon (;) or a pound sign
@@ -202,9 +188,9 @@ is ignored.  Parameters can appear in any order. The default value is used
 when the corresponding keyword is not found. Unrecognized keywords are
 silently ignored. This means that if you misspell a keyword you'll get the
 default value without warning.  The following parameters define the map
-projection for all projections except <a href="#isin">Integerized
-Sinusoidal</a> and <a href="#utm">Universal Transverse Mercator
-(UTM)</a>. </p><br> &nbsp;
+projection for all projections except [Integerized Sinusoidal](#isin)
+and [Universal Transverse Mercator (UTM)](#utm).
+
 <table border="1" width="100%" nosave="">
        <tbody>
           <tr>
@@ -217,7 +203,7 @@ Sinusoidal</a> and <a href="#utm">Universal Transverse Mercator
        <td>Map Projection</td>
         <td>string</td>
         <td>required field</td>
-        <td>projection name (see <a href="#projection_names">list </a>&nbsp;below)</td>
+        <td>projection name (see [list](#map-projection-names) below)</td>
        </tr>
         <tr nosave="">
        <td>Map Reference Latitude</td>
@@ -235,8 +221,7 @@ Sinusoidal</a> and <a href="#utm">Universal Transverse Mercator
        <td>Map Second Reference Latitude</td>
         <td>decimal degrees</td>
         <td>none</td>
-        <td>used by some projections (see <a href="#second_latitude">explanation
-         </a>&nbsp;below)</td>
+        <td>used by some projections (see [explanation](#second_latitude) below)</td>
        </tr>
         <tr>
        <td>Map Rotation</td>
@@ -303,7 +288,7 @@ coordinates</td>
         <tr>
        <td>Map Equatorial Radius</td>
         <td>float</td>
-        <td>Clark 1866 ellipsoid = 6378.2064 km or equivalent authallic sphere 
+        <td>Clark 1866 ellipsoid = 6378.2064 km or equivalent authallic sphere
   = 6371.228 km</td>
         <td>equatorial radius of ellipsoid or radius of sphere</td>
        </tr>
@@ -331,13 +316,12 @@ coordinates</td>
  map  error checking)<br>
            </td>
          </tr>
-                         
+
   </tbody>      
 </table>
-              
-<p>The following parameters are used only by programs that actually draw maps.</p>
- <br>
-      &nbsp;       
+
+The following parameters are used only by programs that actually draw maps.
+
 <table border="1" width="100%" nosave="">
        <tbody>
           <tr>
@@ -412,61 +396,57 @@ coordinates</td>
         <td>0</td>
         <td>level of detail for rivers</td>
        </tr>
-                         
+
   </tbody>      
 </table>
-        </p>
-           
-<p>note: For Integerized Sinusoidal, set scale to size of each row. <br>
-      <a name="projection_names"></a> </p>
-           
-<h3> Map Projection Names</h3>
-              
-<ul>
-       <li> Albers Conic Equal-Area</li>
-        <li> Azimuthal Equal-Area</li>
-        <li> Azimuthal Equal-Area (ellipsoid)</li>
-        <li> Cylindrical Equal-Area</li>
-        <li> Cylindrical Equal-Area (ellipsoid)</li>
-        <li> Cylindrical Equidistant</li>
-        <li> <a href="#isin">Integerized Sinusoidal</a></li>
-        <li> Interrupted Homolosine Equal-Area</li>
-        <li> Lambert Conic Conformal (ellipsoid)</li>
-        <li> Mercator</li>
-        <li> Mollweide</li>
-        <li> Orthographic</li>
-        <li> Polar Stereographic</li>
-        <li> Polar Stereographic (ellipsoid)</li>
-        <li> Sinusoidal</li>
-        <li> Transverse Mercator</li>
-        <li> Transverse Mercator (ellipsoid)</li>
-        <li> <a href="#utm">Universal Transverse Mercator</a></li>
-             
-</ul>
 
-<p>Keywords must be entered verbatim. Capitalization doesn't matter but
+note: For Integerized Sinusoidal, set scale to size of each row.
+
+
+### Map Projection Names
+
+- Albers Conic Equal-Area
+- Azimuthal Equal-Area
+- Azimuthal Equal-Area (ellipsoid)
+- Cylindrical Equal-Area
+- Cylindrical Equal-Area (ellipsoid)
+- Cylindrical Equidistant
+- [Integerized Sinusoidal](#isin)
+- Interrupted Homolosine Equal-Area
+- Lambert Conic Conformal (ellipsoid)
+- Mercator
+- Mollweide
+- Orthographic
+- Polar Stereographic
+- Polar Stereographic (ellipsoid)
+- Sinusoidal
+- Transverse Mercator
+- Transverse Mercator (ellipsoid)
+- [Universal Transverse Mercator](#utm)
+
+Keywords must be entered verbatim. Capitalization doesn't matter but
 white space does. Unrecognized (or mispelled) keywords are silently
 ignored.  Map names are not case sensitive, white space and dashes are
 ignored, and most word permutations are acceptable. For example,
-"Equal-Area Cylindrical" is equivalent to "CYLINDRICAL EQUALAREA".</p>
+"Equal-Area Cylindrical" is equivalent to "CYLINDRICAL EQUALAREA".
 
-<p>The reference latitude and longitude specify the original location and
+The reference latitude and longitude specify the original location and
 orientation of the map projection. The origin of the rectangular map
 coordinate system can be rotated and translated with the Rotation and
 Origin keywords. Note that a positive rotation value will rotate the
-coordinate system <i>counter-clockwise</i> around the translated map
+coordinate system _counter-clockwise_ around the translated map
 origin. This will have the effect of rotating the resulting grid of pixel
-values <i>clockwise</i> with respect to the grid that would be obtained if
-the rotation value were 0. </p>
-           
-<p><a name="second_latitude"></a>For the Cylindrical Equal-Area, and Polar
+values _clockwise_ with respect to the grid that would be obtained if
+the rotation value were 0.
+
+<a name="second_latitude"></a>For the Cylindrical Equal-Area, and Polar
 Stereographic projections, the second reference latitude specifies the
 latitude of "true" scale. Conceptually, this is where the projection plane
 intersects the surface. For the Albers Conic Equal-Area and Lambert Conic
 Conformal projections, the conic plane is secant to the surface between
-the reference latitude and the second reference latitude. </p>
-           
-<p>The equatorial radius and eccentricity specify the surface to be mapped
+the reference latitude and the second reference latitude.
+
+The equatorial radius and eccentricity specify the surface to be mapped
 (usually the Earth's surface). Alternatively, the square of the
 eccentricity rather than the eccentricity may be specified; or both the
 equatorial radius and the polar radius may be specified rather than either
@@ -486,74 +466,75 @@ for PostScript output you would specify the scale in kilometers per inch.
 For a grid you can define the scale in terms of kilometers per grid cell.
 The gridding module "grids" also has parameters which specify grid cells
 per map unit or, alternatively, map units per grid cell. This allows the
-same .mpp file to be used for multiple nested grids. </p>
-           
-<p>Map Origin Latitude and Longitude specify the translated map origin. By
+same .mpp file to be used for multiple nested grids.
+
+Map Origin Latitude and Longitude specify the translated map origin. By
 default the map origin is the same as the reference latitude and
 longitude.  Alternatively, the translated map origin can be specified by
 Map Origin X and Y, which take precedence over any specification of the
 Map Origin Latitude or Longitude. Both Map Origin X and Y must be
 specified if either is specified.  If Map Rotation is specified, then the
 rotation is centered on the translated map origin. Furthermore, the
-specification of Grid Map Column and Row values in the <a href="#gpd">Grid
-Parameter Definition File</a> will locate the translated map origin at the
-specified column and row location within the grid. </p>
-           
-<p>False easting and false northing offsets are applied to the x and y map
+specification of Grid Map Column and Row values in the
+[Grid Parameter Definition File](#gpd) will locate the translated map origin at the
+specified column and row location within the grid.
+
+False easting and false northing offsets are applied to the x and y map
 coordinates, respectively, with respect to the original map origin
 specified by the reference latitude and longitude. Note that Map Origin X
-and Y specify values <i>after</i> false easting and false northing offsets
-have been applied.  </p>
-           
-<p>The center scale value is used only by the Transverse Mercator
-projection (and for the <a href="#utm">UTM</a> projection as well). It
-specifies the scale factor along the central meridian.</p>
+and Y specify values _after_ false easting and false northing offsets
+have been applied.  
 
-<p>When the maximum error value is non-zero, then error checking, is
+The center scale value is used only by the Transverse Mercator
+projection (and for the [UTM](#utm) projection as well). It
+specifies the scale factor along the central meridian.
+
+When the maximum error value is non-zero, then error checking, is
 enabled.  For a forward transformation (lat-lon to x-y), the computed x-y
 pair is inverse transformed back into a second lat-lon pair. For an
 inverse transformation (x-y to lat-lon), the computed lat-lon pair is
-&nbsp;forward transformed into a second x-y pair. In both cases, the
+forward transformed into a second x-y pair. In both cases, the
 distance in map units between the first and the second pairs is
 computed. If it is greater than the maximum error value, then both values
 of the returned pair (x-y for forward and lat-lon for inverse) are set to
 not-a-number (nan). If the maximum error value is 0 (the default), then no
 such error checking is performed. Note that setting maximum error to a
 non-zero value will slow down forward and inverse transformations by about
-a factor of 2.      </p>
-           
-<p>The remaining parameters are used by programs that actually draw maps
+a factor of 2.      
+
+The remaining parameters are used by programs that actually draw maps
 (e.g. psmap, mapenum). The southern, northern, western, and eastern bounds
 of the map are the starting point for the graticule and are used to speed
 up the search in the map outline database. They cannot be counted on to
 clip the map accurately. All longitudes should be in the range -180 to
 +360. West to east should not span more than 360 degrees. West specifies
 the left side of the map and east the right, not necessarily the minimum
-and maximum longitudes.  </p>
-           
-<p>The latitude and longitude graticule intervals specify the spacing
+and maximum longitudes.  
+
+The latitude and longitude graticule intervals specify the spacing
 between graticule lines. The graticule is the overlay of latitude and
 longitude lines on the map. By default, a parallel is drawn every 30
 degrees starting at the bottom of the map (90.00S) and a meridian is drawn
 every 30 degrees starting at the left side of the map (180.00W). Label
 latitude and longitude specify the parallel and meridian along which to
-draw the graticule line labels.  </p>
-           
-<p>The last three numbers are used by the database search routine to
+draw the graticule line labels.  
+
+The last three numbers are used by the database search routine to
 specify the level of detail for map lines. The level refers to the number
 and size of features which will be selected, as opposed to resolution of
 each feature. The higher the number, the more detail will be included.
 For example, level 1 will include only the largest features, such as whole
 continents, while level 2 would also include some smaller features like
 large lakes.  In either case the continental outline will appear with the
-same amount of detail (the same jaggedness). <br> &nbsp; </p>
-           
-<h3> <a name="isin"></a>Map Projection Parameters (.mpp) File Format for
-Integerized Sinusoidal</h3>
+same amount of detail (the same jaggedness).
 
-<p>The following parameters define the Integerized Sinusoidal (ISin)
-projection.</p>    <br>
-      &nbsp;       
+
+<a name='isin'></a>
+### Map Projection Parameters (.mpp) File Format for Integerized Sinusoidal
+
+The following parameters define the Integerized Sinusoidal (ISin)
+projection.
+
 <table border="1" width="100%" nosave="">
        <tbody>
           <tr>
@@ -640,47 +621,44 @@ projection.</p>    <br>
         <td>6371007.181</td>
         <td>radius of sphere in meters</td>
        </tr>
-                         
+
   </tbody>      
 </table>
-              
-<p>For the ISin projection all map projection parameters have the same definitions
-as described <a href="#mpp">above</a> with the following exceptions. </p>
-           
-<p>For the ISin projection, the Map Reference Latitude parameter value is
+
+For the ISin projection all map projection parameters have the same definitions
+as described [above](#mpp) with the following exceptions.
+
+For the ISin projection, the Map Reference Latitude parameter value is
 forced to 0.0; any Map Reference Latitude value supplied by the user is
 ignored.  The Map Reference Longitude parameter is not required for the
-ISin projection; the default value is 0.0. </p>
-           
-<p>The Map ISin NZone parameter is used only by the ISin projection; it
+ISin projection; the default value is 0.0.
+
+The Map ISin NZone parameter is used only by the ISin projection; it
 specifies the number of equally spaced latitudinal zones (i.e. "rows"),
 and must be 2 or larger and even. Note that this value is a characteristic
 of the projection only and is independent of the actual number of rows in
 any grid that utilizes the ISin projection. Also note that currently only
 the default value of 86400 is used by all ECS MODIS products (including
-all 1000 m, 500 m, and 250 m products) based on the ISin projection. </p>
-           
-<p>The Map ISin Justify parameter is used only by the ISin projection; it
+all 1000 m, 500 m, and 250 m products) based on the ISin projection.
+
+The Map ISin Justify parameter is used only by the ISin projection; it
 is used to indicate what to do with zones with an odd number of columns.
 If it has a value of 0 or 1, it indicates the extra column is on the right
 (zero) or left (one) of the projection y-axis. If the flag is set to 2,
 the number of columns is calculated so there is always an even number of
 columns in each zone. Note that currently only the default value of 1 is
-used by all ECS MODIS products based on the ISin projection. </p>
-           
-<p>By default, setting Map Projection to Integerized Sinusoidal specifies
+used by all ECS MODIS products based on the ISin projection.
+
+By default, setting Map Projection to Integerized Sinusoidal specifies
 a spherical projection using a radius of 6371007.181 meters. Note that
 this value is currently used for all ECS MODIS products based on the ISin
 projection.  Only a spherical projection is supported for the ISin
 projection.
-</p>
-           
-<h3> <a name="utm"></a>Map Projection Parameters (.mpp) File Format for Universal
-   Transverse Mercator</h3>
 
-<p>The following parameters define the Universal Transverse Mercator
-(UTM)   projection.  </p><br>
-      &nbsp;       
+
+<a name='utm'></a>
+### Map Projection Parameters (.mpp) File Format for Universal Transverse Mercator
+
 <table border="1" width="100%" nosave="">
        <tbody>
           <tr>
@@ -778,7 +756,7 @@ projection.
        <td>Map Equatorial Radius</td>
         <td>float</td>
         <td>WGS-84 =&nbsp; 6378137.0 meters</td>
-        <td>equatorial radius of ellipsoid (or radius of sphere if eccentricity 
+        <td>equatorial radius of ellipsoid (or radius of sphere if eccentricity
    = 0) in meters</td>
        </tr>
         <tr>
@@ -800,18 +778,18 @@ projection.
            </td>
            <td valign="top">100.0 meters<br>
            </td>
-           <td valign="top">maximum allowed error in meters (0 disables map 
+           <td valign="top">maximum allowed error in meters (0 disables map
  error  checking)<br>
            </td>
          </tr>
-                         
+
   </tbody>      
 </table>
-              
-<p>For the UTM projection all map projection parameters have the same definitions 
-as described <a href="#mpp">above</a> with the following exceptions. </p>
-           
-<p>The UTM zone value is used only by the UTM projection. Zones are in the
+
+For the UTM projection all map projection parameters have the same definitions
+as described [above](#mpp) with the following exceptions.
+
+The UTM zone value is used only by the UTM projection. Zones are in the
 range 1 to 60 for the northern hemisphere, and -1 to -60 for the southern
 hemisphere. If the UTM zone is 0, then the hemisphere and absolute value
 of the zone are determined by the reference latitude and longitude,
@@ -820,42 +798,42 @@ longitude are not required and are ignored if present. The effective
 reference latitude value for every UTM zone is 0 (the equator); the
 effective reference longitude value is the central meridian of the zone
 starting at 177W for zones 1 and -1, 171W for zones 2 and -2, and so on
-until 177E for zones 60 and -60. Note that <i>either</i> Map UTM Zone must
-be non-zero <i>or both</i> Map Reference Latitude <i>and</i> Map Reference
-Longitude <i>must</i> be specified. </p>
-           
-<p>The default Map Origin Latitude and Longitude values are determined by
+until 177E for zones 60 and -60. Note that _either_ Map UTM Zone must
+be non-zero _or both_ Map Reference Latitude _and_ Map Reference
+Longitude _must_ be specified.
+
+The default Map Origin Latitude and Longitude values are determined by
 the effective reference latitude value, which is always 0, and the
 effective reference longitude value, which is determined from the UTM
 zone, either as supplied in the Map UTM Zone value or as derived from the
-Map Reference Longitude value. </p>
-           
-<p>By default, setting Map Projection to Universal Transverse Mercator
+Map Reference Longitude value.
+
+By default, setting Map Projection to Universal Transverse Mercator
 specifies an ellipsoidal projection using the WGS-84 ellipsoid. To specify
 a spherical UTM projection, set Map Eccentricity to 0, and set Map
-Equatorial Radius to the radius of the sphere in meters. </p>
-           
-<p>For the UTM projection, the default false easting is 500000 (five
+Equatorial Radius to the radius of the sphere in meters.
+
+For the UTM projection, the default false easting is 500000 (five
 hundred thousand) meters. For northern hemisphere UTM zones, the default
 false northing is 0 meters, and for southern hemisphere UTM zones, the
 default false northing is 10000000 (10 million) meters. Note that these
 values assume that Map Equatorial Radius is in meters and that Map Scale
-is 1.0. Note also that Map Origin X and Y specify values <i>after</i>
+is 1.0. Note also that Map Origin X and Y specify values _after_
 false easting and false northing offsets have been applied. For example,
 for the UTM projection for a southern hemisphere UTM zone, specifying a
 Map Origin X value of 175000 will set the translated map origin to 325000
 (500000 - 175000) meters west of the central meridian for the UTM zone,
 and specifying a Map Origin Y value of 5325000 will set the translated map
-origin to 4675000 (10000000 - 5325000) meters south of the equator. </p>
-           
-<p>The center scale value specifies the scale factor along the central meridian;
-the default for the UTM projection is 0.9996.</p>
+origin to 4675000 (10000000 - 5325000) meters south of the equator.
 
-<p>When the maximum error value is non-zero, then error checking, is
+The center scale value specifies the scale factor along the central meridian;
+the default for the UTM projection is 0.9996.
+
+When the maximum error value is non-zero, then error checking, is
 enabled; the default for the UTM projection is 100.0 meters. For a forward
 transformation (lat-lon to x-y), the computed x-y pair is inverse
 transformed back into a second lat-lon pair. For an inverse transformation
-(x-y to lat-lon), the computed lat-lon pair is &nbsp;forward transformed
+(x-y to lat-lon), the computed lat-lon pair is forward transformed
 into a second x-y pair.  In both cases, the distance in map units between
 the first and the second pairs is computed. If it is greater than the
 maximum error value, then both values of the returned pair (x-y for
@@ -865,20 +843,18 @@ transformations by about a factor of 2. To disable error checking, set the
 maximum error value to 0. Error checking is turned on by default for the
 UTM projection because the equations used for the projection can produce
 errors of more than 100 meters for points that are at a latitude of +- 45
-degrees and more than&nbsp; about 17.5 degrees of longitude beyond the
+degrees and more than about 17.5 degrees of longitude beyond the
 center of the specified 6 degree-wide UTM Zone; and in some cases, forward
 transformations of a lat-lon pair that is located far outside of the
 specified UTM Zone can produce an x-y pair that resides within the
-specified UTM Zone.<br>
-      </p>
-           
-<p><a name="gpd"></a> </p>
-           
-<h3> Grid Parameter Definition (.gpd) File Format</h3>
+specified UTM Zone.
 
-<p>Grids are defined in grid parameter definition (.gpd) files. </p><br>
-      &nbsp; <br>
-      &nbsp;       
+
+<a name='gpd'></a>
+### Grid Parameter Definition (.gpd) File Format
+
+Grids are defined in grid parameter definition (.gpd) files.
+
 <table border="1" width="100%" nosave="">
        <tbody>
           <tr>
@@ -951,16 +927,17 @@ specified UTM Zone.<br>
        <td>Grid MPP File</td>
         <td>string</td>
         <td>none</td>
-        <td>name of .mpp file, map projection parameters can also be specified 
+        <td>name of .mpp file, map projection parameters can also be specified
   in the same file with the grid definition parameters</td>
        </tr>
-                         
+
   </tbody>      
 </table>
-       <a name="limitations"></a>       
-<h3> Limitations</h3>
 
-<p>The mapx library is very flexible but it does impose certain
+
+## Limitations
+
+The mapx library is very flexible but it does impose certain
 restrictions on the kinds of grids that can be defined. All grids must be
 rectangular arrays. Rectangular arrays are easy to use with existing
 scientific visualization tools, like IDL, but they may be inefficient in
@@ -974,27 +951,27 @@ already been implemented and fortunately it is easy, given a mathematical
 formulation of the forward and inverse transformations, to add a new
 projection to mapx (see source code for instructions).  The mathematical
 formulations of most common map projections can be found in the references
-below.&nbsp;<a name="references"></a></p>
+below.
 
-<h3> References</h3>
 
-<p><b>American Society of Photogrammetry. 1983.</b> <i>Manual of Remote
-Sensing.</i> Robert N. Colwell, editor. Second edition. Falls Church, VA.</p>
-       
-<p><b>Gonzalez, Rafael C. and Paul Wintz. 1987.</b><i>Digital Image
-Processing.</i>Second edition. Reading, MA: Addison-Wesley. </p>
-           
-<p><b>Maling, D. H. 1992.</b> <i>Coordinate Systems and Map
-Projections.</i> Second edition. Elmsford, N.Y.: Pergamon Press. </p>
-           
-<p><b>Snyder, John P. 1987.</b><i>Map Projections, A Working
-Manual</i>. U.  S. Geological Survey Professional Paper 1395. Department
-of the Interior.  Washington, D. C. </p>
-           
-<p> </p>
-           
-<hr>
-<p>Mapx is maintained at the National Snow & Ice Data Center in Boulder, CO.<br>Please direct questions or comments to <a href="mailto:nsidc@nsidc.org">NSIDC User Services</a></p>
+## References
 
-</body>
-</html>
+**American Society of Photogrammetry. 1983.** _Manual of Remote
+Sensing._ Robert N. Colwell, editor. Second edition. Falls Church, VA.
+
+**Gonzalez, Rafael C. and Paul Wintz. 1987.**_Digital Image
+Processing._Second edition. Reading, MA: Addison-Wesley.
+
+**Maling, D. H. 1992.** _Coordinate Systems and Map
+Projections._ Second edition. Elmsford, N.Y.: Pergamon Press.
+
+**Snyder, John P. 1987.**_Map Projections, A Working
+Manual_. U.  S. Geological Survey Professional Paper 1395. Department
+of the Interior.  Washington, D. C.
+
+
+---
+
+Mapx is maintained at the National Snow & Ice Data Center in Boulder, CO.
+
+Please direct questions or comments to [NSIDC User Services](mailto:nsidc@nsidc.org)
