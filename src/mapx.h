@@ -123,16 +123,16 @@ typedef struct {
 mapx_class *init_mapx(char *filename);
 mapx_class *new_mapx(char *label, bool quiet);
 char *next_line_from_buffer(char *bufptr, char *readln);
-void close_mapx(mapx_class *this);
-int reinit_mapx(mapx_class *this);
-int within_mapx(mapx_class *this, double lat, double lon);
-int forward_mapx(mapx_class *this,
+void close_mapx(mapx_class *this_class);
+int reinit_mapx(mapx_class *this_class);
+int within_mapx(mapx_class *this_class, double lat, double lon);
+int forward_mapx(mapx_class *this_class,
 		 double lat, double lon, double *u, double *v);
-int inverse_mapx(mapx_class *this,
+int inverse_mapx(mapx_class *this_class,
 		 double u, double v, double *lat, double *lon);
-int forward_xy_mapx(mapx_class *this,
+int forward_xy_mapx(mapx_class *this_class,
 		    double lat, double lon, double *x, double *y);
-int inverse_xy_mapx(mapx_class *this,
+int inverse_xy_mapx(mapx_class *this_class,
 		    double x, double u, double *lat, double *lon);
 
 #endif
