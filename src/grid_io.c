@@ -11,6 +11,7 @@ static const char grid_io_c_rcsid[]="$Id$";
 #include "matrix.h"
 #define grid_io_c_
 #include "grid_io.h"
+#include <unistd.h>
 
 #ifndef MAX_ROW_BUFFER_SIZE
 #define MAX_ROW_BUFFER_SIZE (2*1024*1024)

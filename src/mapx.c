@@ -1216,7 +1216,7 @@ static int forward_xy_mapx_check (int status, mapx_class *this,
     dist = dist_latlon_map_units(this, lat, lon, lat2, lon2);
     if (errno != 0) 
       status = -1;
-    if (status != 0 || !finite(dist) || dist > this->maximum_error) {
+    if (status != 0 || !isfinite(dist) || dist > this->maximum_error) {
       *x = NAN;
       *y = NAN;
       status = -1;
@@ -1251,7 +1251,7 @@ static int inverse_xy_mapx_check (int status, mapx_class *this,
     dist = dist_xy_map_units(this, x, y, x2, y2);
     if (errno != 0) 
       status = -1;
-    if (status != 0 || !finite(dist) || dist > this->maximum_error) {
+    if (status != 0 || !isfinite(dist) || dist > this->maximum_error) {
       *lat = NAN;
       *lon = NAN;
       status = -1;
